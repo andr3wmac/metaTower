@@ -37,6 +37,7 @@ class PackageManager:
 
             # now figure out the difference.
             mod.__includes__ = []
+
             for mod_name in sys.modules:
                 if ( not mod_name in mods ): mod.__includes__.append(mod_name)
 

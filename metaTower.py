@@ -31,7 +31,7 @@ if __name__ == '__main__':
             try:
                 cmd_args = cmd.split(" ")
                 if ( cmd_args[0] == "packages" ): mtCore.packages.listPackages()
-                elif ( cmd_args[0] == "load" ): mtCore.packages.load(cmd_args[1], cmd_args[2])
+                elif ( cmd_args[0] == "load" ): mtCore.packages.load(cmd_args[1], "packages")
                 elif ( cmd_args[0] == "reload" ): mtCore.packages.reload(cmd_args[1])
                 elif ( cmd_args[0] == "unload" ): mtCore.packages.unload(cmd_args[1])
                 elif ( cmd_args[0] == "restart" ): mtCore.restart()
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                 else: 
                     print "Commands:"
                     print "  packages - lists packages."
-                    print "  load <name> <directory> - loads a package found in directory."
+                    print "  load <name>"
                     print "  reload <name> - reloads a package."
                     print "  unload <name> - unloads a package."
                     print "  stop - shut down metaTower."

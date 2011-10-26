@@ -90,7 +90,7 @@ def saveFile(url, file_path):
             os.makedirs(path)
     data = httpGet(url)
     if ( data == "" ): raise IOError
-    f = open(file_path, 'w')
+    f = open(file_path, 'wb')
     f.write(data)
     f.close()
 
