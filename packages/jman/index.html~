@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>metaTower</title>
+	
+	<link href="jman/css/style.css" rel="stylesheet" type="text/css" />
+	<link type="text/css" href="jman/css/humanity/jquery-ui-1.8.10.custom.css" rel="stylesheet" />
+	
+	<script type="text/javascript" src="jman/js/metaTower.js"></script>
+	<script type="text/javascript" src="jman/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="jman/js/jquery-ui-1.8.10.custom.min.js"></script>
+	
+	<script type="text/javascript">
+
+		$(document).ready( function () {
+    			$('img.menu_head').click( function () {
+				$('ul.menu_body').slideToggle('medium');
+    			});
+			$('ul.menu_body li a').mouseover(function () {
+				$(this).animate({ fontSize: "14px", paddingLeft: "20px" }, 50 );
+   			});
+			$('ul.menu_body li a').mouseout(function () {
+				$(this).animate({ fontSize: "12px", paddingLeft: "10px" }, 50 );
+    			});
+		});
+	</script>
+	<script type="text/javascript" src="jman/js/jman.js"></script>
+</head>
+<body onLoad="load()">
+	<iframe id="hiddenFrame" style="display: none"></iframe>
+	<div class="container">
+		<img src="jman/images/navigate.png" width="184" height="32" class="menu_head" />
+		<ul id="menu" class="menu_body"></ul>
+	</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+function load()
+{
+	cmd("pageLoaded(session)");
+}
+
+function newRequest(type, url)
+{
+	var page_request = 0;
+	if (window.XMLHttpRequest) // if Mozilla, Safari etc
+		page_request = new XMLHttpRequest();
+	else if (window.ActiveXObject){ // if IE
+		try { page_request = new ActiveXObject("Msxml2.XMLHTTP");} 
+		catch (e){
+			try{ page_request = new ActiveXObject("Microsoft.XMLHTTP"); }
+			catch (e){}
+		}
+	}
+	page_request.open(type, url, true);
+	return page_request;
+}
+
+function timer(command, time, repeat)
+{
+	setTimeout("timerTick('" + command + "'," + time + "," + repeat + ");", time);
+}
+
+function timerTick(command, time, repeat)
+{
+	eval(command);
+	if ( repeat ) timer(command, time, repeat);
+}
+
+// cmd executes a command and eval
+function cmd(url, target_override)
+{
+	request = newRequest("GET", "@" + url);
+	request.onreadystatechange = function() { cmdReturn(request, target_override); };
+	request.send(null);
+}
+function timedCmd(url, time, target_override)
+{
+		setTimeout("cmd('" + url + "', '" + target_override + "');", time);
+}
+function cmdReturn(request, target_override)
+{
+    	if (request.readyState == 4) 
+    	{
+    		dataIn = request.responseText;
+    		
+		var strPos = 0;
+		if ( dataIn.substr(0, 4) == "!mt:" )
+		{
+			var intStr = "";
+			for(strPos = 4; strPos < dataIn.length; strPos++)
+			{
+				var chr = dataIn.charAt(strPos);
+				if ( chr == ';' ) { strPos++; break; }
+				
+				intStr += chr;
+			}
+			
+			var allData = dataIn.substr(strPos + parseInt(intStr), dataIn.length - strPos + parseInt(intStr));
+			var dataLocations = dataIn.substr(strPos, parseInt(intStr)).split(";");
+			
+			for( i = 0; i < dataLocations.length; i++ )
+			{
+				if ( dataLocations[i] == "" ) continue;
+				
+				var args = dataLocations[i].split(":");
+				var locationArgs = args[1].split(",");
+				
+				var pos = locationArgs[0];
+				var len = locationArgs[1];
+				
+				var data = allData.substr(pos, len);
+				
+				if ( args[0] == "html" )
+				{
+					var target = locationArgs[2];
+					var append = false;
+					if ( target.charAt(0) == "+" )
+					{
+						target = target.substr(1, target.length -1);
+						append = true;
+					}
+					outputHTML(target, data, append);
+				} else {
+					if ( args[0] == "css" ) outputCSS(data);
+					if ( args[0] == "js" ) outputJS(data);
+				}
+			}
+		}
+    	}
+}
+
+// these functions were created to be overridden
+// for example using the following as is will break jQuery dialogs, etc
+// so another .js file is included to override the functions with jQuery
+// specific methods. However these will work fine with an average html page.
+
+function outputHTML(targetID, data, append)
+{
+	var target = null;
+	if ( targetID == "body" ) target = document.body;
+	else target = document.getElementById(targetID);
+	
+	if ( append ) target.innerHTML += data;
+	else target.innerHTML = data;
+}
+
+function outputJS(data)
+{
+	var head = document.getElementsByTagName("head")[0]; 
+	var newScript = document.createElement('script');
+	newScript.type = "text/javascript";
+	newScript.innerHTML = data;
+	head.appendChild(newScript);
+}
+
+function outputCSS(data)
+{
+	var head = document.getElementsByTagName("head")[0]; 
+	var newScript = document.createElement('style');
+	newScript.type = 'text/css';
+	newScript.innerHTML = data;
+	head.appendChild(newScript);
+}

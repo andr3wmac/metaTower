@@ -1,0 +1,108 @@
+/* CSS Document */
+
+body{background:#61676F;font-family:Arial, Helvetica, sans-serif; font-size:0.7em; margin: 0; padding: 0;}
+ul, li{margin:0; padding:0; list-style:none;}
+
+.taskbar { position: absolute; top: 0px; left: 0px; right: 0px; height: 32px; background-repeat: repeat-x; background-image: url('../images/menu_bg.png');  }
+.taskbar_menu { margin: 0px; padding-left: 2px; float: left; height: 32px; width: 35px; border-right:1px solid #665a4e; }
+.taskbar_item { 
+	background-repeat: no-repeat; 
+	background-position: 20px 8px; 
+	background-image: url('../images/application.png'); 
+	margin: 0px; 
+	float: left; 
+	height: 25px; 
+	font-size: 13px; 
+	color: white; 
+	text-decoration: none;
+	padding: 7px 0px 0px 42px;
+	filter: alpha(opacity=60);
+  	opacity: 0.6;
+}
+.taskbar_item:hover {
+	filter: alpha(opacity=100);
+  	opacity: 1.0;
+  	font-weight: bold;
+}
+
+.menu_body {position: absolute; left: 0px; top: 32px; display:none; width:184px;border-right:1px solid #998675;border-bottom:1px solid #998675;border-left:1px solid #998675;}
+.menu_body li{background:black;}
+.menu_body li.alt{background:#362f2d;}
+.menu_body li a{color:#FFFFFF; text-decoration:none; padding:7px; display:block;}
+.menu_body li a:hover{padding: 7px 10px; font-weight:bold;}
+
+ul.jman_taskbar {
+	z-index: 2000;
+	list-style: none;
+	padding: 0;	
+	margin: 0;
+	float: left;
+	width: 100%;
+	background: #222;
+	font-size: 1.2em;
+	background: url(../images/menu_bg.png) repeat-x;
+}
+ul.jman_taskbar li {
+	float: left;
+	margin: 0;	
+	padding: 0 15px 0 0;
+	position: relative; /*--Declare X and Y axis base--*/
+}
+ul.jman_taskbar li a{
+	padding: 10px 5px;
+	color: #fff;
+	display: block;
+	text-decoration: none;
+	float: left;
+}
+ul.jman_taskbar li a:hover{
+	font-weight: bold;
+}
+ul.jman_taskbar li span { /*--Drop down trigger styles--*/
+	width: 17px;
+	height: 35px;
+	float: left;
+	background: url(../images/menu_btn.gif) no-repeat center top;
+}
+
+ul.jman_taskbar li span.menu_hover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
+ul.jman_taskbar li ul.menu {
+	z-index: 2000;
+	list-style: none;
+	position: absolute; /*--Important - Keeps menu from affecting main navigation flow--*/
+	left: 0; top: 35px;
+	background: #333;
+	margin: 0; padding: 0;
+	display: none;
+	float: left;
+	width: 170px;
+	-moz-border-radius-bottomleft: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	border: 1px solid #111;
+}
+ul.jman_taskbar li ul.menu li{
+	margin: 0; padding: 0;
+	border-top: 1px solid #252525; /*--Create bevel effect--*/
+	border-bottom: 1px solid #444; /*--Create bevel effect--*/
+	clear: both;
+	width: 170px;
+}
+html ul.jman_taskbar li ul.menu li a {
+	float: left;
+	width: 155px;
+	background: #333;
+	padding-left: 10px;
+}
+html ul.jman_taskbar li ul.menu li a:hover { /*--Hover effect for menu links--*/
+	background: #222; 
+}
+
+#jman_taskbar_main {
+	margin-left: 15px;
+	width: 32px;
+	height: 35px;
+	float: left;
+	background: url(../images/tower.png) no-repeat center 1px;
+}

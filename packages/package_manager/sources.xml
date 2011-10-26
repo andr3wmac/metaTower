@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<package_manager>
+		<sources>
+			<source url="http://packages.metatower.com/packages.php"/>
+		</sources>
+	</package_manager>
+</metaTower>

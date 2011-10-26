@@ -1,0 +1,48 @@
+import os
+name = "File Manager"
+
+class fmanEntry:
+	def __init__(self):
+		self.is_dir = False
+		self.is_file = False
+		self.file_name = ""
+		
+def getFileList(session, path):
+	results = []
+	for f in os.listdir(path):
+		ff = os.path.join(path,f)
+		newEntry = fmanEntry()
+		if os.path.isdir(ff): newEntry.is_dir = True
+		if os.path.isfile(ff): newEntry.is_file = True
+		newEntry.path = path
+		newEntry.file_name = f
+		results.append(newEntry)
+	return results
+
+def jman_load(session):
+	out = session.out()
+	out.html(out.readFile("fileman/index.html"), "body", True)
+	out.js(out.readFile("fileman/script.js"))
+	out.css(out.readFile("fileman/style.css"))
+	return out
+	
+def jman_switchPath(session, path):
+	dir_html = ""
+	file_html = ""
+	for entry in getFileList(session, path):
+		if ( entry.is_dir ): dir_html += "<li class='folder' ondblclick='switchPath(\"" + path + entry.file_name + "/\");'>" + entry.file_name+ "</li>"
+		if ( entry.is_file ): file_html += "<li class='file'>" + entry.file_name + "</li>"
+	out = session.out()
+	out.html(dir_html + file_html, "fileBrowser")
+	return out
+	
+def jman_menu(session):
+	out = session.out()
+	out.js("$('#dFileman').dialog('open');")
+	out.absorb(jman_switchPath(session, os.getcwd() + "/files/"))
+	out.js("var home_path = '" + os.getcwd() + "/files/'; $('#fmanPath').val(home_path);");
+	#out.absorb(jman_dir(session, "files/"))
+	#out.js("$(\"#browser\").treeview();")
+	return out
+	
+

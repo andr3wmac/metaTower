@@ -1,0 +1,26 @@
+import time, packages
+name = "jman"
+
+def onLoad():
+	#packages.events.register("session.onLogin", onLogin)
+	packages.events.register("session.onIndex", onIndex)
+	packages.events.register("page.load", onPageLoad)
+	
+#def onLogin(session):
+	# does nothing.
+
+def onIndex(session):
+	out = session.out()
+	out.text(out.readFile("jman/index.html"))
+	return out
+	
+def onPageLoad(session):
+	out = session.out()
+	menuItems = ""
+	for pack in packages.package_list:
+		if hasattr(pack, "jman_load"):
+			results = pack.jman_load(session)
+			out.absorb(results)
+		menuItems += "<li><a onClick=\"cmd('" + str(pack.__name__).replace("packages.", "") + ".jman_menu(session)');\" href=\"#\">" + pack.name +"</a></li>"
+	out.html(menuItems, "menu")
+	return out

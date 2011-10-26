@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<host>
+		192.168.0.22
+	</host>
+	<port>
+		1337
+	</port>
+	<windowmanager>
+		jman
+	</windowmanager>
+	<local_security>
+		0
+	</local_security>
+	<remote_security>
+		2
+	</remote_security>
+</metaTower>
