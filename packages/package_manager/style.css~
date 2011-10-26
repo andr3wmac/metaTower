@@ -1,7 +1,0 @@
-#fileBrowser { list-style-type: none; margin: 0; padding: 0; }
-#fileBrowser li { border: 0px; background-repeat:no-repeat; background-position: 5px 4px; margin: 3px; padding: 5px 25px; font-size: 1.0em; }
-#fileBrowser li:hover { background-color: #E6E6E6; }
-#fileBrowser .folder { background-image: url('fileman/mtfolder.png'); }
-#fileBrowser .file { background-image: url('fileman/mtfile.png'); }
-#fileBrowser .ui-widget-content {  }
-#fileBrowser .ui-selected { background-color: #E6E6E6; }
