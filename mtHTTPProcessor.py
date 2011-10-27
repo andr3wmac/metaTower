@@ -84,7 +84,7 @@ def processRequest(session, request_type, request_path, post_data):
 		if (( file_name != "" ) and ( file_data != "" )):
 			if ( request_path == "/" ): request_path = "files/upload/"
 			else: request_path = request_path[1:]
-			f = open(os.path.join(request_path, file_name), "w")
+			f = open(os.path.join(request_path, file_name), "wb")
 			f.write(file_data)
 			f.close()
 			output = session.out()

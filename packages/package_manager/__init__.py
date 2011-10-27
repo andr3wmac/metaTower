@@ -165,7 +165,8 @@ def _refreshSources():
         package_list.append(pack)
 
 def jman_load(session):
-    mt.packages.jman.menu(session, "Package Manager", {"package": "package_manager", "dialogs": ['package_manager_main']})
+    mt.packages.jman.menu(session, "Package Manager", 0)
+    mt.packages.jman.taskbar(session, "Package Manager", ['package_manager_main'])
     out = session.out()
     out.htmlFile("package_manager/html/jman.html", "body", True)
     out.jsFile("package_manager/js/common.js")

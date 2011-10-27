@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$.ui.draggable.prototype.options.top_boundary = 36;
 
-    	$.ui.draggable.prototype._setContainment = function() {
+    $.ui.draggable.prototype._setContainment = function() {
 		var o = this.options;
 		if(o.containment == 'parent') o.containment = this.helper[0].parentNode;
 		if(o.containment == 'document' || o.containment == 'window') this.containment = [
@@ -34,13 +34,13 @@ $(document).ready(function() {
 	var open = $.ui.dialog.prototype.open;
 	$.ui.dialog.prototype.open = function() {
 		open.apply(this);
-		jman.taskbarRefresh();
+        jman.taskbar.onOpenDialog(this.element[0].id);
 	};
 
 	var close = $.ui.dialog.prototype.close;
 	$.ui.dialog.prototype.close = function() {
 		close.apply(this);
-		jman.taskbarRefresh();
+		jman.taskbar.onCloseDialog(this.element[0].id);
 	};
 });
 
@@ -70,150 +70,191 @@ mt.progress = function(id, progress)
 }
 
 var jman = {
-	MenuItem: function()
-	{
-		this.caption = "";
-		this.package_name = "";
-		this.onclick = "";
-		this.dialogs = [];
-		this.context = {};
+	menu: {
+        items: [],
+	    MenuItem: function()
+	    {
+            this.package_name = "";
+		    this.caption = "";
+		    this.priority = 5;
+		    this.onClick = "";
+	    },
+	    
+        add: function(package_name, caption, priority, onClick)
+	    {
+		    var entry = new this.MenuItem();
+            entry.package_name = package_name;
+		    entry.caption = caption;
+            entry.priority = priority;
+            if ( onClick == "" ) onClick = "jman.menu.onClicked('" + package_name + "');";
+            entry.onClick = onClick;
+		    this.items.push(entry);
 
-		this.opened_dialogs = [];
-	},
-	menu_items: [],
-	menu: function(caption, data)
-	{
-		var entry = new this.MenuItem();
-		entry.caption = caption;
-		if ( data["package"] ) { entry.package_name = data["package"]; }
-		if ( data["onclick"] ) { entry.onclick = data["onclick"]; }
-		else if ( data["package"] ) { entry.onclick = "jman.menuClicked('" + data["package"] + "');"; }
-		if ( data["dialogs"] ) { entry.dialogs = data["dialogs"]; }
-		if ( data["context"] ) { entry.context = data["context"]; }
+		    mt.html("jman_taskbar_main_contents", "<li><a onClick=\"" + entry.onClick + "\" href=\"#\">" + entry.caption + "</a></li>", true);
+		    jman.taskbar.refresh();
+	    },
 
-		this.menu_items.push(entry);
+        onClicked: function(package_name)
+	    {
+		    for ( i = 0; i < this.items.length; i ++ )
+		    {
+			    var entry = this.items[i];
+			    if ( entry.package_name == package_name )
+			    {
+				    mt("event('jman.menu." + package_name + "')")
+			    }
+		    }
+	    },
+    },
 
-		mt.html("jman_taskbar_main_contents", "<li><a onClick=\"" + entry.onclick + "\" href=\"#\">" + entry.caption + "</a></li>", true);
-		this.taskbarRefresh();
-	},
-
-	menuClicked: function(package_name)
-	{
-		for ( i = 0; i < this.menu_items.length; i ++ )
-		{
-			var entry = this.menu_items[i];
-			if ( entry.package_name == package_name )
-			{
-				mt("event('jman.menu." + package_name + "')")
-			}
-		}
-	},
+    Package: function()
+    {
+        this.package_name = "";
+        this.dialogs = [];
+        this.context = {};
+        this.opened_dialogs = [];
+    },
 
 	dialog: function(dname)
 	{
 		$("#" + dname).dialog("open");
 	},
 
-	taskbarRefresh: function()
-	{
-		for ( a = 0; a < jman.menu_items.length; a++ )
-		{
-			item = jman.menu_items[a];
-			show_item = false;
-			for ( b = 0; b < item.dialogs.length; b++ )
-			{
-				var dialog = $("#" + item.dialogs[b]).parents(".ui-dialog");
-				if ( dialog.is(":visible") ) { show_item = true; item.opened_dialogs.push(item.dialogs[b]); }
-			}
-			taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
-			if (( taskbar_entry == null ) && ( show_item ))
-			{
-				entry_html = "<li style='z-index: 2000' id='jman_taskbar_" + item.package_name + "'><a href='#' onClick='jman.taskbarClicked(\"" +item.package_name + "\")'>" + item.caption + "</a><span></span><ul class='menu' style='display: none;'>"
-				
-				// context menus
-				for ( var caption in item.context )
-				{
-					entry_html += "<li><a href='#' onClick='" + item.context[caption] + "'>" + caption + "</a></li>"
-				}
-				entry_html += "<li><a href='#' onClick='jman.taskbarClose(\"" + item.package_name + "\")'>Close</a></li>"
+    taskbar: {
 
-				entry_html += "</ul></li><li>"
-				mt.html("jman_taskbar_contents", entry_html, true);
-				taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
-			}
-			if ( taskbar_entry )
-			{
-				if ( show_item ) 
-				{
-					taskbar_entry.style.opacity = "1.0";
-					taskbar_entry.style.fontWeight = "bold";
-				} else {
-					taskbar_entry.style.opacity = "0.6";
-					taskbar_entry.style.fontWeight = "normal";
-				}
-			}
-		}
+        items: [],
+	    TaskbarItem: function()
+	    {
+            this.package_name = "";
+		    this.caption = "";
+		    this.dialogs = [];
+		    this.context = {};
 
-		$("ul.jman_taskbar li span").click(function() { //When trigger is clicked...
-			//Drop down the menu on click
-			$(this).parent().find("ul.menu").slideDown('fast').show(); 
-		
-			// Check to see if the menu exceeds the width of the window.
-			var submenu = $(this).parent().find("ul.menu");
-			var offset = submenu.offset();
-			if ( offset.left + submenu.width() > $(window).width() )
-			{
-				var dif = offset.left + submenu.width() - $(window).width();
-				submenu.offset({top: offset.top, left: offset.left - dif - 2});
-			}
+            this.opened_dialogs = [];
+	    },
+	    
+        add: function(package_name, caption, dialogs, context)
+	    {
+		    var entry = new this.TaskbarItem();
+            entry.package_name = package_name;
+		    entry.caption = caption;
+            entry.dialogs = dialogs;
+            entry.context = context;
+		    this.items.push(entry);
+		    this.refresh();
+	    },
 
-			$(this).parent().hover(function() {}, function()
-			{	
-				$(this).parent().find("ul.menu").slideUp('slow'); //When the mouse hovers out of the menu, move it back up
-			});
+        onOpenDialog: function(id)
+        {
+            alert("Dialog opened:" + id);
+        },
+        onCloseDialog: function(id)
+        {
+            alert("Dialog closed:" + id);
+        },
+        refresh: function()
+        {
+	        for ( a = 0; a < this.items.length; a++ )
+	        {
+		        item = this.items[a];
 
-		//Following events are applied to the trigger (Hover events for the trigger)
-		}).hover(function() { 
-			$(this).addClass("menu_hover"); //On hover over, add class "menu_hover"
-		}, function(){	//On Hover Out
-			$(this).removeClass("menu_hover"); //On hover out, remove class "menu_hover"
-		});
-	},
+		        show_item = false;
+		        for ( b = 0; b < item.dialogs.length; b++ )
+		        {
+			        var dialog = $("#" + item.dialogs[b]).parents(".ui-dialog");
+			        if ( dialog.is(":visible") ) { show_item = true; item.opened_dialogs.push(item.dialogs[b]); }
+		        }
+		        taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
+		        if (( taskbar_entry == null ) && ( show_item ))
+		        {
+			        entry_html = "<li style='z-index: 2000' id='jman_taskbar_" + item.package_name + "'><a href='#' onClick='jman.taskbar.onClicked(\"" +item.package_name + "\")'>" + item.caption + "</a><span></span><ul class='menu' style='display: none;'>"
+			
+			        // context menus
+			        for ( var caption in item.context )
+			        {
+				        entry_html += "<li><a href='#' onClick='" + item.context[caption] + "'>" + caption + "</a></li>"
+			        }
+			        entry_html += "<li><a href='#' onClick='jman.taskbar.onClose(\"" + item.package_name + "\")'>Close</a></li>"
 
-	taskbarClicked: function(package_name)
-	{
-		for ( a = 0; a < jman.menu_items.length; a++ )
-		{
-			item = jman.menu_items[a];
-			if ( item.package_name == package_name )
-			{
-				hide_dialogs = false;
-				for ( b = 0; b < item.dialogs.length; b++ )
-				{
-					var dialog = $("#" + item.dialogs[b]).parents(".ui-dialog");
-					if ( dialog.is(":visible") ) { hide_dialogs = true; }
-				}
-				for ( b = 0; b < item.opened_dialogs.length; b++ )
-				{
-					if ( hide_dialogs ) { $("#" + item.opened_dialogs[b]).dialog("close"); }
-					else { $("#" + item.opened_dialogs[b]).dialog("open"); }
-				}
-			}
-		}
-		this.taskbarRefresh();
-	},
+			        entry_html += "</ul></li><li>"
+			        mt.html("jman_taskbar_contents", entry_html, true);
+			        taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
+		        }
+		        if ( taskbar_entry )
+		        {
+			        if ( show_item ) 
+			        {
+				        taskbar_entry.style.opacity = "1.0";
+				        taskbar_entry.style.fontWeight = "bold";
+			        } else {
+				        taskbar_entry.style.opacity = "0.6";
+				        taskbar_entry.style.fontWeight = "normal";
+			        }
+		        }
+	        }
 
-	taskbarClose: function(package_name)
-	{
-		for ( a = 0; a < jman.menu_items.length; a++ )
-		{
-			item = jman.menu_items[a];
-			if ( item.package_name == package_name )
-			{
-				taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
-				if ( taskbar_entry ) taskbar_entry.parentNode.removeChild(taskbar_entry);
-				for ( b = 0; b < item.dialogs.length; b++ ) $("#" + item.dialogs[b]).dialog("close");
-			}
-		}
-	}
+	        $("ul.jman_taskbar li span").click(function() { //When trigger is clicked...
+		        //Drop down the menu on click
+		        $(this).parent().find("ul.menu").slideDown('fast').show(); 
+	
+		        // Check to see if the menu exceeds the width of the window.
+		        var submenu = $(this).parent().find("ul.menu");
+		        var offset = submenu.offset();
+		        if ( offset.left + submenu.width() > $(window).width() )
+		        {
+			        var dif = offset.left + submenu.width() - $(window).width();
+			        submenu.offset({top: offset.top, left: offset.left - dif - 2});
+		        }
+
+		        $(this).parent().hover(function() {}, function()
+		        {	
+			        $(this).parent().find("ul.menu").slideUp('slow'); //When the mouse hovers out of the menu, move it back up
+		        });
+
+	        //Following events are applied to the trigger (Hover events for the trigger)
+	        }).hover(function() { 
+		        $(this).addClass("menu_hover"); //On hover over, add class "menu_hover"
+	        }, function(){	//On Hover Out
+		        $(this).removeClass("menu_hover"); //On hover out, remove class "menu_hover"
+	        });
+        },
+
+        onClicked: function(package_name)
+        {
+	        for ( a = 0; a < this.items.length; a++ )
+	        {
+		        item = this.items[a];
+		        if ( item.package_name == package_name )
+		        {
+			        hide_dialogs = false;
+			        for ( b = 0; b < item.dialogs.length; b++ )
+			        {
+				        var dialog = $("#" + item.dialogs[b]).parents(".ui-dialog");
+				        if ( dialog.is(":visible") ) { hide_dialogs = true; break; }
+			        }
+			        for ( b = 0; b < item.opened_dialogs.length; b++ )
+			        {
+				        if ( hide_dialogs ) { $("#" + item.opened_dialogs[b]).dialog("close"); }
+				        else { $("#" + item.opened_dialogs[b]).dialog("open"); }
+			        }
+                    break;
+		        }
+	        }
+	        this.refresh();
+        },
+
+        onClose: function(package_name)
+        {
+	        for ( a = 0; a < this.items.length; a++ )
+	        {
+		        item = this.items[a];
+		        if ( item.package_name == package_name )
+		        {
+			        taskbar_entry = document.getElementById("jman_taskbar_" + item.package_name);
+			        if ( taskbar_entry ) taskbar_entry.parentNode.removeChild(taskbar_entry);
+			        for ( b = 0; b < item.dialogs.length; b++ ) $("#" + item.dialogs[b]).dialog("close");
+		        }
+	        }
+        }
+    }
 }
