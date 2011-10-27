@@ -26,6 +26,7 @@ class PackageManager:
         if ( sys.modules.has_key(package_name) ):
             return self.reload(package_name)
         else:
+            print "Loading Pack: " + package_name + " path: " + path + " ~ " + os.getcwd()
             if ( not path in sys.path ): sys.path.append(path)
 
             # first we take down a list of loaded modules.
