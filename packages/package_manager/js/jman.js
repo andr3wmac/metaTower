@@ -42,9 +42,11 @@ package_manager.data = function(id, package_name, status, version, description) 
 	mt.html("package_manager_content", "<li></li>", true);
 
 	if ( status == "0" )
+    {
 		mt.html("package_manager_content", "<li class='menu' onclick='package_manager.reload(\"" + id + "\")'>Reload Package</li>", true);
 		mt.html("package_manager_content", "<li class='menu' onclick='package_manager.disable(\"" + id + "\")'>Disable Package</li>", true);
 		mt.html("package_manager_content", "<li class='menu' onclick='package_manager.delete(\"" + id + "\")'>Delete Package</li>", true);
+    }
 	if ( status == "1" )
 		mt.html("package_manager_content", "<li class='menu' onclick='package_manager.update(\"" + id + "\")'>Update Package</li>", true);
 	if ( status == "2" )
