@@ -10,7 +10,7 @@ def onUnload():
 
 def jman_load(session):
     mt.packages.jman.menu(session, "Calculator", 3)
-    mt.packages.jman.taskbar(session, "Calculator", ["calc_man"], {"context1": "alert('yeah buddy!');"})
+    mt.packages.jman.taskbar(session, "Calculator", ["calc_main"], {"context1": "alert('yeah buddy!');"})
 
     out = session.out()
     out.htmlFile("calc/index.html", "body", True)

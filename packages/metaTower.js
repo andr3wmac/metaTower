@@ -150,3 +150,11 @@ mt.progress = function(id, progress)
 	}	
 	prog.style.width = Math.round(progress) + "%";
 };
+
+mt.removeValueFromArray = function(array, value)
+{
+    newArray = [];
+    for ( i = 0; i < array.length; i++ )
+        if ( array[i] != value ) newArray.push(array[i]);
+    return newArray;
+};
