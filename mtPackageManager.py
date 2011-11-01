@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.1
+ * metaTower v0.3.2
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import os, sys, types, threading, inspect
+import os, sys, types, threading, inspect, imp
 import mtCore as mt
 
 class PackageManager:
@@ -26,16 +26,18 @@ class PackageManager:
         if ( sys.modules.has_key(package_name) ):
             return self.reload(package_name)
         else:
-            syspath = os.path.join(os.getcwd(), path)
-            if ( not syspath in sys.path ): sys.path.append(syspath)
-            if ( not path in sys.path ): sys.path.append(path)
+            #syspath = os.path.join(os.getcwd(), path)
+            #if ( not syspath in sys.path ): sys.path.append(syspath)
+            #if ( not path in sys.path ): sys.path.append(path)
 
             # first we take down a list of loaded modules.
             mods = []
             for mod_name in sys.modules: mods.append(mod_name)
 
             # import our new modules.
-            mod = __import__(package_name, globals(), locals(), [''])
+            #mod = __import__(package_name, globals(), locals(), [''])
+            fp, pathname, description = imp.find_module(package_name, [path])
+            mod = imp.load_module(package_name, fp, pathname, description)
 
             # now figure out the difference.
             mod.__includes__ = []
