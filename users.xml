@@ -4,7 +4,7 @@
 		default
 	</default_user>
 	<users>
-		<user home="files" name="default" windowmanager="jman"/>
+		<user home="files" name="default" password-md5="e74a56986bf5417c6f0cb6277a3a2a74" windowmanager="jman"/>
 		<user home="files" name="ps3" windowmanager="jmanlite"/>
 	</users>
 </metaTower>

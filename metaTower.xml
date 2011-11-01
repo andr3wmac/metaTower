@@ -10,9 +10,12 @@
 		jman
 	</windowmanager>
 	<local_security>
-		0
+		1
 	</local_security>
 	<remote_security>
 		2
 	</remote_security>
+	<auth_url>
+		http://www.metatower.net/auth.php?id=a629ec96df5911e08d6800018055cf77
+	</auth_url>
 </metaTower>

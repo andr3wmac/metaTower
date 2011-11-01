@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid
+import inspect, uuid, commands, socket
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")
@@ -23,3 +23,9 @@ def getSource(depth=2):
     except:
         source = ""
     return source
+
+def getLocalIP():
+    ip = socket.gethostbyname(socket.gethostname())
+    if ( ip.startswith("127.") ):
+        ip = commands.getoutput("hostname -I").rstrip()
+    return ip

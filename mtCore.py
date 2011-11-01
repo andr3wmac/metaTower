@@ -10,7 +10,7 @@
 """
 
 import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect
-import mtAuth, mtConfigManager, mtEventManager, mtPackageManager
+import mtAuth, mtConfigManager, mtEventManager, mtPackageManager, mtMisc
 
 running = False
 restart = False
@@ -19,6 +19,7 @@ config = None
 users = {}
 events = None
 packages = None
+login_tickets = {}
 
 def start():
     global running, config, log, users, packages, events
@@ -52,7 +53,8 @@ def start():
     packages = mtPackageManager.PackageManager()
     packages.loadDirectory("packages")
 
-    print "You can connect to your tower at:\n http://127.0.0.1:" + config["port"] + "/"
+    config["local_ip"] = mtMisc.getLocalIP()
+    print "You can connect to your tower at:\n http://" + config["local_ip"] + ":" + config["port"] + "/"
     
 def stop():
     global running, config, packages

@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import socket, thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes, uuid, threading
+import socket, thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes, uuid, threading, base64
 import mtSession, mtHTTPProcessor
 import mtCore as mt
 
@@ -183,6 +183,7 @@ def HTTPHandler(client_socket, client_addr):
         post_data = ""
         cookies = {}
         header_only = False
+        auth_line = ""
 
         for line in lines:
             args = line.split(" ")
@@ -229,6 +230,9 @@ def HTTPHandler(client_socket, client_addr):
                 if ( byte_range[0] != "" ): output.binary_start = int(byte_range[0])
                 if ( byte_range[1] != "" ): output.binary_end = int(byte_range[1])
 
+            if (( args[0] == "Authorization:" ) and ( len(args) == 3 )):
+                auth_line = base64.b64decode(args[2])
+
             if ( args[0] == "" ):
                 break
     
@@ -242,9 +246,13 @@ def HTTPHandler(client_socket, client_addr):
             session = None
             if ( "session" in cookies ): session = mtSession.findSession(cookies["session"])
             if ( session == None ):
-                output.append(mtHTTPProcessor.processLogin(client_socket, request_path, post_data))
+                output.append(mtHTTPProcessor.processLogin(client_socket, request_path, auth_line))
             else:
-                output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
+                # check for a dirty url ( login when a cookie exists )
+                if ( request_path.startswith("/?") ):
+                    output.append(session.cleanRedirect())
+                else:
+                    output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
         except Exception as inst:
             raise
             mt.log.error("Login: " + str(inst.args))
@@ -253,12 +261,13 @@ def HTTPHandler(client_socket, client_addr):
         # Process output.
         try:
             if ( output != None ):
-                if ( type(output).__name__ == 'instance' ) and ( output.__class__ is HTTPOut ): 
+                if ( type(output).__name__ == 'instance' ) and ( output.__class__ is HTTPOut ):
                     output.send(client_socket, header_only)
                 else:
                     out = session.out()
                     out.text(str(output))
                     out.send(client_socket, header_only)
+
         except Exception as inst:
             mt.log.error("Sending packet: " + str(inst.args))
             keep_alive = False
@@ -285,4 +294,5 @@ class HTTPServer( threading.Thread ):
 
 def start():
     http = HTTPServer()
+    http.daemon = True
     http.start()
