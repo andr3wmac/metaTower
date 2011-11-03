@@ -141,8 +141,8 @@ class NZBClient():
             datasize = len(seg.data)
             self.status.current_bytes += datasize
 
-            if ( (time.time() - self.speedTime) > 1.0 ):
-                self.status.kbps = self.speedCounter
+            if ( (time.time() - self.speedTime) > 2.0 ):
+                self.status.kbps = self.speedCounter / 2
                 self.speedCounter = 0
                 self.speedTime = time.time()
             else:
