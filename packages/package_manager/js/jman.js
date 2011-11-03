@@ -1,7 +1,7 @@
 $('#package_manager_main').dialog({
 	autoOpen: false, 
-	minWidth: 400,
-	minHeight: 250
+	minWidth: 600,
+	minHeight: 500
 });
 
 $( "#package_manager_confirm" ).dialog({

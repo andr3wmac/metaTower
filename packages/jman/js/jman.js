@@ -53,9 +53,16 @@ mt.html = function(targetID, data, append)
     var target = null;
     if ( targetID == "body" ) target = $("body");
     else target = $("#" + targetID);
-    
+
     if ( append ) target.append(data);
-    else target.html(data);
+    else 
+    {
+        var targ_html = target.html();
+        if ( targ_html.toLowerCase() != data.toLowerCase() ) 
+        { 
+            target.html(data); 
+        }
+    }
 }
 mt.js = function(data)
 {

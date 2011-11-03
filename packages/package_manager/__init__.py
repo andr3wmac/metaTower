@@ -21,14 +21,9 @@ def onLoad():
     mt.events.register("jman.load", jman_load)
     mt.events.register("jman.menu.package_manager", jman_menu)
 
-    mt.events.register("jmanlite.load", jmanlite_load)
-    mt.events.register("jmanlite.menu.package_manager", jmanlite_menu)
-
 def onUnload():
     mt.events.clear(jman_load)
     mt.events.clear(jman_menu)
-    mt.events.clear(jmanlite_load)
-    mt.events.clear(jmanlite_menu)
 
 def getPackageInfo(session, package_id):
     out = session.out()
@@ -178,18 +173,6 @@ def jman_menu(session):
     out = session.out()
     out.js("jman.dialog('package_manager_main');")
     out.js("package_manager.refresh();")
-    return out
-
-def jmanlite_load(session):
-    mt.packages.jmanlite.menu(session, "Package Manager", "package_manager")
-    return None
-
-def jmanlite_menu(session):
-    out = session.out()
-    out.htmlFile("package_manager/html/jmanlite.html", "jmanlite_content", False)
-    out.jsFile("package_manager/js/common.js")
-    out.jsFile("package_manager/js/jmanlite.js")
-    out.cssFile("package_manager/css/style.css")
     return out
 
 def mainMenu(session):

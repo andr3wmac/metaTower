@@ -163,115 +163,121 @@ class HTTPOut():
         else:
             socket.send(content)
 
-def HTTPHandler(client_socket, client_addr):    
-    output = None
+class HTTPHandler(threading.Thread):
+    def __init__(self, client_socket, client_addr):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.client_socket = client_socket
+        self.client_addr = client_addr
 
-    mt.log.info("Connection opened by " + str(client_addr[0]))
-    
-    keep_alive = True
-    while keep_alive:
-        # receive and split the data.
-        data = client_socket.recv(1024)
-        if not data: break
-        lines = data.rstrip().splitlines(False)
+    def run(self):
+        output = None
+        mt.log.info("Connection opened by " + str(self.client_addr[0]))
+        
+        keep_alive = True
+        while keep_alive:
+            # receive and split the data.
+            data = self.client_socket.recv(1024)
+            if not data: break
+            lines = data.rstrip().splitlines(False)
 
-        # process the data into a managable form.
-        output = HTTPOut()
+            # process the data into a managable form.
+            output = HTTPOut()
 
-        request_type = "unknown"
-        request_path = ""
-        post_data = ""
-        cookies = {}
-        header_only = False
-        auth_line = ""
+            request_type = "unknown"
+            request_path = ""
+            post_data = ""
+            cookies = {}
+            header_only = False
+            auth_line = ""
 
-        for line in lines:
-            args = line.split(" ")
+            for line in lines:
+                args = line.split(" ")
 
-            if ( args[0] == "GET" ) or ( args[0] == "POST" ):
-                request_type = args[0]
-                request_path = args[1]
-                output.http_version = args[2]
+                if ( args[0] == "GET" ) or ( args[0] == "POST" ):
+                    request_type = args[0]
+                    request_path = args[1]
+                    output.http_version = args[2]
 
-            if ( args[0] == "HEAD" ):
-                request_type = "GET"
-                request_path = args[1]
-                output.http_version = args[2]
-                header_only = True
+                if ( args[0] == "HEAD" ):
+                    request_type = "GET"
+                    request_path = args[1]
+                    output.http_version = args[2]
+                    header_only = True
 
-            if ( args[0] == "Cookie:" ):
-                cookiedata = line[8:].split(";")
-                for cookie in cookiedata:
-                    cookieargs = cookie.split("=")
-                    cookies[cookieargs[0].lstrip()] = cookieargs[1]
+                if ( args[0] == "Cookie:" ):
+                    cookiedata = line[8:].split(";")
+                    for cookie in cookiedata:
+                        cookieargs = cookie.split("=")
+                        cookies[cookieargs[0].lstrip()] = cookieargs[1]
 
-            if ( args[0] == "Content-Type:" ):
-                if ( args[1] == "multipart/form-data;" ):
-                    boundary_args = args[2].split("=")
-                    if ( boundary_args[0] == "boundary" ):
-                        while post_data == "":
-                            boundary_data = data.split(boundary_args[1])
-                            if ( len(boundary_data) < 4 ): 
-                                data += client_socket.recv(1024)
-                            else:
-                                post_data = data.split(boundary_args[1])[2]
-                if ( args[1] == "application/x-www-form-urlencoded" ):
-                    # this needs to be updated later.                
-                    data += client_socket.recv(1024)
-                    post_data = data.split("\r\n\r\n")[1]
+                if ( args[0] == "Content-Type:" ):
+                    if ( args[1] == "multipart/form-data;" ):
+                        boundary_args = args[2].split("=")
+                        if ( boundary_args[0] == "boundary" ):
+                            while post_data == "":
+                                boundary_data = data.split(boundary_args[1])
+                                if ( len(boundary_data) < 4 ): 
+                                    data += self.client_socket.recv(1024)
+                                else:
+                                    post_data = data.split(boundary_args[1])[2]
+                    if ( args[1] == "application/x-www-form-urlencoded" ):
+                        # this needs to be updated later.                
+                        data += self.client_socket.recv(1024)
+                        post_data = data.split("\r\n\r\n")[1]
 
-            if ( args[0] == "Connection:"):
-                if ( args[1].lower() != "keep-alive" ):
-                    keep_alive = False
-                connection = args[1]
+                if ( args[0] == "Connection:"):
+                    if ( args[1].lower() != "keep-alive" ):
+                        keep_alive = False
+                    connection = args[1]
 
-            if ( args[0] == "Range:"):
-                byte_range = args[1].split("=")[1].split("-")
-                if ( byte_range[0] != "" ): output.binary_start = int(byte_range[0])
-                if ( byte_range[1] != "" ): output.binary_end = int(byte_range[1])
+                if ( args[0] == "Range:"):
+                    byte_range = args[1].split("=")[1].split("-")
+                    if ( byte_range[0] != "" ): output.binary_start = int(byte_range[0])
+                    if ( byte_range[1] != "" ): output.binary_end = int(byte_range[1])
 
-            if (( args[0] == "Authorization:" ) and ( len(args) == 3 )):
-                auth_line = base64.b64decode(args[2])
+                if (( args[0] == "Authorization:" ) and ( len(args) == 3 )):
+                    auth_line = base64.b64decode(args[2])
 
-            if ( args[0] == "" ):
-                break
-    
-        # clean the path
-        request_path = request_path.replace("%20", " ")
-        request_path = request_path.replace("%22", '"')
-        request_path = request_path.replace("%27", "'")
+                if ( args[0] == "" ):
+                    break
+        
+            # clean the path
+            request_path = request_path.replace("%20", " ")
+            request_path = request_path.replace("%22", '"')
+            request_path = request_path.replace("%27", "'")
 
-        # check to see if we have a session cookie and if its valid.    
-        try:    
-            session = None
-            if ( "session" in cookies ): session = mtSession.findSession(cookies["session"])
-            if ( session == None ):
-                output.append(mtHTTPProcessor.processLogin(client_socket, request_path, auth_line))
-            else:
-                # check for a dirty url ( login when a cookie exists )
-                if ( request_path.startswith("/?") ):
-                    output.append(session.cleanRedirect())
+            # check to see if we have a session cookie and if its valid.    
+            try:    
+                session = None
+                if ( "session" in cookies ): session = mtSession.findSession(cookies["session"])
+                if ( session == None ):
+                    output.append(mtHTTPProcessor.processLogin(self.client_socket, request_path, auth_line))
                 else:
-                    output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
-        except Exception as inst:
-            raise
-            mt.log.error("Login: " + str(inst.args))
-            keep_alive = False
+                    # check for a dirty url ( login when a cookie exists )
+                    if ( request_path.startswith("/?") ):
+                        output.append(session.cleanRedirect())
+                    else:
+                        output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
+            except Exception as inst:
+                raise
+                mt.log.error("Login: " + str(inst.args))
+                keep_alive = False
 
-        # Process output.
-        try:
-            if ( output != None ):
-                if ( type(output).__name__ == 'instance' ) and ( output.__class__ is HTTPOut ):
-                    output.send(client_socket, header_only)
-                else:
-                    out = session.out()
-                    out.text(str(output))
-                    out.send(client_socket, header_only)
+            # Process output.
+            try:
+                if ( output != None ):
+                    if ( type(output).__name__ == 'instance' ) and ( output.__class__ is HTTPOut ):
+                        output.send(self.client_socket, header_only)
+                    else:
+                        out = session.out()
+                        out.text(str(output))
+                        out.send(self.client_socket, header_only)
 
-        except Exception as inst:
-            mt.log.error("Sending packet: " + str(inst.args))
-            keep_alive = False
-    client_socket.close()
+            except Exception as inst:
+                mt.log.error("Sending packet: " + str(inst.args))
+                keep_alive = False
+        self.client_socket.close()
 
 class HTTPServer( threading.Thread ):
     def run ( self ):
@@ -287,7 +293,8 @@ class HTTPServer( threading.Thread ):
             try:
                 client_socket, client_addr = server_socket.accept()
                 client_socket.setblocking(1)
-                thread.start_new_thread(HTTPHandler, (client_socket, client_addr))
+                client_thread = HTTPHandler(client_socket, client_addr)
+                client_thread.start()
             except socket.timeout:
                 pass
         server_socket.shutdown(1)
