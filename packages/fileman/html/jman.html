@@ -1,0 +1,17 @@
+<div id="fileman_main" title="File Manager">
+	<div style="position: absolute; left: 5px; right: 5px; height: 30px; border-bottom: 1px solid #B6B6B2">
+	  <button onclick="fileman.home()"><span class="ui-icon ui-icon-home"></span></button>
+	  <button onclick="fileman.jman.deleteSelected()"><span class="ui-icon ui-icon-trash"></span></button>
+	  <button onclick="fileman.up()"><span class="ui-icon ui-icon-arrowthick-1-n"></span></button>
+	  <input id="fmanPath" style="height: 22px; border: 1px solid #E6E6E6; position: absolute; left: 125px; right: 0px;" type="text" value="/"></input>
+	</div>
+	<div style="position: absolute; top: 40px; bottom: 5px; left: 5px; right: 5px;">
+		<div style="overflow: scroll; height: 100%;"><ul id="fileBrowser"></ul></div>
+	</div>
+	<div id="fileman_confirm_delete" title="Delete Files?">
+		<p>
+			<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+			These items will be permanently deleted and cannot be recovered. Are you sure?
+		</p>
+	</div>
+</div>

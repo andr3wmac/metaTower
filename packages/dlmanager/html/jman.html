@@ -1,0 +1,16 @@
+<div id="dlmanager_main" title="Download Manager">
+	<div style="position: absolute; left: 5px; top: 5px; right: 5px; height: 30px; border-bottom: 1px solid #B6B6B2">
+		<form id="dlmanager_upload" style="display: none" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
+			<input type="file" name="nzb">
+			<input type="submit" onclick="dlmanager.jman.toggleUpload();" value="Add">
+			<input type="button" onclick="dlmanager.jman.toggleUpload();" value="Cancel">
+		</form>
+		<button id="dlmanager_upload_toggle" onclick="dlmanager.jman.toggleUpload();" style="position: absolute; left: 0px; top: 0px; width: 150px;">Add NZB/Torrent</button>
+	</div>
+	<div style="position: absolute; right: 5px; height: 30px; top: 5px">
+		<button onclick="dlmanager.jman.removeSelected()"><span class="ui-icon ui-icon-trash"></span></button>
+	</div>
+	<div style="position: absolute; top: 40px; bottom: 5px; left: 5px; right: 5px;">
+		<div id="dlmanager_content" style="overflow: scroll; height: 100%;"></div>
+	</div>
+</div>

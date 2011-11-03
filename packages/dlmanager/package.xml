@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<dlmanager>
+		<version>
+			0.2
+		</version>
+		<name>
+			Download Manager
+		</name>
+		<description>
+			Upload .torrent or .nzb files to queue downloads.
+		</description>
+		<category>
+			Internet
+		</category>
+		<author_name>
+			Andrew MacIntyre
+		</author_name>
+		<author_website>
+			http://www.metatower.com
+		</author_website>
+		<source_url>
+			http://packages.metatower.com/
+		</source_url>
+		<install_files>
+			dlmanager.xml,
+			__init__.py,
+            Extractor.py,
+            NZBClient.py,
+            NZBParser.py,
+            TextDecoder.py,
+            html/jman.html, 
+            html/jmanlite.html, 
+            package.xml, 
+            js/common.js, 
+            js/jman.js, 
+            js/jmanlite.js, 
+            css/style.css, 
+            images/nzb.png, 
+            images/torrent.png,
+            images/unrar.png,
+            images/par2.png
+		</install_files>
+		<update_files>
+			__init__.py,
+            Extractor.py,
+            NZBClient.py,
+            NZBParser.py,
+            TextDecoder.py
+            html/jman.html, 
+            html/jmanlite.html, 
+            package.xml, 
+            js/common.js, 
+            js/jman.js, 
+            js/jmanlite.js, 
+            css/style.css, 
+            images/nzb.png, 
+            images/torrent.png,
+            images/unrar.png,
+            images/par2.png
+		</update_files>
+	</dlmanager>
+</metaTower>

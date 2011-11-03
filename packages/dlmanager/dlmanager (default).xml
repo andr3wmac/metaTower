@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<dlmanager>
+		<nzb connections="20" password="" port="443" save_to="files/downloads/nzb/" server="" ssl="false" username=""/>
+		<torrent dir="files/torrent"/>
+		<queue>
+		</queue>
+	</dlmanager>
+</metaTower>
