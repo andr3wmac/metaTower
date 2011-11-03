@@ -260,7 +260,7 @@ class NNTP:
     def getrawresp(self, query):
         """Get a raw response from the nntp server"""
         self.putcmd(query)
-        self.sock.settimeout(2)
+        self.sock.settimeout(5)
         data = self.file.read()
         while( not data[len(data)-3:] == ".\r\n"):
             data += self.file.read()

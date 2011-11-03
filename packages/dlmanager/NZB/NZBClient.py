@@ -12,13 +12,14 @@ thread_count = []
 Running = False
 
 class StatusReport(object):
-	def __init__(self):
-		self.total_bytes = 0
-		self.current_bytes = 0
-		self.completed = False
-		self.error_occured = False
-		self.start_time = 0
-		self.file_name = ""
+    def __init__(self):
+        self.total_bytes = 0
+        self.current_bytes = 0
+        self.completed = False
+        self.error_occured = False
+        self.start_time = 0
+        self.file_name = ""
+        self.kbps = 0
 
 class NZBClient():
     def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5):
@@ -47,8 +48,12 @@ class NZBClient():
         self.FinishedSegments = []
         self.SegmentQueue = []
         self.FailedSegments = [] 
+        self.AbandonedSegments = []
         self.running = True
         self.allDecoded = False
+
+        self.speedTime = 0
+        self.speedCounter = 0
 
     def start(self):
         global Running, thread_count
@@ -74,7 +79,7 @@ class NZBClient():
             self.connection_count += 1
 
         # start the article decoder.
-        self.articleDecoder = ArticleDecoder(self.decodeNextSeg, self.save_to, self.decodeFinished, self.decodeSuccess, self.segFailed)
+        self.articleDecoder = ArticleDecoder(self.decodeNextSeg, self.save_to, self.decodeFinished, self.decodeSuccess, self.decodeFailed)
         self.articleDecoder.start()
 
     def decodeNextSeg(self):
@@ -92,8 +97,9 @@ class NZBClient():
         
     def decodeSuccess(self, seg):
         self.FinishedSegments.append(seg.msgid) 
-        if ( len(self.FinishedSegments) >= len(self.SegmentList) ):
-            self.allDecoded = True     
+        if ( (len(self.FinishedSegments)+len(self.AbandonedSegments)) >= len(self.SegmentList) ):
+            self.allDecoded = True 
+        seg.data = 0    
 
     def nextSeg(self):
         QueueEmpty = False
@@ -119,13 +125,29 @@ class NZBClient():
 
         return seg
 
+    def decodeFailed(self, seg):
+        if ( seg == None ): return
+        log.error("Segment failed to decode: " + seg.msgid)
+        if ( seg.data ):
+            self.status.current_bytes -= len(seg.data)
+        self.segFailed(seg)
+
     def threadStopped(self, thread_num):
         self.connection_count -= 1
 
     def segComplete(self, seg):
         if ( seg == None ): return
         if ( seg.data ): 
-            self.status.current_bytes += len(seg.data)
+            datasize = len(seg.data)
+            self.status.current_bytes += datasize
+
+            if ( (time.time() - self.speedTime) > 1.0 ):
+                self.status.kbps = self.speedCounter
+                self.speedCounter = 0
+                self.speedTime = time.time()
+            else:
+                self.speedCounter += (datasize/1024)
+
             self.cache.append(seg)
         log.debug("Segment Complete: " + seg.msgid)
 
@@ -135,6 +157,8 @@ class NZBClient():
         seg.retries += 1
         if ( seg.retries > 3 ):
             log.error("Segment Failed 3 Times, Aborting. MsgID: " + seg.msgid)
+            self.AbandonedSegments.append(seg.msgid)
+            del seg
             return
 
         log.error("Segment Failed: " + seg.msgid + " Retry: " + str(seg.retries))

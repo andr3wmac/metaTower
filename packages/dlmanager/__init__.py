@@ -81,16 +81,7 @@ def update(session):
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
             status = nzb_engine.status
 
-            # calculate kb/s
-            last_bytes = 0
-            last_time = 0
-            if ( hasattr(session, "dlmanager_nzb_last_bytes") ): last_bytes = session.dlmanager_nzb_last_bytes
-            if ( hasattr(session, "dlmanager_nzb_last_time") ): last_time =session.dlmanager_nzb_last_time
-            kbps = round(((status.current_bytes-last_bytes)/1024)/(time.time() - last_time))
-            session.dlmanager_nzb_last_bytes = status.current_bytes
-            session.dlmanager_nzb_last_time = time.time()
-
-            out.js("dlmanager.nzb('" + nzb.uid + "', '" + os.path.basename(nzb.filename) + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(kbps) + ");")
+            out.js("dlmanager.nzb('" + nzb.uid + "', '" + os.path.basename(nzb.filename) + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
         elif ( nzb.completed ):
             # completed
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + os.path.basename(nzb.filename) + "', 2, 0, 0, 0, 0, '" + nzb.par2_results + "', '" + nzb.unrar_results + "');")

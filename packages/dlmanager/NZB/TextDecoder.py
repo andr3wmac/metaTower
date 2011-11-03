@@ -16,18 +16,18 @@ class ArticleDecoder(Thread):
 
     def run(self):
         while ( self.running ):
-            try:
-                seg = self.nextSeg()
-                if ( seg == None ): continue
-                if ( seg == -1 ):
-                    # this means we're finished here.
-                    self.assembleSegments()
-                    self.running = False
-                    break
-                self.decodeSegment(seg)
-            except:
-                print "Error getting next segment, aborting."
+            #try:
+            seg = self.nextSeg()
+            if ( seg == None ): continue
+            if ( seg == -1 ):
+                # this means we're finished here.
+                self.assembleSegments()
                 self.running = False
+                break
+            self.decodeSegment(seg)
+            #except:
+            #    print "Error getting next segment, aborting."
+            #    self.running = False
         if ( self.onFinish ): self.onFinish()
 
     def assembleSegments(self):
@@ -78,14 +78,11 @@ class ArticleDecoder(Thread):
                 cache_file.close()
                 if ( self.onSuccess ): self.onSuccess(seg)
             else:
-                #log.debug("Segment failed to decode")
+                mt.log.debug("Segment decoded failed.")
                 if ( self.onFail ): self.onFail(seg)
         except Exception as inst:
-            #log.debug("Cache write error")
+            mt.log.error("ArticleDecoded Error: " + str(inst.args))
             if ( self.onFail ): self.onFail(seg)
-        finally:
-            # waste of memory not to clear it.
-            seg.data = 0
 
 
 class yEncDecoder(object):
