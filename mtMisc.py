@@ -27,5 +27,7 @@ def getSource(depth=2):
 def getLocalIP():
     ip = socket.gethostbyname(socket.gethostname())
     if ( ip.startswith("127.") ):
-        ip = commands.getoutput("hostname -I").rstrip()
+        ifargs = commands.getoutput("ifconfig | grep 192.").split(" ")
+        for arg in ifargs:
+            if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
     return ip
