@@ -2,7 +2,7 @@ import sys, os, logging, urllib, time, socket
 from threading import Thread
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP
-from dlmanager.NZB.TextDecoder import yEncDecoder
+from dlmanager.NZB.TextDecoder import ArticleDecoder
 
 log = logging.getLogger("NZBClient")
 hdlr = logging.FileHandler('packages/dlmanager/nzb.log')
@@ -20,7 +20,7 @@ class StatusReport(object):
 		self.start_time = 0
 		self.file_name = ""
 
-class NZBClient(Thread):
+class NZBClient():
     def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5):
         global Running
         realFile = urllib.urlopen( nzbFile )
@@ -42,36 +42,19 @@ class NZBClient(Thread):
         self.completed = False
         self.cache = []
         self.connection_count = 0
+
+        self.SegmentList = []
+        self.FinishedSegments = []
         self.SegmentQueue = []
-        self.FailedSegments = []
+        self.FailedSegments = [] 
+        self.running = True
+        self.allDecoded = False
+
+    def start(self):
+        global Running, thread_count
 
         Running = True
-        self.running = Running
-        Thread.__init__(self)
-        self.daemon = True
-        
-    def decodeSegment(self, seg):
-        decoder = yEncDecoder()
-        try:
-            # split up the data, process it and write it disk.
-            data = seg.data.split("\r\n")
-            filename = decoder.getFilename(data)
-            partnum = decoder.getPartNum(data)
-            decoded_data = decoder.hella_decode(data)
 
-            if ( filename ) and ( partnum ) and ( decoded_data ):
-                cache_file = open( "packages/dlmanager/cache/" + filename + "." + str("%03d" % (partnum,)), "wb")
-                cache_file.write(decoded_data)
-                cache_file.close()
-            else:
-                log.debug("Segment failed to decode")
-                self.segFailed(seg)
-        except Exception as inst:
-            log.debug("Cache write error")
-            self.segFailed(seg)
-
-    def run(self):
-        global Running, thread_count
         tasks = []
         self.status.start_time = time.time()
         start_time = time.time()
@@ -80,69 +63,37 @@ class NZBClient(Thread):
         for file in self.nzb.files:
             for seg in file.segments:
                 #segments.append(seg)
+                self.SegmentList.append(seg.msgid)
                 self.SegmentQueue.append(seg)
         seg_count = len(self.SegmentQueue)
 
+        # start the connections.
         for a in range(0, self.nntpConnections):
             thread = NNTPConnection(a, self.nntpServer, self.nntpPort, self.nntpUser, self.nntpPassword, self.nntpSSL, self.nextSeg, self.segComplete, self.segFailed, self.threadStopped)
             thread.start()
             self.connection_count += 1
 
-        while ( self.connection_count > 0 ):
-            try:
-                self.decodeSegment(self.cache.pop())
-            except:
-                pass
-                
-        if ( len(self.cache) > 0 ):
-            for seg in self.cache:
-                self.decodeSegment(seg)
+        # start the article decoder.
+        self.articleDecoder = ArticleDecoder(self.decodeNextSeg, self.save_to, self.decodeFinished, self.decodeSuccess, self.segFailed)
+        self.articleDecoder.start()
 
-        #while( Running ):
-        #    if ((self.SegmentQueue) and (len(self.SegmentQueue) > 0)) or (len(thread_count) > 0):
-        #        time.sleep(1)
-        #    else:
-        #        brea
+    def decodeNextSeg(self):
+        seg = None
+        try:
+            seg = self.cache.pop()
+        except:
+            pass
+        if ( seg == None ) and ( self.allDecoded ):
+            return -1
+        return seg
 
-        if (( len(self.SegmentQueue) > 0 ) or ( len(self.FailedSegments) > 0 )):
-            print "WARNING: No threads running but queue still has items."
-
-        if ( Running ):
-            log.debug("Decoding..")
-            decoder = yEncDecoder()
-            
-            path = "packages/dlmanager/cache/"
-
-            file_index = {}
-            for cache_file in os.listdir("packages/dlmanager/cache/"):
-                file_name = cache_file[:-4]
-                if ( not file_index.has_key(file_name) ):
-                    file_index[file_name] = []
-                file_index[file_name].append(cache_file)
-
-            # check if the save file exists
-            if ( not os.path.isdir(self.save_to) ): os.mkdir(self.save_to)
-
-            for file_name in file_index:
-                try:
-                    file = open(os.path.join(self.save_to, file_name), "wb")
-                    file_index[file_name].sort()
-                    segments = file_index[file_name]
-                    for seg in segments:
-                        seg_f = open(os.path.join(path, seg), "rb")
-                        seg_data = seg_f.read()
-                        seg_f.close()
-                        if ( seg_data ): file.write(seg_data)
-                        del seg_data
-                        os.remove(os.path.join(path, seg))
-                    file.close()
-                    log.debug("Decoded file: " + file_name)
-                except:
-                    log.debug("File failed to decode.")
-
-        end_time = time.time()
-        log.debug("Operation completed in: " + str(end_time - start_time) + " seconds.")    
-        self.status.completed = True 
+    def decodeFinished(self):
+        self.status.completed = True
+        
+    def decodeSuccess(self, seg):
+        self.FinishedSegments.append(seg.msgid) 
+        if ( len(self.FinishedSegments) >= len(self.SegmentList) ):
+            self.allDecoded = True     
 
     def nextSeg(self):
         QueueEmpty = False

@@ -1,6 +1,92 @@
-import re
-import _yenc
-import string
+import re, _yenc, string, os
+import mtCore as mt
+from threading import Thread
+
+class ArticleDecoder(Thread):
+    def __init__(self, nextSeg, save_to, onFinish = None, onSuccess = None, onFail = None):
+        Thread.__init__(self)
+        self.daemon = True
+
+        self.nextSeg = nextSeg
+        self.save_to = save_to
+        self.onFinish = onFinish
+        self.onSuccess = onSuccess
+        self.onFail = onFail
+        self.running = True
+
+    def run(self):
+        while ( self.running ):
+            try:
+                seg = self.nextSeg()
+                if ( seg == None ): continue
+                if ( seg == -1 ):
+                    # this means we're finished here.
+                    self.assembleSegments()
+                    self.running = False
+                    break
+                self.decodeSegment(seg)
+            except:
+                print "Error getting next segment, aborting."
+                self.running = False
+        if ( self.onFinish ): self.onFinish()
+
+    def assembleSegments(self):
+        mt.log.debug("Decoding..")
+        decoder = yEncDecoder()
+        
+        path = "packages/dlmanager/cache/"
+
+        file_index = {}
+        for cache_file in os.listdir("packages/dlmanager/cache/"):
+            file_name = cache_file[:-4]
+            if ( not file_index.has_key(file_name) ):
+                file_index[file_name] = []
+            file_index[file_name].append(cache_file)
+
+        # check if the save file exists
+        if ( not os.path.isdir(self.save_to) ): os.mkdir(self.save_to)
+
+        for file_name in file_index:
+            try:
+                file = open(os.path.join(self.save_to, file_name), "wb")
+                file_index[file_name].sort()
+                segments = file_index[file_name]
+                for seg in segments:
+                    seg_f = open(os.path.join(path, seg), "rb")
+                    seg_data = seg_f.read()
+                    seg_f.close()
+                    if ( seg_data ): file.write(seg_data)
+                    del seg_data
+                    os.remove(os.path.join(path, seg))
+                file.close()
+                mt.log.debug("Decoded file: " + file_name)
+            except:
+                mt.log.debug("File failed to decode.")
+
+    def decodeSegment(self, seg):
+        decoder = yEncDecoder()
+        try:
+            # split up the data, process it and write it disk.
+            data = seg.data.split("\r\n")
+            filename = decoder.getFilename(data)
+            partnum = decoder.getPartNum(data)
+            decoded_data = decoder.hella_decode(data)
+
+            if ( filename ) and ( partnum ) and ( decoded_data ):
+                cache_file = open( "packages/dlmanager/cache/" + filename + "." + str("%03d" % (partnum,)), "wb")
+                cache_file.write(decoded_data)
+                cache_file.close()
+                if ( self.onSuccess ): self.onSuccess(seg)
+            else:
+                #log.debug("Segment failed to decode")
+                if ( self.onFail ): self.onFail(seg)
+        except Exception as inst:
+            #log.debug("Cache write error")
+            if ( self.onFail ): self.onFail(seg)
+        finally:
+            # waste of memory not to clear it.
+            seg.data = 0
+
 
 class yEncDecoder(object):
     yencRegex = re.compile( "^=ybegin " )
