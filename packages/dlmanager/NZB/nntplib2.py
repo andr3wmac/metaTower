@@ -657,7 +657,7 @@ class NNTP_SSL(NNTP):
             break
         if not self.sock:
             raise socket.error, msg
-        self.sock.settimeout(5)
+        self.sock.settimeout(2)
         self.file = self.sock.makefile('rb')
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.debugging = 0
