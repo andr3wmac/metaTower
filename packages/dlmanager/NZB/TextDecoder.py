@@ -1,4 +1,4 @@
-import re, _yenc, string, os
+import re, _yenc, string, os, time
 import mtCore as mt
 from threading import Thread
 
@@ -18,7 +18,9 @@ class ArticleDecoder(Thread):
         while ( self.running ):
             #try:
             seg = self.nextSeg()
-            if ( seg == None ): continue
+            if ( seg == None ): 
+                time.sleep(1)                
+                continue
             if ( seg == -1 ):
                 # this means we're finished here.
                 self.assembleSegments()
