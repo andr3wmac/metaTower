@@ -145,6 +145,8 @@ class yEncDecoder(object):
         return None
 
     def decode(self,lines):
+        lines = self.stripArticleData(lines)
+
         data = []
         isData = False
         for line in lines:
@@ -167,6 +169,7 @@ class yEncDecoder(object):
         lines = self.stripArticleData(lines)
 
         inContent = False
+        endFound = False
         for line in lines:
             if line[:2] == '..':
                 line = line[1:]
@@ -179,8 +182,13 @@ class yEncDecoder(object):
                 inContent = True
                 continue
             elif line[:5] == '=yend':
+                endFound = True
                 break
             if ( inContent ): buffer.append(line)
+
+        if ( not endFound ): 
+            print "No Ending Found."            
+            return None
 
         data = ''.join(buffer)
         decoded_data = _yenc.decode_string(data)[0]
