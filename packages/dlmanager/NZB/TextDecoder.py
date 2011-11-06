@@ -68,7 +68,7 @@ class ArticleDecoder(Thread):
                     
                     if ( seg_data ): file.write(seg_data)
                     del seg_data
-                    #os.remove(os.path.join(self.path, seg))
+                    os.remove(os.path.join(self.path, seg))
 
                 file.close()
                 mt.log.debug("Assembled file: " + file_name + " Size: " + str(total_data) + " byte(s)")
