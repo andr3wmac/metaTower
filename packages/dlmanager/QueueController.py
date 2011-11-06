@@ -134,7 +134,8 @@ class QueueController(threading.Thread):
                         nntpConnections=int(mt.config["dlmanager/nzb"]["connections"]), 
                         nntpUser=mt.config["dlmanager/nzb"]["username"], 
                         nntpPassword=mt.config["dlmanager/nzb"]["password"], 
-                        nntpSSL=ssl_enabled)
+                        nntpSSL=ssl_enabled,
+                        cachePath=mt.config["dlmanager/nzb"]["cache_path"])
                     self.nzb_engine.start()
                     break
         else:

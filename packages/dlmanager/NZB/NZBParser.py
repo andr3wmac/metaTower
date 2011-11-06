@@ -63,6 +63,7 @@ class NZBFile(object):
         segs.sort()
         self.segments = [ el[1] for el in segs ]
             
+MAX_RETRIES = 5
 class NZBSegment(object):
     def __init__(self):
         self.number = None        # the part number of the segment
@@ -70,6 +71,9 @@ class NZBSegment(object):
         self.size = 0
         self.retries = 0
         self.data = ""
+
+    def lastTry(self):
+        return ( self.retries == MAX_RETRIES )
             
 def parseString( str ):
     def func(h): saxParseString( str, h )

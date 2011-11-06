@@ -17,8 +17,17 @@ var dlmanager = {
 		// Downloading.
 		if ( status == 1 )
 		{
-			mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Downloading at " + dl_rate + "kb/s<div id=\"prog_" + id + "\"></div>", false);
-			mt.progress("prog_" + id, percent);
+            if ( completed > total ) { completed = total; }
+            if ( percent >= 100 )
+            {
+			    mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Decoding..<div id=\"prog_" + id + "\"></div>", false);
+			    mt.progress("prog_" + id, 100);
+            }
+            else
+            {
+                mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Downloading at " + dl_rate + "kb/s<div id=\"prog_" + id + "\"></div>", false);
+                mt.progress("prog_" + id, percent);
+            }
 		}
 		// Completed
 		if ( status == 2 )

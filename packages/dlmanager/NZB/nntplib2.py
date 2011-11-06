@@ -114,6 +114,7 @@ class NNTP:
         self.host = host
         self.port = port
         self.sock = socket.create_connection((host, port))
+        self.sock.settimeout(3)
         self.file = self.sock.makefile('rb')
         self.debugging = 0
         self.welcome = self.getresp()
@@ -257,13 +258,16 @@ class NNTP:
 
         return resp, list
 
-    def getrawresp(self, query):
+    def getrawresp(self, query, ignoreErrors = False):
         """Get a raw response from the nntp server"""
         self.putcmd(query)
-        self.sock.settimeout(5)
-        data = self.file.read()
-        while( not data[len(data)-3:] == ".\r\n"):
-            data += self.file.read()
+        try:
+            data = self.file.read()
+            while( not data[len(data)-3:] == ".\r\n"):
+                data += self.file.read()
+        except:
+            if ( ignoreErrors ): pass
+            else: raise
         return data
 
     def shortcmd(self, line):
@@ -657,7 +661,7 @@ class NNTP_SSL(NNTP):
             break
         if not self.sock:
             raise socket.error, msg
-        self.sock.settimeout(2)
+        self.sock.settimeout(3)
         self.file = self.sock.makefile('rb')
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.debugging = 0

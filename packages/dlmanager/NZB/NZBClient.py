@@ -1,15 +1,9 @@
-import sys, os, logging, urllib, time, socket
-from threading import Thread
+import sys, os, urllib, time, socket
+import mtCore as mt
+from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP
 from dlmanager.NZB.TextDecoder import ArticleDecoder
-
-log = logging.getLogger("NZBClient")
-hdlr = logging.FileHandler('packages/dlmanager/nzb.log')
-log.addHandler(hdlr)
-
-thread_count = []
-Running = False
 
 class StatusReport(object):
     def __init__(self):
@@ -22,260 +16,267 @@ class StatusReport(object):
         self.kbps = 0
 
 class NZBClient():
-    def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5):
-        global Running
-        realFile = urllib.urlopen( nzbFile )
-
+    def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cachePath=""):
+        # Settings
+        self.save_to = save_to
         self.nntpServer = nntpServer
         self.nntpUser = nntpUser
         self.nntpPort = nntpPort
         self.nntpPassword = nntpPassword
         self.nntpSSL = nntpSSL
         self.nntpConnections = nntpConnections
+        self.cachePath = cachePath
 
+        # Open the NZB, get this show started.
+        realFile = urllib.urlopen( nzbFile )
         self.nzb = NZBParser.parse(realFile)
-        self.save_to = save_to
+        self.running = True
+        self.all_decoded = False
+        self.connection_count = 0
 
+        # used to track status.
         self.status = StatusReport()
         self.status.file_name = nzbFile
         self.status.total_bytes = self.nzb.size
 
-        self.completed = False
+        # Segment tracking.
         self.cache = []
-        self.connection_count = 0
+        self.segment_list = []
+        self.segments_finished = []
+        self.segments_aborted = []
 
-        self.SegmentList = []
-        self.FinishedSegments = []
-        self.SegmentQueue = []
-        self.FailedSegments = [] 
-        self.AbandonedSegments = []
-        self.running = True
-        self.allDecoded = False
+        # Queues.
+        self.segment_queue = []
+        self.failed_queue = []
 
+        # Used to track the speed.
         self.speedTime = 0
         self.speedCounter = 0
 
+        # Threading Locks
+        self.decodeLock = Lock()
+        self.segmentLock = Lock()
+
     def start(self):
-        global Running, thread_count
-
-        Running = True
-
-        tasks = []
+        # keep track of running time.
         self.status.start_time = time.time()
-        start_time = time.time()
 
-        #segments = []
+        # Generate a list of segments and build our queue.
         for file in self.nzb.files:
             for seg in file.segments:
-                #segments.append(seg)
-                self.SegmentList.append(seg.msgid)
-                self.SegmentQueue.append(seg)
-        seg_count = len(self.SegmentQueue)
+                # we don't need any duplicates.
+                if ( not seg.msgid in self.segment_list ): 
+                    self.segment_list.append(seg.msgid)
+                    self.segment_queue.append(seg)
 
         # start the connections.
         for a in range(0, self.nntpConnections):
-            thread = NNTPConnection(a, self.nntpServer, self.nntpPort, self.nntpUser, self.nntpPassword, self.nntpSSL, self.nextSeg, self.segComplete, self.segFailed, self.threadStopped)
+            thread = NNTPConnection(a, 
+                self.nntpServer, 
+                self.nntpPort, 
+                self.nntpUser, 
+                self.nntpPassword, 
+                self.nntpSSL, 
+                self.nextSeg, 
+                self.segComplete, 
+                self.segFailed, 
+                self.threadStopped)
             thread.start()
             self.connection_count += 1
 
         # start the article decoder.
-        self.articleDecoder = ArticleDecoder(self.decodeNextSeg, self.save_to, self.decodeFinished, self.decodeSuccess, self.decodeFailed)
+        self.articleDecoder = ArticleDecoder(self.decodeNextSeg, 
+                self.save_to, 
+                self.cachePath, 
+                self.decodeFinished, 
+                self.decodeSuccess, 
+                self.decodeFailed)
         self.articleDecoder.start()
 
+    # Article Decoder - Next segment.
     def decodeNextSeg(self):
+        # if we're not running send an instant kill switch.
+        if ( not self.running ): return -1
+
+        # try to grab a segment from the cache to decode.
         seg = None
         try:
             seg = self.cache.pop()
         except:
             pass
-        if ( seg == None ) and ( self.allDecoded ):
+
+        if ( seg == None ) and ( self.all_decoded ):
             return -1
         return seg
 
+    # Article Decoder - Decoded all segments.
     def decodeFinished(self):
         self.status.completed = True
         
+    # Article Decoder - Decode success.
     def decodeSuccess(self, seg):
-        self.FinishedSegments.append(seg.msgid) 
-        if ( (len(self.FinishedSegments)+len(self.AbandonedSegments)) >= len(self.SegmentList) ):
-            self.allDecoded = True 
-        seg.data = 0    
+        self.segments_finished.append(seg.msgid) 
+        mt.log.debug("SEGMENT FINISHED: " + seg.msgid)
+        if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+            print "Decode success Segments: " + str(len(self.segment_list)) + " Finished: " + str(len(self.segments_finished)) + " Aborted: " + str(len(self.segments_aborted)) + " Failed: " + str(len(self.failed_queue))
+            self.all_decoded = True
 
-    def nextSeg(self):
-        QueueEmpty = False
-        FailedEmpty = False
-
-        seg = None
-        try:
-            seg = self.SegmentQueue.pop()
-        except:
-            QueueEmpty = True
-            pass
-
-        if ( QueueEmpty ):
-            try:
-                seg = self.FailedSegments.pop()
-            except:
-                FailedEmpty = True
-                pass
-
-        # We're all outta segments.
-        if ( FailedEmpty ):
-            self.completed = True
-
-        return seg
-
+    # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
         if ( seg == None ): return
-        log.error("Segment failed to decode: " + seg.msgid)
+        mt.log.error("Segment failed to decode: " + seg.msgid)
         if ( seg.data ):
             self.status.current_bytes -= len(seg.data)
         self.segFailed(seg)
 
+    # NNTP Connection - Thread stopped.
     def threadStopped(self, thread_num):
         self.connection_count -= 1
 
+    # NNTP Connection - Segment completed.
     def segComplete(self, seg):
         if ( seg == None ): return
-        if ( seg.data ): 
-            datasize = len(seg.data)
-            self.status.current_bytes += datasize
 
-            if ( (time.time() - self.speedTime) > 2.0 ):
-                self.status.kbps = self.speedCounter / 2
+        if ( seg.data ): 
+            data_size = len(seg.data)
+            self.status.current_bytes += data_size
+
+            if ( (time.time() - self.speedTime) > 1 ):
+                self.status.kbps = self.speedCounter
                 self.speedCounter = 0
                 self.speedTime = time.time()
             else:
-                self.speedCounter += (datasize/1024)
+                self.speedCounter += (data_size/1024)
 
             self.cache.append(seg)
-        log.debug("Segment Complete: " + seg.msgid)
+        mt.log.debug("Segment Complete: " + seg.msgid)
 
+    # NNTP Connection - Download of segment failed.
     def segFailed(self, seg):
         if ( seg == None ): return
 
-        seg.retries += 1
-        if ( seg.retries > 3 ):
-            log.error("Segment Failed 3 Times, Aborting. MsgID: " + seg.msgid)
-            self.AbandonedSegments.append(seg.msgid)
+        if ( seg.lastTry() ):
+            mt.log.error("Segment Failed " + str(seg.retries+1) + " Times, Aborting. MsgID: " + seg.msgid)
+            self.segments_aborted.append(seg.msgid)
             del seg
             return
 
-        log.error("Segment Failed: " + seg.msgid + " Retry: " + str(seg.retries))
-        self.FailedSegments.append(seg)
+        seg.retries += 1
 
+        mt.log.error("Segment Failed: " + seg.msgid + " Retry: " + str(seg.retries))
+        self.failed_queue.append(seg)
+
+    # NNTP Connection - Next Segment
+    def nextSeg(self):
+        # if we're not running send an instant kill switch.
+        if ( not self.running ): return -1
+
+        # try to a segment from main queue or failed queue.
+        queue_empty = False
+        seg = None
+        try:
+            seg = self.segment_queue.pop()
+        except:
+            try:
+                seg = self.failed_queue.pop()
+            except:
+                queue_empty = True
+                pass
+            pass
+
+        # We're all outta segments, if they're done decoding, kill the threads.
+        if ( queue_empty ) and ( self.all_decoded ):
+            return -1
+
+        
+        return seg
+
+    # empty the cache of any files.
     def clearCache(self):
-        for f in os.listdir("packages/dlmanager/cache"):
-            ff = "packages/dlmanager/cache/" + f
+        for f in os.listdir(self.cachePath):
+            ff = os.path.join(self.cachePath, f)
             if os.path.isfile(ff):
                 os.remove(ff)
             
     def stopDownload(self):
-        global Running
-        Running = False
+        self.running = False
 
 class NNTPConnection(Thread):
     def __init__(self, connection_number, server, port, username, password, ssl, nextSegFunc, onSegComplete = None, onSegFailed = None, onThreadStop = None, **kwds):
         Thread.__init__(self, **kwds)
         self.daemon = True
 
+        # Settings
         self.connection_number = connection_number
-        self.connection_cache = []
         self.server = server
         self.port = port
         self.username = username
         self.password = password
-        self.segments = []
         self.ssl = ssl
+
+        # Events.
         self.nextSegFunc = nextSegFunc
         self.onSegComplete = onSegComplete
         self.onSegFailed = onSegFailed
         self.onThreadStop = onThreadStop
+
+        # running flag.
         self.running = True
 
-    def addSegment(self, seg):
-        self.segments.append(seg)
-
     def run(self):
-        global Running, thread_count
-        thread_count.append(0)
-
         connection = None
-        cache = {}
-
         try:
-            log.debug("Thread " + str(self.connection_number) + " started.")
+            mt.log.debug("Thread " + str(self.connection_number) + " started.")
             start_time = time.time()
 
             seg = None
             while(self.running):
-                if ( not Running ): break
+
                 try:
+                    # Open either an SSL or regular NNTP connection.
                     if ( self.ssl ):
                         connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True)
                     else:
                         connection = NNTP(self.server, self.port, self.username, self.password, False, True)
 
                     while(self.running):
-                        if ( not Running ): break
-
                         seg = self.nextSegFunc()
-                        if ( seg == None ): 
+                        
+                        # Out of segments, sleep for a second see if we get anymore.
+                        if ( seg == None ):
+                            time.sleep(1)
+                            continue
+
+                        # Download complete, bail.
+                        if ( seg == -1 ): 
                             self.running = False
                             break
 
+                        # Attempt to grab a segment.
                         try:
-                            seg.data = connection.getrawresp( "BODY <%s>" % seg.msgid, (seg.retries == 2) )
+                            seg.data = connection.getrawresp( "BODY <%s>" % seg.msgid, seg.lastTry() )
                             if ( self.onSegComplete ): self.onSegComplete(seg)
 
                         except Exception as inst:
-                            #if ( seg != None ): SegmentQueue.append(seg)
                             if ( self.onSegFailed ): self.onSegFailed(seg)
-                            log.debug("Connection Error: " + str(inst.args))
-                            #break
+                            mt.log.debug("Error getting segment: " + str(inst.args))
 
-                            #If ( not timed_out_seg ):
-                            #    seg = SegmentQueue.pop() 
-                            #else:
-                            #    seg = timed_out_seg
-                            #    timed_out_seg = False
-
-                            
-
-                            #cache[str(seg)] = data
-                            #if ( self.onDataReceived ): self.onDataReceived(len(data))
-
-                            #if ( len(cache) > 25 ):
-                            #    self.writeCache(cache)
-                            #    del cache
-                            #    cache = {}
-                        #except IndexError:
-                        #    raise
-
-                        #except socket.timeout:
-                        #    log.debug("Socket timed out, retrying timed out segment.")
-                       #     timed_out_seg = seg
-
+                # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
                     self.onSegFailed(seg)
-                    log.debug("Thread error: " + str(inst.args))
+                    mt.log.debug("Connection error: " + str(inst.args))
                 finally:
                     try: 
                         if ( connection ): connection.quit()
                     except: 
                         pass
 
-            #if ( len(cache) > 0 ):
-            #    self.writeCache(cache)
-
-            #self.connection_cache.close()
-
             end_time = time.time()
-            log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
-            thread_count.pop()
+            mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
 
+        # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
-            log.debug("Thread Error: " + str(inst.args))
+            mt.log.debug("Thread Error: " + str(inst.args))
 
         finally:
             try: 
@@ -284,12 +285,3 @@ class NNTPConnection(Thread):
             except: 
                 pass
             del connection
-            del cache
-            
-    
-    def parseSegment(self, lines):
-        for headerStop in xrange( 0, len(lines) ):
-            if lines[headerStop] == "" : break
-        for bodyStart in xrange( headerStop, len(lines) ):
-            if lines[bodyStart] != "" : break;
-        return ( lines[0:headerStop], lines[bodyStart:len(lines)] )

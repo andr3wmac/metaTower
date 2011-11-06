@@ -3,7 +3,7 @@ import mtCore as mt
 from threading import Thread
 
 class ArticleDecoder(Thread):
-    def __init__(self, nextSeg, save_to, onFinish = None, onSuccess = None, onFail = None):
+    def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None):
         Thread.__init__(self)
         self.daemon = True
 
@@ -14,56 +14,66 @@ class ArticleDecoder(Thread):
         self.onFail = onFail
         self.running = True
 
+        self.path = path
+        if ( self.path == "" ): self.path = "packages/dlmanager/cache/"
+
     def run(self):
         while ( self.running ):
-            #try:
-            seg = self.nextSeg()
-            if ( seg == None ): 
-                time.sleep(1)                
-                continue
-            if ( seg == -1 ):
-                # this means we're finished here.
-                self.assembleSegments()
+            try:
+                seg = self.nextSeg()
+                if ( seg == None ): 
+                    time.sleep(1)                
+                    continue
+                if ( seg == -1 ):
+                    # this means we're finished here.
+                    self.assembleSegments()
+                    self.running = False
+                    break
+                self.decodeSegment(seg)
+            except Exception as inst:
+                mt.log.error("ArticleDecoder running error: " + str(inst.args))
                 self.running = False
-                break
-            self.decodeSegment(seg)
-            #except:
-            #    print "Error getting next segment, aborting."
-            #    self.running = False
         if ( self.onFinish ): self.onFinish()
 
     def assembleSegments(self):
-        mt.log.debug("Decoding..")
+        mt.log.debug("Assembling..")
         decoder = yEncDecoder()
-        
-        path = "packages/dlmanager/cache/"
 
+        # generate list of files.
         file_index = {}
-        for cache_file in os.listdir("packages/dlmanager/cache/"):
+        for cache_file in os.listdir(self.path):
             file_name = cache_file[:-4]
             if ( not file_index.has_key(file_name) ):
                 file_index[file_name] = []
             file_index[file_name].append(cache_file)
 
-        # check if the save file exists
+        # check if the save folder exists
         if ( not os.path.isdir(self.save_to) ): os.mkdir(self.save_to)
-
         for file_name in file_index:
             try:
                 file = open(os.path.join(self.save_to, file_name), "wb")
                 file_index[file_name].sort()
                 segments = file_index[file_name]
+                mt.log.debug("Assembling File: " + file_name + " Total Segments: " + str(len(segments)))
+
+                total_data = 0
                 for seg in segments:
-                    seg_f = open(os.path.join(path, seg), "rb")
+                    seg_f = open(os.path.join(self.path, seg), "rb")
                     seg_data = seg_f.read()
                     seg_f.close()
+
+                    seg_size = len(seg_data)
+                    mt.log.debug(" adding: " + seg + " size: " + str(seg_size) + " byte(s)")
+                    total_data += len(seg_data)
+                    
                     if ( seg_data ): file.write(seg_data)
                     del seg_data
-                    os.remove(os.path.join(path, seg))
+                    #os.remove(os.path.join(self.path, seg))
+
                 file.close()
-                mt.log.debug("Decoded file: " + file_name)
-            except:
-                mt.log.debug("File failed to decode.")
+                mt.log.debug("Assembled file: " + file_name + " Size: " + str(total_data) + " byte(s)")
+            except Exception as inst:
+                mt.log.error("File assembly error: " + str(inst.args))
 
     def decodeSegment(self, seg):
         decoder = yEncDecoder()
@@ -72,46 +82,30 @@ class ArticleDecoder(Thread):
             data = seg.data.split("\r\n")
             filename = decoder.getFilename(data)
             partnum = decoder.getPartNum(data)
-            decoded_data = decoder.hella_decode(data)
+            decoded_data = decoder.decode(data, seg.lastTry())
+            if ( partnum != seg.number ):
+                mt.log.error("Part number does not match: " + seg.msgid)
+                if ( self.onFail ): self.onFail(seg)
+                return
 
+            # if we have all we need write to cache.
             if ( filename ) and ( partnum ) and ( decoded_data ):
-                cache_file = open( "packages/dlmanager/cache/" + filename + "." + str("%03d" % (partnum,)), "wb")
+                file_path = os.path.join(self.path, filename + "." + str("%03d" % (partnum,)))
+                mt.log.debug("Writing segment: " + file_path + " Size: " + str(len(decoded_data)))
+                cache_file = open(file_path, "wb")
                 cache_file.write(decoded_data)
                 cache_file.close()
                 if ( self.onSuccess ): self.onSuccess(seg)
             else:
-                mt.log.debug("Segment decoded failed.")
+                mt.log.debug("Segment decode failed: " + seg)
                 if ( self.onFail ): self.onFail(seg)
+
         except Exception as inst:
-            mt.log.error("ArticleDecoded Error: " + str(inst.args))
+            mt.log.error("ArticleDecoder decode segment(" + seg.msgid + ") error: " + str(inst.args))
             if ( self.onFail ): self.onFail(seg)
 
 
 class yEncDecoder(object):
-    yencRegex = re.compile( "^=ybegin " )
-    yencStartRegex = re.compile( "^(=ypart|=ybegin) " )
-    yencEndRegex = re.compile( "^=yend" )
-    nameRegex = re.compile( ".*name=(.*)" )
-    startSizeRegex = re.compile( "=ypart begin=(.*) " )
-    endSizeRegex = re.compile( ".*end=(.*) " )
-    yencTr = ''.join([chr((i + 256 - 42) % 256) for i in range(256)])
-
-    yenc42 = string.join(map(lambda x: chr((x-42) & 255), range(256)), "")
-    yenc64 = string.join(map(lambda x: chr((x-64) & 255), range(256)), "")
-
-    @classmethod
-    def supports(self,lines):
-        for n in xrange(0,min(100,len(lines))): #only search first 100 lines and give up
-            line = lines[n]
-            if self.yencRegex.match(line):
-                return line;
-        return False
-
-    def getRealFilename(self,lines):
-        match = self.nameRegex.match(self.supports(lines))
-        if match: return match.group(1)
-        else: return None
-
     def getFilename(self,lines):
         for line in lines:
             if ( line[:7] == "=ybegin" ):
@@ -144,31 +138,11 @@ class yEncDecoder(object):
                 return args[2].split("=")[1]
         return None
 
-    def decode(self,lines):
-        lines = self.stripArticleData(lines)
-
-        data = []
-        isData = False
-        for line in lines:
-            if self.yencEndRegex.match(line): break
-            if self.yencStartRegex.match(line):
-                isData = True
-            elif isData: data.append(line)
-
-        data = "".join(data)
-
-        for i in (0, 9, 10, 13, 27, 32, 46, 61):
-            j = '=%c' % (i + 64)
-            data = data.replace(j, chr(i))
-            
-        return data.translate( self.yencTr )
-
-    def hella_decode(self, lines):
+    def decode(self, lines, ignoreErrors = False):
         buffer = []
-
         lines = self.stripArticleData(lines)
 
-        inContent = False
+        inBody = False
         endFound = False
         for line in lines:
             if line[:2] == '..':
@@ -179,88 +153,23 @@ class yEncDecoder(object):
                 line = line[:-1]
 
             if (line[:7] == '=ybegin') or (line[:6] == '=ypart'):
-                inContent = True
+                inBody = True
                 continue
             elif line[:5] == '=yend':
                 endFound = True
                 break
-            if ( inContent ): buffer.append(line)
+            if ( inBody ): buffer.append(line)
 
-        if ( not endFound ): 
-            print "No Ending Found."            
+        if ( not endFound ) and ( not ignoreErrors ): 
+            mt.log.error("Article decode error: =yend not found.")           
             return None
 
         data = ''.join(buffer)
         decoded_data = _yenc.decode_string(data)[0]
         return decoded_data
-
-    def testDecode(self, lines):
-        i = 0
-        start_line = -1
-        end_line = -1
-
-        #print "Line size before stripping:" + str(len(lines))
-        self.stripArticleData(lines)
-        #print "Line size after stripping:" + str(len(lines))
-
-        for line in lines:
-            if line[:2] == '..':
-                line = line[1:]
-            if line[-2:] == "\r\n":
-                line = line[:-2]
-            elif line[-1:] in "\r\n":
-                line = line[:-1]
-
-            if ( line[:6] == "=ypart" ):
-                start_line = i+1
-            if ( line[:5] == "=yend"):
-                end_line = i
-
-            i += 1
-
-        if ( start_line > -1 ) and ( end_line > -1 ):
-            data = "".join(lines[start_line:end_line])     
-            decoded_data, size, num = _yenc.decode_string(data)
-            #print decoded_data
-            return decoded_data
-        return None
-
-    def yenc_decode(self, lines):
-        # find body
-        x = 0
-        print "Line size before stripping:" + str(len(lines))
-        self.stripArticleData(lines)
-        print "Line size after stripping:" + str(len(lines))
-
-        while (x < len(lines)):
-            line = lines[x]
-            if not line:
-                return None
-            if line[:7] == "=ybegin":
-                break
-            x += 1
-        # extract data
-        buffer = []
-        while (x < len(lines)):
-            line = lines[x]
-            if not line or line[:5] == "=yend":
-                break
-            if line[-2:] == "\r\n":
-                line = line[:-2]
-            elif line[-1:] in "\r\n":
-                line = line[:-1]
-            data = string.split(line, "=")
-            buffer.append(string.translate(data[0], self.yenc42))
-            for data in data[1:]:
-                data = string.translate(data, self.yenc42)
-                buffer.append(string.translate(data[0], self.yenc64))
-                buffer.append(data[1:])
-            x+=1
-        return "".join(buffer)  
     
     MIME_HEADER_RE = re.compile('^(\w|-)+: .*$')
     def stripArticleData(self, articleData):
-        """ Rip off leading/trailing whitespace (and EOM char) from the articleData list """
         try:
             # Rip off the leading whitespace
             while articleData[0] == '' or self.MIME_HEADER_RE.match(articleData[0]):
