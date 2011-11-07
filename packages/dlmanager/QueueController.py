@@ -178,7 +178,7 @@ class QueueController(threading.Thread):
             if ( os.path.isfile(ff) and f.endswith(".rar") ):
                 rar_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
                 try:
-                    output = commands.getoutput('unrar e -o+ ' + rar_file + " " + mt.config["dlmanager/nzb"]["save_to"])
+                    output = commands.getoutput('/usr/bin/unrar e -o+ ' + rar_file + " " + mt.config["dlmanager/nzb"]["save_to"])
                     output_args = output.splitlines()
                     result = output_args[len(output_args)-1]
                 except:
@@ -198,7 +198,7 @@ class QueueController(threading.Thread):
             if ( os.path.isfile(ff) and f.endswith(".par2") ): 
                 par2_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
                 try:
-                    output = commands.getoutput('par2 r ' + par2_file)
+                    output = commands.getoutput('/usr/bin/par2 r ' + par2_file)
                     output_args = output.splitlines()
                     result = output_args[len(output_args)-1]
                 except:
