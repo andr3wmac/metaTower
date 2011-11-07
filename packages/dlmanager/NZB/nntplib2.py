@@ -114,7 +114,7 @@ class NNTP:
         self.host = host
         self.port = port
         self.sock = socket.create_connection((host, port))
-        self.sock.settimeout(3)
+        self.sock.settimeout(10)
         self.file = self.sock.makefile('rb')
         self.debugging = 0
         self.welcome = self.getresp()
@@ -661,7 +661,7 @@ class NNTP_SSL(NNTP):
             break
         if not self.sock:
             raise socket.error, msg
-        self.sock.settimeout(3)
+        self.sock.settimeout(10)
         self.file = self.sock.makefile('rb')
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.debugging = 0
