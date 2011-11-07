@@ -147,9 +147,9 @@ def processLogin(socket, path, auth_line):
             sout = showLoginForm(key)
         
     if ( user != None ):
-        print "User logged in."
         sesh = mtSession.newSession()
         sesh.user = user
+        mt.log.info(user.name + " has logged in.")
         sesh.local = local_client
         mt.packages.onLogin(sesh)
         sout = sesh.out()
@@ -168,7 +168,7 @@ def processLogin(socket, path, auth_line):
 def userLogin(username, password, local):
     if ( username == None ) or ( username == "" ): return None
 
-    print "Login attempt from: " + username + " pass: " + password
+    mt.log.info("Login attempt from: " + username)
     if ( mt.users.has_key(username) ):
         user = mt.users[username]
         if ( user.local_only ) and ( not local ): return None

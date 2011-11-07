@@ -1,8 +1,32 @@
 import mtCore as mt
 import threading, os, mtMisc, commands, shutil
 from NZB.NZBClient import NZBClient, time
+from BitTornado.TorrentClient import TorrentClient
 
 class QueueController(threading.Thread):
+    class NZBQueueItem():
+        removed = False
+        filename = ""
+        save_to = ""
+        completed = False
+        error = False
+        downloading = False
+        par2_results = "Checking and repairing files.."
+        unrar_results = ""
+        last_update = 0
+        uid = ""
+    
+    class TorrentQueueItem():
+        removed = False
+        filename = ""
+        realFilename = None
+        save_to = ""
+        completed = False
+        error = False
+        downloading = False
+        last_update = 0
+        uid = ""
+
     def __init__(self):
         threading.Thread.__init__(self)
         self.daemon = True
@@ -35,18 +59,15 @@ class QueueController(threading.Thread):
             nzb.save_to = item["save_to"]
             self.nzb_queue.append(nzb)
 
-        if ( False ):
-            for item in config.get("dlmanager/queue/torrent"):
-                if ( not os.path.isfile(item["filename"]) ): continue 
-                torrent = self.TorrentQueueItem()
-                torrent.uid = item["uid"]
-                torrent.filename = item["filename"]
-                torrent.completed = bool(int(item["completed"]))
-                torrent.error = bool(int(item["error"]))
-                torrent.save_to = item["save_to"]
-                torrent_queue.append(torrent)
-            self.torrent_engine = lt.session()
-            self.torrent_engine.listen_on(6881, 6891)
+        for item in config.get("dlmanager/queue/torrent"):
+            if ( not os.path.isfile(item["filename"]) ): continue 
+            torrent = self.TorrentQueueItem()
+            torrent.uid = item["uid"]
+            torrent.filename = item["filename"]
+            torrent.completed = bool(int(item["completed"]))
+            torrent.error = bool(int(item["error"]))
+            torrent.save_to = item["save_to"]
+            self.torrent_queue.append(torrent)
 
 
     def removeItems(self, items):
@@ -61,34 +82,11 @@ class QueueController(threading.Thread):
 
         for torrent in self.torrent_queue:
             if torrent.uid in items:
-                if ( torrent.lt_entry != None ):
-                    self.torrent_engine.remove_torrent(torrent.lt_entry)
-                    torrent.lt_entry = None
+                if ( torrent.downloading ):
+                    self.torrent_engine.stopDownload()
+                    self.torrent_engine = None
                 os.remove(torrent.filename)
                 torrent.removed = True
-
-    class NZBQueueItem():
-        removed = False
-        filename = ""
-        save_to = ""
-        completed = False
-        error = False
-        downloading = False
-        par2_results = "Checking and repairing files.."
-        unrar_results = ""
-        last_update = 0
-        uid = ""
-    
-    class TorrentQueueItem():
-        removed = False
-        filename = ""
-        save_to = ""
-        completed = False
-        error = False
-        downloading = False
-        last_update = 0
-        lt_entry = None
-        uid = ""
     
     def torrentFiles(self):
         results = []
@@ -107,14 +105,22 @@ class QueueController(threading.Thread):
         return results
 
     def torrentUpdate(self):
-        for torrent in self.torrent_queue:
-            if ( torrent.lt_entry == None ):
-                try:
-                    info = lt.torrent_info(torrent.filename)
-                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
-                except:
-                    mt.log.error("Could not add torrent.")
-                    pass
+        if ( self.torrent_engine == None ):
+            for torrent in self.torrent_queue:
+                if ( not torrent.downloading ) and ( not torrent.completed ):
+                    torrent.downloading = True
+                    self.torrent_engine = TorrentClient()
+                    self.torrent_engine.start(torrent.filename)
+        else:
+            if ( self.torrent_engine.done ) or ( not self.torrent_engine.downloading ):
+                for torrent in self.torrent_queue:
+                    if ( torrent.filename == self.torrent_engine.filename ):
+                        if ( self.torrent_engine.realFilename != None ):
+                            torrent.realFilename = self.torrent_engine.realFilename
+                        torrent.completed = True
+                        torrent.downloading = False
+                        self.torrent_engine.stopDownload()
+                        self.torrent_engine = None
 
     def nzbUpdate(self):
         # evaluate the state of the NZB Queue.
@@ -217,19 +223,18 @@ class QueueController(threading.Thread):
                             new_item.save_to = os.path.join(mt.config["dlmanager/nzb"]["save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
                             self.nzb_queue.append(new_item)
                     self.nzbUpdate()
-
-                    if ( self.torrent_enabled ):
-                        for torrent in self.torrentFiles():
-                            already_queued = False
-                            for queue_item in torrent_queue:
-                                if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
-                            if ( not already_queued ):
-                                new_item = self.TorrentQueueItem()
-                                new_item.filename = torrent
-                                new_item.uid = mtMisc.uid()
-                                new_item.save_to = os.path.join(mt.config["dlmanager/torrent"]["dir"], os.path.basename(torrent)) + "/"
-                                self.torrent_queue.append(new_item)
-                        self.torrentUpdate()
+                    
+                    for torrent in self.torrentFiles():
+                        already_queued = False
+                        for queue_item in self.torrent_queue:
+                            if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
+                        if ( not already_queued ):
+                            new_item = self.TorrentQueueItem()
+                            new_item.filename = torrent
+                            new_item.uid = mtMisc.uid()
+                            new_item.save_to = os.path.join(mt.config["dlmanager/torrent"]["dir"], os.path.basename(torrent)) + "/"
+                            self.torrent_queue.append(new_item)
+                    self.torrentUpdate()
                     
                     self.last_update = time.time()
                 time.sleep(1)  
@@ -264,8 +269,10 @@ class QueueController(threading.Thread):
 
         if ( self.nzb_engine != None ):
             self.nzb_engine.stopDownload()
+            del self.nzb_engine
         
         if ( self.torrent_engine != None ):
+            self.torrent_engine.stopDownload()
             del self.torrent_engine
 
         self.running = False

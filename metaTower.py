@@ -25,7 +25,7 @@ if __name__ == '__main__':
     mtHTTPServer.start()
     try:
         cmd = ""
-        while ( cmd != "stop" ):
+        while ( cmd != "stop" ) :
             sys.stdout.write("> ")
             cmd = raw_input()
             try:
@@ -45,6 +45,9 @@ if __name__ == '__main__':
                     print "  stop - shut down metaTower."
             except Exception as e:
                 print "Error: " + str(e.args)
+                pass
+    except Exception as e:
+        print "Error: " + str(e.args)
     finally:
         print "Shutting down.."
         if ( mtCore.running ): mtCore.stop()

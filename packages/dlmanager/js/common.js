@@ -42,7 +42,7 @@ var dlmanager = {
 		}
 	},
 
-	torrent: function(id, filename, state, progress, dl_rate, ul_rate, peers)
+	torrent: function(id, filename, state, progress, dl_rate)
 	{
 		// the actual output
 		var torrent_element = document.getElementById(id);
@@ -57,14 +57,14 @@ var dlmanager = {
 			mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false)
 			mt.progress("prog_" + id, 0);	
 		} 
-		else if ( state == "downloading" )
+		else if ( state == 1 )
 		{
-			mt.html(id, "<b>" + filename + "</b><br>Downloading at " + dl_rate + " kb/s. Uploading at " + ul_rate + " kb/s. " + peers + " peer(s).<div id=\"prog_" + id + "\"></div>", false);
+			mt.html(id, "<b>" + filename + "</b><br>Downloading at " + dl_rate + "<div id=\"prog_" + id + "\"></div>", false);
 			mt.progress("prog_" + id, progress);	
 		}
-		else if ( state == "seeding" )
+		else if ( state == 2 )
 		{
-			mt.html(id, "<b>" + filename + "</b><br>Seeding. Upload Rate: " + ul_rate + " kb/s<div id=\"prog_" + id + "\"></div>", false)
+			mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false)
 			mt.progress("prog_" + id, 100);	
 		} else {
 			mt.html(id, "<b>" + filename + "</b><br>" + state + "<div id=\"prog_" + id + "\"></div>", false)

@@ -35,7 +35,7 @@ def remove_selected(session, selected):
 
     items = selected.split(",")
     QueueControl.removeItems(items)
-    return dlmanager.update(session)
+    return update(session)
 
 def jman_load(session):
     packages.jman.menu(session, "Download Manager", {"package": "dlmanager", "dialogs": ['dlmanager_main']})
@@ -69,6 +69,7 @@ def update(session):
     global QueueControl
     nzb_engine = QueueControl.nzb_engine
     nzb_queue = QueueControl.nzb_queue
+    torrent_engine = QueueControl.torrent_engine
     torrent_queue = QueueControl.torrent_queue
 
     # prepare our session.
@@ -96,11 +97,24 @@ def update(session):
     for torrent in torrent_queue:
         if ( torrent.removed ):
             out.js("dlmanager.remove('" + torrent.uid + "');")
-        elif ( torrent.lt_entry == None ):
-            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 0);")
+
+        state = 0
+        if ( torrent.completed ):
+            state = 2
+
+        filename = os.path.basename(torrent.filename)
+        if ( torrent.realFilename != None ):
+            filename = torrent.realFilename
+
+        if ( torrent_engine != None ):
+            if ( torrent.filename == torrent_engine.filename ):
+                if ( torrent_engine.realFilename != None ): filename = torrent_engine.realFilename
+                out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', 1, " + str(torrent_engine.percentDone) + ", '" + torrent_engine.downRate + "');")
+            else:
+                out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', " + str(state) + ");")
         else:
-            status = torrent.lt_entry.status()
-            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', '" + str(status.state) + "', " + str(status.progress * 100) + ", " + str(round(status.download_rate / 1000, 2)) + ", " + str(round(status.upload_rate / 1000, 2)) + ", " + str(status.num_peers) + ");")
+            out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', " + str(state) + ");")
+            
 
     out.js("dlmanager.update();")
     return out

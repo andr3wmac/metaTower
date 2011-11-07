@@ -116,9 +116,7 @@ class NZBClient():
     # Article Decoder - Decode success.
     def decodeSuccess(self, seg):
         self.segments_finished.append(seg.msgid) 
-        mt.log.debug("SEGMENT FINISHED: " + seg.msgid)
         if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-            print "Decode success Segments: " + str(len(self.segment_list)) + " Finished: " + str(len(self.segments_finished)) + " Aborted: " + str(len(self.segments_aborted)) + " Failed: " + str(len(self.failed_queue))
             self.all_decoded = True
 
     # Article Decoder - Decode failed.

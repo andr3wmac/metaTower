@@ -31,7 +31,6 @@ class MenuEntry:
     package_name = ""
 
 def menu(session, caption, package_name):
-    print "Menu entry from: " + misc.getSource()
     new_menu_entry = MenuEntry()
     new_menu_entry.caption = caption
     new_menu_entry.package_name = package_name
