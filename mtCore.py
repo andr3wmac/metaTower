@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect
+import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect, urllib
 import mtAuth, mtConfigManager, mtEventManager, mtPackageManager, mtMisc
 
 running = False
@@ -53,9 +53,21 @@ def start():
     packages = mtPackageManager.PackageManager()
     packages.loadDirectory("packages")
 
+    # determine ip addresses.
+    print "\nYou can connect to your tower at:"
+
+    #  - local
     config["local_ip"] = mtMisc.getLocalIP()
-    print "You can connect to your tower at:\n http://" + config["local_ip"] + ":" + config["port"] + "/"
-    
+    if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
+    print " http://" + config["local_ip"] + ":" + config["port"] + "/"
+
+    #  - remote
+    try:
+        config["remote_ip"] = urllib.urlopen('http://whatismyip.org').read()
+        print " http://" + config["remote_ip"] + ":" + config["port"] + "/"
+    except:
+        pass
+        
 def stop():
     global running, config, packages
     running = False

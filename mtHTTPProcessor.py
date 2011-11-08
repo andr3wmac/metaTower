@@ -108,10 +108,8 @@ def processLogin(socket, path, auth_line):
     key = ""
 
     # determine if the packet is local or remote.
-    local_client = False
     client_addr = socket.getpeername()
-    if ( str(client_addr[0])[:7] == "192.168" ) or ( str(client_addr[0]) == "127.0.0.1" ) or ( str(client_addr[0])[:5] == "10.0." ):
-        local_client = True
+    local_client = mtMisc.isLocalIP(client_addr[0])
     
     # see if we have post data.
     if ( auth_line != "" ):
@@ -149,6 +147,7 @@ def processLogin(socket, path, auth_line):
     if ( user != None ):
         sesh = mtSession.newSession()
         sesh.user = user
+        sesh.IP = client_addr[0]
         mt.log.info(user.name + " has logged in.")
         sesh.local = local_client
         mt.packages.onLogin(sesh)

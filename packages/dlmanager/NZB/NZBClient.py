@@ -25,7 +25,11 @@ class NZBClient():
         self.nntpPassword = nntpPassword
         self.nntpSSL = nntpSSL
         self.nntpConnections = nntpConnections
+
+        # setup our cache folder.
         self.cachePath = cachePath
+        if ( self.cachePath == "" ): self.cachePath = "packages/dlmanager/cache/"
+        self.clearCache()
 
         # Open the NZB, get this show started.
         realFile = urllib.urlopen( nzbFile )
@@ -185,7 +189,6 @@ class NZBClient():
         # We're all outta segments, if they're done decoding, kill the threads.
         if ( queue_empty ) and ( self.all_decoded ):
             return -1
-
         
         return seg
 
@@ -198,6 +201,13 @@ class NZBClient():
             
     def stopDownload(self):
         self.running = False
+        del self.cache[:]
+        del self.segment_list[:]
+        del self.segments_finished[:]
+        del self.segments_aborted[:]
+        del self.segment_queue[:]
+        del self.failed_queue[:]
+        self.clearCache()
 
 class NNTPConnection(Thread):
     def __init__(self, connection_number, server, port, username, password, ssl, nextSegFunc, onSegComplete = None, onSegFailed = None, onThreadStop = None, **kwds):

@@ -27,10 +27,21 @@ def getSource(depth=2):
 def getLocalIP():
     ip = socket.gethostbyname(socket.gethostname())
     if ( ip.startswith("127.") ):
-        ifargs = commands.getoutput("/sbin/ifconfig | grep 192.").split(" ")
+        ifargs = commands.getoutput("ifconfig | grep 192.").split(" ")
         for arg in ifargs:
             if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
+
+        # Only way it seems to work when metaTower is running from init.d
+        if ( not ip.startswith("192.") ):
+            ifargs = commands.getoutput("/sbin/ifconfig | /bin/grep 192.").split(" ")
+            for arg in ifargs:
+                if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
     return ip
+
+def isLocalIP(IP):
+    if ( IP[:7] == "192.168" ) or ( IP[:5] == "127.0" ) or ( IP[:5] == "10.0." ):
+        return True
+    return False
 
 def removeDuplicates(arr):
     s = sets.Set(arr)

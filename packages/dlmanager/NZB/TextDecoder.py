@@ -15,7 +15,6 @@ class ArticleDecoder(Thread):
         self.running = True
 
         self.path = path
-        if ( self.path == "" ): self.path = "packages/dlmanager/cache/"
 
     def run(self):
         while ( self.running ):
@@ -63,11 +62,9 @@ class ArticleDecoder(Thread):
                     seg_f.close()
 
                     seg_size = len(seg_data)
-                    mt.log.debug(" adding: " + seg + " size: " + str(seg_size) + " byte(s)")
                     total_data += len(seg_data)
                     
                     if ( seg_data ): file.write(seg_data)
-                    del seg_data
                     os.remove(os.path.join(self.path, seg))
 
                 file.close()
@@ -83,6 +80,9 @@ class ArticleDecoder(Thread):
             filename = decoder.getFilename(data)
             partnum = decoder.getPartNum(data)
             decoded_data = decoder.decode(data, seg.lastTry())
+            seg.data = "" # this prevents a massive memory leak that took me 45 minutes to find.
+
+            # check if the partnum matches.
             if ( partnum != seg.number ):
                 mt.log.error("Part number does not match: " + seg.msgid)
                 if ( self.onFail ): self.onFail(seg)

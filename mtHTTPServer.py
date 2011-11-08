@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import socket, thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes, uuid, threading, base64
+import socket, thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes, threading, base64
 import mtSession, mtHTTPProcessor
 import mtCore as mt
 
@@ -172,6 +172,8 @@ class HTTPHandler(threading.Thread):
 
     def run(self):
         output = None
+        local_ip, local_port = self.client_socket.getpeername()
+        other_ip, other_port = self.client_socket.getsockname()
         mt.log.info("Connection opened by " + str(self.client_addr[0]))
         
         keep_alive = True
@@ -250,10 +252,14 @@ class HTTPHandler(threading.Thread):
             # check to see if we have a session cookie and if its valid.    
             try:    
                 session = None
-                if ( "session" in cookies ): session = mtSession.findSession(cookies["session"])
+                if ( "session" in cookies ): 
+                    session = mtSession.findSession(cookies["session"])
                 if ( session == None ):
                     output.append(mtHTTPProcessor.processLogin(self.client_socket, request_path, auth_line))
                 else:
+                    # keep session IP up to date.
+                    session.IP = self.client_addr[0]
+
                     # check for a dirty url ( login when a cookie exists )
                     if ( request_path.startswith("/?") ):
                         output.append(session.cleanRedirect())

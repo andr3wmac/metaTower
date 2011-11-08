@@ -45,7 +45,7 @@ mt_stop() {
     else
         echo "metaTower was not running."
     fi
-    if /usr/bin/pgrep -u $USERNAME -f $SERVICE > /dev/null
+    if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
     then
         echo "Error! metaTower could not be stopped."
     else

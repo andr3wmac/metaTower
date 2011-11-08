@@ -19,7 +19,7 @@ if False:
     import serial.win32, Queue
 
 if __name__ == '__main__':
-    print "metaTower v0.3.1"
+    print "metaTower v0.3.2\n"
     mtCore.start()
     mtAuth.start()
     mtHTTPServer.start()

@@ -18,6 +18,7 @@ class Session():
     last_activity = 0
     events = None
     local = False
+    IP = "127.0.0.1"
     
     def __init__(self):
         self.auth_key = hashlib.sha256(str(uuid.uuid1())).hexdigest()
@@ -28,8 +29,13 @@ class Session():
         return sout
 
     def cleanRedirect(self, packet = None):
-        if ( self.local ): server_addr = mtCore.config["local_ip"]
-        else: server_addr = mtCore.config["remote_ip"]
+        if ( self.local ): 
+            if ( self.IP.startswith("127.") ):
+                server_addr = self.IP
+            else:
+                server_addr = mtCore.config["local_ip"]
+        else: 
+            server_addr = mtCore.config["remote_ip"]
 
         if ( packet == None ): packet = mtHTTPServer.HTTPOut()
         packet.status = "302 Found"
