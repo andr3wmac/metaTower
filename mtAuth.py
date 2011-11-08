@@ -31,25 +31,31 @@ class UpdateThread( threading.Thread ):
 
     def run ( self ):
         while True:
-            auth_url = mt.config["auth_url"]
-            if ( auth_url != "" ):
-                try:
-                    mt.config["auth_key"] = mtMisc.uid()
-                    values = {"auth_key": mt.config["auth_key"], "port": mt.config["port"]}
-                    http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())
-                    data_out = urllib.urlencode(values)
-                    response = http.open(auth_url, data_out)
+            #auth_url = mt.config["auth_url"]
+            mt.config["auth_key"] = mtMisc.uid()
+            for username in mt.users:
+                user = mt.users[username]
 
-                    data = response.read()
-                    resp_args = data.split(":")
-                    if ( resp_args[0] == "OK" ):
-                        mt.config["remote_ip"] = resp_args[1]    
-                        mt.log.debug("Authentication service updated successfully.")
-                    else:
-                        mt.log.debug("Authentication service failed.")
+                if ( user.auth_url != "" ):
+                    try:
+                        upass = ""
+                        if ( user.password_md5 != "" ): upass = user.password_md5[:16]
+                        
+                        values = {"auth_key": mt.config["auth_key"], "port": mt.config["port"], "pass": upass }
+                        http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())
+                        data_out = urllib.urlencode(values)
+                        response = http.open(user.auth_url, data_out)
 
-                except Exception as inst:
-                    mt.log.error("Updating authentication: " + str(inst.args))
+                        data = response.read()
+                        resp_args = data.split(":")
+                        if ( resp_args[0] == "OK" ):
+                            mt.config["remote_ip"] = resp_args[1]    
+                            mt.log.debug("Authentication for user " + user.name + " success.")
+                        else:
+                            mt.log.debug("Authentication for user " + user.name + " failed.")
+
+                    except Exception as inst:
+                        mt.log.error("Error updating authentication for " + user.name + ": " + str(inst.args))
 
             time.sleep(300)
 

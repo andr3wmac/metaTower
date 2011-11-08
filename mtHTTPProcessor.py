@@ -105,7 +105,6 @@ def processLogin(socket, path, auth_line):
     sout = None
     login_username = ""
     login_password = ""
-    key = ""
 
     # determine if the packet is local or remote.
     client_addr = socket.getpeername()
@@ -116,17 +115,6 @@ def processLogin(socket, path, auth_line):
         args = auth_line.split(":")
         login_username = args[0]
         login_password = str(hashlib.md5(args[1]).hexdigest())
-
-    # check if we have a usable key
-    key_ok = False
-    if ( len(path) > 2 ) and ( path[1] == "?" ):
-        args = path.split("@")
-        key = args[0][2:]
-        if ( key == mt.config["auth_key"] ) and ( len(args) > 1 ):
-            user_login = args[1].split(":")
-            login_username = user_login[0]
-            login_password = user_login[1]
-            key_ok = True
 
     # security.
     if ( local_client ): security = int(config["local_security"])
@@ -140,9 +128,13 @@ def processLogin(socket, path, auth_line):
         sout = showLoginForm()
 
     if ( security == 2 ):
-        if ( key_ok ): 
-            user = userLogin(login_username, login_password, local_client)
-            sout = showLoginForm(key)
+        if ( len(path) > 2 ) and ( path[1] == "?" ):
+            args = path.split("@")
+            key = args[0][2:]
+            if ( key == mt.config["auth_key"] ) and ( len(args) > 1 ):
+                user_login = args[1].split(":")
+                user = mt.users[user_login[0]]
+                if (( user != None ) and ( user.password_md5[16:] != user_login[1] )): user = None
         
     if ( user != None ):
         sesh = mtSession.newSession()

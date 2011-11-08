@@ -18,7 +18,7 @@ var dlmanager = {
 		if ( status == 1 )
 		{
             if ( completed > total ) { completed = total; }
-            if ( percent >= 100 )
+            if ( completed == total )
             {
 			    mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Decoding..<div id=\"prog_" + id + "\"></div>", false);
 			    mt.progress("prog_" + id, 100);
