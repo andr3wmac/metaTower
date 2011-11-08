@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<default_user>
+		default
+	</default_user>
+	<users>
+		<user home="files" name="default" windowmanager="jman"/>
+		<user home="files" name="ps3" windowmanager="jmanlite"/>
+	</users>
+</metaTower>

@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<port>
+		1337
+	</port>
+	<local_security>
+		0
+	</local_security>
+	<remote_security>
+		1
+	</remote_security>
+</metaTower>
