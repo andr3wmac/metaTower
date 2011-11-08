@@ -261,6 +261,7 @@ class NNTP:
     def getrawresp(self, query, ignoreErrors = False):
         """Get a raw response from the nntp server"""
         self.putcmd(query)
+        data = ""
         try:
             data = self.file.read()
             while( not data[len(data)-3:] == ".\r\n"):
@@ -724,6 +725,7 @@ class NNTP_SSL(NNTP):
     def getrawresp(self, query, ignoreErrors = False):
         """Get a raw response from the nntp server"""
         self.putcmd(query)
+        data = ""
         try:
             data = self.sslobj.read()
             while( not data[len(data)-3:] == ".\r\n"):
