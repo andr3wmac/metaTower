@@ -75,35 +75,26 @@ class ArticleDecoder(Thread):
     def decodeSegment(self, seg):
         decoder = yEncDecoder()
         try:
-            # split up the data, process it and write it disk.
-            data = seg.data.split("\r\n")
-            filename = decoder.getFilename(data)
-            partnum = decoder.getPartNum(data)
-            decoded_data = decoder.decode(data, seg.lastTry())
-            seg.data = "" # this prevents a massive memory leak that took me 45 minutes to find.
-
-            # check if the partnum matches.
-            if ( partnum != seg.number ):
-                mt.log.error("Part number does not match: " + seg.msgid)
-                if ( self.onFail ): self.onFail(seg)
-                return
-
-            # if we have all we need write to cache.
-            if ( filename ) and ( partnum ) and ( decoded_data ):
-                file_path = os.path.join(self.path, filename + "." + str("%03d" % (partnum,)))
-                mt.log.debug("Writing segment: " + file_path + " Size: " + str(len(decoded_data)))
+            if ( decoder.decode(seg) ):
+                file_path = os.path.join(self.path, seg.filename + "." + str("%03d" % (seg.partnum,)))
                 cache_file = open(file_path, "wb")
-                cache_file.write(decoded_data)
+                cache_file.write(seg.decodedData)
                 cache_file.close()
+
+                # memory leaks really bad without this.
+                del seg.data[:]
+                seg.decodedData = ""
+
                 if ( self.onSuccess ): self.onSuccess(seg)
             else:
-                mt.log.debug("Segment decode failed: " + seg)
                 if ( self.onFail ): self.onFail(seg)
 
         except Exception as inst:
             mt.log.error("ArticleDecoder decode segment(" + seg.msgid + ") error: " + str(inst.args))
             if ( self.onFail ): self.onFail(seg)
 
+        finally:
+            del seg.data[:]
 
 class yEncDecoder(object):
     def getFilename(self,lines):
@@ -138,35 +129,80 @@ class yEncDecoder(object):
                 return args[2].split("=")[1]
         return None
 
-    def decode(self, lines, ignoreErrors = False):
+    def decode(self, seg):
+        ignoreErrors = seg.lastTry()
         buffer = []
-        lines = self.stripArticleData(lines)
+        #print seg.data[0]
+        #print seg.data[1]
+        #lines = self.stripArticleData(seg.data)
 
         inBody = False
         endFound = False
-        for line in lines:
-            if line[:2] == '..':
-                line = line[1:]
-            if line[-2:] == "\r\n":
-                line = line[:-2]
-            elif line[-1:] in "\r\n":
-                line = line[:-1]
+        for line in seg.data:
+            #if line[:2] == '..':
+            #    line = line[1:]
+            #if line[-2:] == "\r\n":
+            #    line = line[:-2]
+            #elif line[-1:] in "\r\n":
+            #    line = line[:-1]
 
-            if (line[:7] == '=ybegin') or (line[:6] == '=ypart'):
+            if (line[:7] == '=ybegin'):
+                args = line.split(" ")
+                for arg in args:
+                    if ( arg.startswith("name=") ):
+                        seg.filename = arg.split("=")[1]
+                    if ( arg.startswith("part=") ):
+                        seg.partnum = int(arg.split("=")[1])
+
+            elif (line[:6] == '=ypart'):
                 inBody = True
                 continue
-            elif line[:5] == '=yend':
+
+            elif (line[:5] == '=yend'):
+                args = line.split(" ")
+                for arg in args:
+                    if ( arg.startswith("pcrc32=") or arg.startswith("crc32=") ):
+                        seg.crc = arg.split("=")[1]
+
                 endFound = True
                 break
             if ( inBody ): buffer.append(line)
 
+        # no ending found, article must have been cut off in transmit.
         if ( not endFound ) and ( not ignoreErrors ): 
             mt.log.error("Article decode error: =yend not found.")           
-            return None
+            return False
 
+        # join the data together and decode it.
         data = ''.join(buffer)
-        decoded_data = _yenc.decode_string(data)[0]
-        return decoded_data
+        decoded_data, crc, something = _yenc.decode_string(data)
+        
+        # if the article has failed multiple times we'll ignore errors and take
+        # whatever we can get from it.
+        if ( not ignoreErrors ):
+            # If a CRC was included, check it.
+            #if ( seg.crc != "" ):
+            #    crc = '%08X' % ((crc ^ -1) & 2**32L - 1)
+            #    if ( seg.crc.upper() != crc ):
+            #        print "CRC check failed."
+            #        return False
+
+            # check partnum
+            if ( seg.partnum != seg.number ):
+                mt.log.error("Part number does not match: " + seg.msgid)
+                if ( self.onFail ): self.onFail(seg)
+                return False
+
+            # ensure we decoded a filename.
+            if ( seg.filename == "" ):
+                print "No filename found."
+                return False
+        else:
+            if ( seg.partnum != seg.number ): seg.partnum = seg.number
+
+        seg.decodedSize = len(decoded_data)
+        seg.decodedData = decoded_data
+        return True
     
     MIME_HEADER_RE = re.compile('^(\w|-)+: .*$')
     def stripArticleData(self, articleData):

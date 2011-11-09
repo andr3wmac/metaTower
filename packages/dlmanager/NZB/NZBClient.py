@@ -2,7 +2,7 @@ import sys, os, urllib, time, socket
 import mtCore as mt
 from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
-from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP
+from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
 from dlmanager.NZB.TextDecoder import ArticleDecoder
 
 class StatusReport(object):
@@ -119,6 +119,7 @@ class NZBClient():
         
     # Article Decoder - Decode success.
     def decodeSuccess(self, seg):
+        self.status.current_bytes += seg.decodedSize
         self.segments_finished.append(seg.msgid) 
         if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
             self.all_decoded = True
@@ -140,8 +141,7 @@ class NZBClient():
         if ( seg == None ): return
 
         if ( seg.data ): 
-            data_size = len(seg.data)
-            self.status.current_bytes += data_size
+            data_size = len("".join(seg.data))
 
             if ( (time.time() - self.speedTime) > 1 ):
                 self.status.kbps = self.speedCounter
@@ -157,7 +157,7 @@ class NZBClient():
     def segFailed(self, seg):
         if ( seg == None ): return
 
-        if ( seg.lastTry() ):
+        if ( seg.aborted() ):
             mt.log.error("Segment Failed " + str(seg.retries+1) + " Times, Aborting. MsgID: " + seg.msgid)
             self.segments_aborted.append(seg.msgid)
             del seg
@@ -262,12 +262,23 @@ class NNTPConnection(Thread):
 
                         # Attempt to grab a segment.
                         try:
-                            seg.data = connection.getrawresp( "BODY <%s>" % seg.msgid, seg.lastTry() )
-                            if ( self.onSegComplete ): self.onSegComplete(seg)
+                            #seg.data = connection.getrawresp( "BODY <%s>" % seg.msgid, seg.lastTry() )
+                            #if ( self.onSegComplete ): self.onSegComplete(seg)
+                            resp, nr, id, list = connection.body("<%s>" % seg.msgid)
+                            if resp.startswith("2"):
+                                seg.data = list
+                                if ( self.onSegComplete ): self.onSegComplete(seg)
+                            else:
+                                print "FAILED: RESP: " + str(resp) + " LENGTH OF DATA:" + str(len(list))
+                                self.onSegFailed(seg)
+
+                        except NNTPReplyError:
+                            mt.log.error("NNTP reply error.")
+                            if ( self.onSegFailed ): self.onSegFailed(seg)
 
                         except Exception as inst:
                             if ( self.onSegFailed ): self.onSegFailed(seg)
-                            mt.log.debug("Error getting segment: " + str(inst.args))
+                            mt.log.debug("Error getting segment: " + str(inst))
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:

@@ -114,7 +114,7 @@ class NNTP:
         self.host = host
         self.port = port
         self.sock = socket.create_connection((host, port))
-        self.sock.settimeout(10)
+        self.sock.settimeout(5)
         self.file = self.sock.makefile('rb')
         self.debugging = 0
         self.welcome = self.getresp()
@@ -268,7 +268,9 @@ class NNTP:
                 data += self.file.read()
         except:
             if ( ignoreErrors ): pass
-            else: raise
+            else: 
+                print "Timeout size: " + str(len(data)) + " ends with: [" + str(data[-5:]) + "]"
+                raise
         return data
 
     def shortcmd(self, line):
@@ -662,7 +664,7 @@ class NNTP_SSL(NNTP):
             break
         if not self.sock:
             raise socket.error, msg
-        self.sock.settimeout(10)
+        self.sock.settimeout(5)
         self.file = self.sock.makefile('rb')
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.debugging = 0
@@ -732,7 +734,10 @@ class NNTP_SSL(NNTP):
                 data += self.sslobj.read()
         except:
             if ( ignoreErrors ): pass
-            else: raise
+            else: 
+                print "Timeout:"
+                print data              
+                raise
         return data
 
     def getline(self):
