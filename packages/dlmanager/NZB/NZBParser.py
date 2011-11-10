@@ -4,6 +4,50 @@ from xml.sax import handler,SAXException
 import logging
 
 log = logging.getLogger("NZBParser")
+MAX_RETRIES = 3                   # maximum retries of a segment before giving up.
+
+class NZB(object):
+    def __init__(self):
+        self.files = []           # the files part of this download
+        self.size = 0             # bytes total
+            
+class NZBFile(object):
+    def __init__(self):
+        self.subject = None       # the subject for posting of this file
+        self.realFileName = None  # the real filename of the attachment in this post
+        self.group = ""           # the group where the file was posted
+        self.segments = []        # the message id's which make up the file
+        self.size = 0
+    def orderSegments(self):
+        "Ensure that this File's segments are ordered correctly."
+        segs = [ (el.number,el) for el in self.segments ]
+        segs.sort()
+        self.segments = [ el[1] for el in segs ]
+
+
+class NZBSegment(object):
+    def __init__(self):
+        # this info is gathered from the NZB file itself.
+        self.number = None
+        self.msgid = ""
+        self.size = 0
+
+        # these are related to the actual download of the segment.
+        self.retries = 0
+        self.data = []
+
+        # values obtained after the article is decoded.
+        self.decoded_data = ""
+        self.decoded_size = 0
+        self.decoded_filename = ""
+        self.decoded_crc = ""
+        self.decoded_number = 0
+
+    def lastTry(self):
+        return ( self.retries == MAX_RETRIES )
+
+    def aborted(self):
+        return ( self.retries > MAX_RETRIES )
 
 class NZBParser(handler.ContentHandler):
     def __init__(self):
@@ -44,43 +88,6 @@ class NZBParser(handler.ContentHandler):
         for file in nzb.files:
             nzb.size += file.size
         return nzb
-
-class NZB(object):
-    def __init__(self):
-        self.files = []           # the files part of this download
-        self.size = 0             # bytes total
-            
-class NZBFile(object):
-    def __init__(self):
-        self.subject = None       # the subject for posting of this file
-        self.realFileName = None  # the real filename of the attachment in this post
-        self.group = ""           # the group where the file was posted
-        self.segments = []        # the message id's which make up the file
-        self.size = 0
-    def orderSegments(self):
-        "Ensure that this File's segments are ordered correctly."
-        segs = [ (el.number,el) for el in self.segments ]
-        segs.sort()
-        self.segments = [ el[1] for el in segs ]
-            
-MAX_RETRIES = 3
-class NZBSegment(object):
-    def __init__(self):
-        self.number = None        # the part number of the segment
-        self.msgid = ""           # unique message id of this segment
-        self.size = 0
-        self.retries = 0
-        self.data = []
-        self.decodedSize = 0
-        self.filename = ""
-        self.crc = ""
-        self.partnum = 0
-
-    def lastTry(self):
-        return ( self.retries == MAX_RETRIES )
-
-    def aborted(self):
-        return ( self.retries > MAX_RETRIES )
             
 def parseString( str ):
     def func(h): saxParseString( str, h )

@@ -171,6 +171,8 @@ class QueueController(threading.Thread):
     def unrarFolder(self, path):
         result = False
         folders = []
+        if ( not os.path.isdir(path) ): return False
+
         for f in os.listdir(path):
             if ( result != False ): break
 
@@ -178,7 +180,7 @@ class QueueController(threading.Thread):
             if ( os.path.isfile(ff) and f.endswith(".rar") ):
                 rar_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
                 try:
-                    output = commands.getoutput('/usr/bin/unrar e -o+ ' + rar_file + " " + mt.config["dlmanager/nzb"]["save_to"])
+                    output = commands.getoutput('/usr/bin/unrar e -o+ -ts0 ' + rar_file + " " + mt.config["dlmanager/nzb"]["save_to"])
                     output_args = output.splitlines()
                     result = output_args[len(output_args)-1]
                 except:
@@ -191,6 +193,8 @@ class QueueController(threading.Thread):
     def par2Folder(self, path):
         result = False
         folders = []
+        if ( not os.path.isdir(path) ): return False
+
         for f in os.listdir(path):
             if ( result != False ): break
 

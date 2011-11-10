@@ -3,7 +3,7 @@ import mtCore as mt
 from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
-from dlmanager.NZB.TextDecoder import ArticleDecoder
+from dlmanager.NZB.Decoder import ArticleDecoder
 
 class StatusReport(object):
     def __init__(self):
@@ -56,10 +56,6 @@ class NZBClient():
         # Used to track the speed.
         self.speedTime = 0
         self.speedCounter = 0
-
-        # Threading Locks
-        self.decodeLock = Lock()
-        self.segmentLock = Lock()
 
     def start(self):
         # keep track of running time.
@@ -119,7 +115,7 @@ class NZBClient():
         
     # Article Decoder - Decode success.
     def decodeSuccess(self, seg):
-        self.status.current_bytes += seg.decodedSize
+        self.status.current_bytes += seg.size
         self.segments_finished.append(seg.msgid) 
         if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
             self.all_decoded = True
@@ -127,9 +123,7 @@ class NZBClient():
     # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
         if ( seg == None ): return
-        mt.log.error("Segment failed to decode: " + seg.msgid)
-        if ( seg.data ):
-            self.status.current_bytes -= len(seg.data)
+        mt.log.debug("Segment failed to decode: " + seg.msgid)
         self.segFailed(seg)
 
     # NNTP Connection - Thread stopped.
@@ -269,7 +263,6 @@ class NNTPConnection(Thread):
                                 seg.data = list
                                 if ( self.onSegComplete ): self.onSegComplete(seg)
                             else:
-                                print "FAILED: RESP: " + str(resp) + " LENGTH OF DATA:" + str(len(list))
                                 self.onSegFailed(seg)
 
                         except NNTPReplyError:
@@ -278,12 +271,13 @@ class NNTPConnection(Thread):
 
                         except Exception as inst:
                             if ( self.onSegFailed ): self.onSegFailed(seg)
-                            mt.log.debug("Error getting segment: " + str(inst))
+                            mt.log.error("Error getting segment: " + str(inst))
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
                     self.onSegFailed(seg)
-                    mt.log.debug("Connection error: " + str(inst.args))
+                    mt.log.error("Connection error: " + str(inst.args))
+
                 finally:
                     try: 
                         if ( connection ): connection.quit()
@@ -295,7 +289,7 @@ class NNTPConnection(Thread):
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
-            mt.log.debug("Thread Error: " + str(inst.args))
+            mt.log.error("Thread Error: " + str(inst.args))
 
         finally:
             try: 
