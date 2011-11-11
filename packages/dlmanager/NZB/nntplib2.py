@@ -31,7 +31,6 @@ are strings, not numbers, since they are rarely used for calculations.
 # Imports
 import re
 import socket
-import TextDecoder
 
 __all__ = ["NNTP","NNTPReplyError","NNTPTemporaryError",
            "NNTPPermanentError","NNTPProtocolError","NNTPDataError",

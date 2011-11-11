@@ -37,7 +37,11 @@ def start():
         users[un] = mtAuth.User()
         users[un].name = un
         users[un].password_md5 = user["password-md5"]
+
+        # load the homedir, and create it if it doesn't exist.
         users[un].homedir = user["home"]
+        mtMisc.mkdir(users[un].homedir)
+
         users[un].windowmanager = user["windowmanager"]
         users[un].auth_url = user["auth_url"]
         if ( user["local_only"] != "" ): users[un].local_only = True
@@ -71,8 +75,8 @@ def start():
 def stop():
     global running, config, packages
     running = False
-    config.save()
     packages.unloadAll()
+    config.save()
     sys.exit(0)
 
 def restart():

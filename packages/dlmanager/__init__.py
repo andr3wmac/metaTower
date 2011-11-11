@@ -1,5 +1,6 @@
 import os, threading, commands, mtMisc, time
 import mtCore as mt
+from mtCore import config
 from mtCore import events
 from mtCore import packages
 from xml.etree.ElementTree import Element
@@ -11,10 +12,9 @@ last_update = 0
 def onLoad():
     global QueueControl
 
-    # directory fix.
-    if ( not os.path.isdir("packages/dlmanager/queue") ): os.mkdir("packages/dlmanager/queue")
-    if ( not os.path.isdir("packages/dlmanager/cache") ): os.mkdir("packages/dlmanager/cache")
-
+    # load configuration
+    config.load("packages/dlmanager/dlmanager.xml")
+    
     # start up our queue monitor.
     QueueControl = QueueController()
     QueueControl.start()
@@ -27,7 +27,37 @@ def onLoad():
     
 def onUnload():
     global QueueControl
+
     if ( QueueControl != None ):
+        torrent_queue = QueueControl.torrent_queue
+        nzb_queue = QueueControl.nzb_queue
+
+        config = mt.config
+        config.clear("dlmanager/queue")
+
+        for item in nzb_queue:
+            if ( item.removed ): continue
+            element = config.ConfigItem("")
+            element["uid"] = item.uid
+            element["filename"] = item.filename
+            element["completed"] = str(int(item.completed))
+            element["error"] = str(int(item.error))
+            element["par2_results"] = item.par2_results
+            element["unrar_results"] = item.unrar_results
+            element["save_to"] = item.save_to
+            config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.xml")
+
+        for item in torrent_queue:
+            if ( item.removed ): continue
+            element = config.ConfigItem("")
+            element["uid"] = item.uid
+            element["filename"] = item.filename
+            element["completed"] = str(int(item.completed))
+            element["error"] = str(int(item.error))
+            element["save_to"] = item.save_to
+            config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.xml")
+
+        config.save("packages/dlmanager/dlmanager.xml")
         QueueControl.shutdown()
     
 def remove_selected(session, selected):

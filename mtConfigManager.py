@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import ConfigParser, os, sys, mtAuth, logging
+import ConfigParser, os, sys, mtAuth, logging, mtCore
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom as xml
 
@@ -54,12 +54,12 @@ class ConfigManager:
             self._loadTree(a, path + a.tag + "/", filename)
     
     def load(self, filename):
-        #try:
-        newTree = ElementTree.ElementTree()
-        newTree.parse(filename)
-        self._loadTree(newTree.getroot(), "", filename)
-        #except:
-        #    print "Error loading config file: " + filename
+        try:
+            newTree = ElementTree.ElementTree()
+            newTree.parse(filename)
+            self._loadTree(newTree.getroot(), "", filename)
+        except Exception as inst:
+            mtCore.log.error("Error loading config file " + filename + ": " + str(inst.args))
 
     def loadString(self, data, filename = ""):
         newTree = ElementTree.fromstring(data)
@@ -75,7 +75,7 @@ class ConfigManager:
     def get(self, key, filename = ""):
         results = []
         for item in self.items:
-            if ( item.path == key ) or ( item.name == key ): 
+            if ( item.path == key ): 
                 if ( filename == "" ) or ( item.source_file == filename ):
                     results.append(item)
         return results

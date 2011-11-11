@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, sets
+import inspect, uuid, commands, socket, sets, os, errno, shutil
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")
@@ -51,3 +51,19 @@ def removeDuplicates(arr):
     except KeyError:
         pass
     return result
+
+def mkdir(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST:
+            pass
+        else: raise
+
+def rmdir(path):
+    try:
+        if ( os.path.isdir(path) ):
+            shutil.rmtree(path, True)
+            os.rmdir(path)
+    except:
+        pass

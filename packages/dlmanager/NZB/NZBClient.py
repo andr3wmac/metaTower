@@ -1,5 +1,6 @@
 import sys, os, urllib, time, socket
 import mtCore as mt
+import mtMisc
 from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
@@ -16,7 +17,7 @@ class StatusReport(object):
         self.kbps = 0
 
 class NZBClient():
-    def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cachePath=""):
+    def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cache_path=""):
         # Settings
         self.save_to = save_to
         self.nntpServer = nntpServer
@@ -27,12 +28,16 @@ class NZBClient():
         self.nntpConnections = nntpConnections
 
         # setup our cache folder.
-        self.cachePath = cachePath
-        if ( self.cachePath == "" ): self.cachePath = "packages/dlmanager/cache/"
+        self.cache_path = cache_path
+        if ( self.cache_path == "" ): self.cache_path = "packages/dlmanager/cache/"
         self.clearCache()
 
+        # ensure both directorys exist
+        mtMisc.mkdir(self.save_to)
+        mtMisc.mkdir(self.cache_path)
+
         # Open the NZB, get this show started.
-        realFile = urllib.urlopen( nzbFile )
+        realFile = urllib.urlopen(nzbFile)
         self.nzb = NZBParser.parse(realFile)
         self.running = True
         self.all_decoded = False
@@ -87,7 +92,7 @@ class NZBClient():
         # start the article decoder.
         self.articleDecoder = ArticleDecoder(self.decodeNextSeg, 
                 self.save_to, 
-                self.cachePath, 
+                self.cache_path, 
                 self.decodeFinished, 
                 self.decodeSuccess, 
                 self.decodeFailed)
@@ -188,8 +193,8 @@ class NZBClient():
 
     # empty the cache of any files.
     def clearCache(self):
-        for f in os.listdir(self.cachePath):
-            ff = os.path.join(self.cachePath, f)
+        for f in os.listdir(self.cache_path):
+            ff = os.path.join(self.cache_path, f)
             if os.path.isfile(ff):
                 os.remove(ff)
             

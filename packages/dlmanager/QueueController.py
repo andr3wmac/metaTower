@@ -32,42 +32,48 @@ class QueueController(threading.Thread):
         self.daemon = True
 
         self.queue_folder = "packages/dlmanager/queue"
+        mtMisc.mkdir(self.queue_folder)
 
         self.torrent_queue = []
         self.torrent_engine = None
         self.nzb_queue = []
         self.nzb_engine = None
-    
-        self.torrent_enabled = False
 
         self.running = True
         self.last_update = 0
 
         # load any queue data that could be left from the last run.
         config = mt.config
-        config.load("packages/dlmanager/dlmanager.xml")
+        self.nzb_enabled = ( config["dlmanager/nzb/server"] != "" )
+        self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" )
 
-        for item in config.get("dlmanager/queue/nzb"):
-            if ( not os.path.isfile(item["filename"]) ): continue 
-            nzb = self.NZBQueueItem()
-            nzb.uid = item["uid"]
-            nzb.filename = item["filename"]
-            nzb.completed = bool(int(item["completed"]))
-            nzb.error = bool(int(item["error"]))
-            nzb.par2_results = item["par2_results"]
-            nzb.unrar_results = item["unrar_results"]
-            nzb.save_to = item["save_to"]
-            self.nzb_queue.append(nzb)
+        if ( self.nzb_enabled ):
+            for item in config.get("dlmanager/queue/nzb"):
+                if ( not os.path.isfile(item["filename"]) ): continue 
+                nzb = self.NZBQueueItem()
+                nzb.uid = item["uid"]
+                nzb.filename = item["filename"]
+                nzb.completed = bool(int(item["completed"]))
+                nzb.error = bool(int(item["error"]))
+                nzb.par2_results = item["par2_results"]
+                nzb.unrar_results = item["unrar_results"]
+                nzb.save_to = item["save_to"]
+                self.nzb_queue.append(nzb)
+        else:
+            mt.log.info("NZB downloader disabled, no configuration found.")
 
-        for item in config.get("dlmanager/queue/torrent"):
-            if ( not os.path.isfile(item["filename"]) ): continue 
-            torrent = self.TorrentQueueItem()
-            torrent.uid = item["uid"]
-            torrent.filename = item["filename"]
-            torrent.completed = bool(int(item["completed"]))
-            torrent.error = bool(int(item["error"]))
-            torrent.save_to = item["save_to"]
-            self.torrent_queue.append(torrent)
+        if ( self.torrent_enabled ):
+            for item in config.get("dlmanager/queue/torrent"):
+                if ( not os.path.isfile(item["filename"]) ): continue 
+                torrent = self.TorrentQueueItem()
+                torrent.uid = item["uid"]
+                torrent.filename = item["filename"]
+                torrent.completed = bool(int(item["completed"]))
+                torrent.error = bool(int(item["error"]))
+                torrent.save_to = item["save_to"]
+                self.torrent_queue.append(torrent)
+        else:
+            mt.log.info("Torrent downloader disabled, no configuration found.")
 
 
     def removeItems(self, items):
@@ -78,6 +84,7 @@ class QueueController(threading.Thread):
                         self.nzb_engine.stopDownload()
                         self.nzb_engine = None
                 os.remove(nzb.filename)
+                mtMisc.rmdir(nzb.save_to)
                 nzb.removed = True
 
         for torrent in self.torrent_queue:
@@ -105,6 +112,8 @@ class QueueController(threading.Thread):
         return results
 
     def torrentUpdate(self):
+        if ( not self.torrent_enabled ): return
+
         if ( self.torrent_engine == None ):
             for torrent in self.torrent_queue:
                 if ( not torrent.downloading ) and ( not torrent.completed ):
@@ -123,25 +132,27 @@ class QueueController(threading.Thread):
                         self.torrent_engine = None
 
     def nzbUpdate(self):
+        if ( not self.nzb_enabled ): return
+
         # evaluate the state of the NZB Queue.
         if ( self.nzb_engine == None ):
             for queue_item in self.nzb_queue:
                 if ( not queue_item.downloading ) and ( not queue_item.completed ):
                     queue_item.downloading = True
     
-                    ssl = mt.config["dlmanager/nzb"]["ssl"]
-                    ssl_enabled = ((ssl.lower()=="true")or(ssl=="1")or(ssl.lower()=="yes"))
+                    ssl = mt.config["dlmanager/nzb/ssl"]
+                    ssl_enabled = ((ssl.lower()=="enabled")or(ssl.lower()=="true")or(ssl=="1")or(ssl.lower()=="yes"))
 
                     self.nzb_engine = NZBClient(
                         nzbFile=queue_item.filename, 
                         save_to=queue_item.save_to, 
-                        nntpServer=mt.config["dlmanager/nzb"]["server"], 
-                        nntpPort=int(mt.config["dlmanager/nzb"]["port"]), 
-                        nntpConnections=int(mt.config["dlmanager/nzb"]["connections"]), 
-                        nntpUser=mt.config["dlmanager/nzb"]["username"], 
-                        nntpPassword=mt.config["dlmanager/nzb"]["password"], 
+                        nntpServer=mt.config["dlmanager/nzb/server"], 
+                        nntpPort=int(mt.config["dlmanager/nzb/port"]), 
+                        nntpConnections=int(mt.config["dlmanager/nzb/connections"]), 
+                        nntpUser=mt.config["dlmanager/nzb/username"], 
+                        nntpPassword=mt.config["dlmanager/nzb/password"], 
                         nntpSSL=ssl_enabled,
-                        cachePath=mt.config["dlmanager/nzb"]["cache_path"])
+                        cache_path=mt.config["dlmanager/nzb/cache_path"])
                     self.nzb_engine.start()
                     break
         else:
@@ -180,7 +191,7 @@ class QueueController(threading.Thread):
             if ( os.path.isfile(ff) and f.endswith(".rar") ):
                 rar_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
                 try:
-                    output = commands.getoutput('/usr/bin/unrar e -o+ -ts0 ' + rar_file + " " + mt.config["dlmanager/nzb"]["save_to"])
+                    output = commands.getoutput('/usr/bin/unrar e -o+ -ts0 ' + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
                     output_args = output.splitlines()
                     result = output_args[len(output_args)-1]
                 except:
@@ -216,29 +227,31 @@ class QueueController(threading.Thread):
         try:
             while ( self.running ):
                 if ( time.time() - self.last_update > 5 ):
-                    for nzb in self.nzbFiles():
-                        already_queued = False
-                        for queue_item in self.nzb_queue:
-                            if (( queue_item.filename.endswith(nzb) ) and ( queue_item.removed == False )): already_queued = True
-                        if ( not already_queued ):
-                            new_item = self.NZBQueueItem()
-                            new_item.filename = nzb
-                            new_item.uid = mtMisc.uid()
-                            new_item.save_to = os.path.join(mt.config["dlmanager/nzb"]["save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
-                            self.nzb_queue.append(new_item)
-                    self.nzbUpdate()
+                    if ( self.nzb_enabled ):
+                        for nzb in self.nzbFiles():
+                            already_queued = False
+                            for queue_item in self.nzb_queue:
+                                if (( queue_item.filename.endswith(nzb) ) and ( queue_item.removed == False )): already_queued = True
+                            if ( not already_queued ):
+                                new_item = self.NZBQueueItem()
+                                new_item.filename = nzb
+                                new_item.uid = mtMisc.uid()
+                                new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
+                                self.nzb_queue.append(new_item)
+                        self.nzbUpdate()
                     
-                    for torrent in self.torrentFiles():
-                        already_queued = False
-                        for queue_item in self.torrent_queue:
-                            if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
-                        if ( not already_queued ):
-                            new_item = self.TorrentQueueItem()
-                            new_item.filename = torrent
-                            new_item.uid = mtMisc.uid()
-                            new_item.save_to = os.path.join(mt.config["dlmanager/torrent"]["dir"], os.path.basename(torrent)) + "/"
-                            self.torrent_queue.append(new_item)
-                    self.torrentUpdate()
+                    if ( self.torrent_enabled ):
+                        for torrent in self.torrentFiles():
+                            already_queued = False
+                            for queue_item in self.torrent_queue:
+                                if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
+                            if ( not already_queued ):
+                                new_item = self.TorrentQueueItem()
+                                new_item.filename = torrent
+                                new_item.uid = mtMisc.uid()
+                                new_item.save_to = os.path.join(mt.config["dlmanager/torrent/dir"], os.path.basename(torrent)) + "/"
+                                self.torrent_queue.append(new_item)
+                        self.torrentUpdate()
                     
                     self.last_update = time.time()
                 time.sleep(1)  
@@ -246,31 +259,6 @@ class QueueController(threading.Thread):
             self.shutdown() 
 
     def shutdown(self):
-        config = mt.config
-        config.clear("dlmanager/queue")
-
-        for item in self.nzb_queue:
-            if ( item.removed ): continue
-            element = config.ConfigItem("")
-            element["uid"] = item.uid
-            element["filename"] = item.filename
-            element["completed"] = str(int(item.completed))
-            element["error"] = str(int(item.error))
-            element["par2_results"] = item.par2_results
-            element["unrar_results"] = item.unrar_results
-            element["save_to"] = item.save_to
-            config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.xml")
-
-        for item in self.torrent_queue:
-            if ( item.removed ): continue
-            element = config.ConfigItem("")
-            element["uid"] = item.uid
-            element["filename"] = item.filename
-            element["completed"] = str(int(item.completed))
-            element["error"] = str(int(item.error))
-            element["save_to"] = item.save_to
-            config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.xml")
-
         if ( self.nzb_engine != None ):
             self.nzb_engine.stopDownload()
             del self.nzb_engine

@@ -71,11 +71,17 @@ class PackageManager:
     def unload(self, package_name, pop = True):
         #try:
         package = self.list[package_name]
+
+        # remove the module.
         if ( pop ): self.list.pop(package_name)
-        mt.config.clear(package_name)
-        mt.events.clearSource(package_name)
         if ( hasattr(package, "onUnload") ): package.onUnload()
         if ( hasattr(self, package_name) ): delattr(self, package_name)
+
+        # clear from events/config
+        mt.config.clear(package_name)
+        mt.events.clearSource(package_name)
+
+        # finally delete it.
         for mod_name in package.__includes__:
             mod = sys.modules[mod_name]
             if ( mod != None ): del sys.modules[mod_name]

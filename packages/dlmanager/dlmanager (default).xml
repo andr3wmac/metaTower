@@ -1,9 +1,19 @@
 <?xml version="1.0" ?>
 <metaTower>
 	<dlmanager>
-		<nzb connections="20" password="" port="443" save_to="files/downloads/nzb/" server="" ssl="false" username=""/>
-		<torrent dir="files/torrent"/>
+        <nzb>
+            <server>ssl-us.astraweb.com</server>
+            <port>443</port>
+            <username>andrewmac</username>
+            <ssl>true</ssl>
+            <connections>20</connections>
+            <save_to>files/downloads/nzb/</save_to>
+        </nzb>
+        <torrent>
+            <save_to>files/downloads/torrent/<save_to>
+        </torrent>
 		<queue>
+			<nzb completed="0" error="0" filename="packages/dlmanager/queue/an idiot abroad s02e07.nzb" par2_results="Checking and repairing files.." save_to="an idiot abroad s02e07/" uid="096835440c8a11e18eaa0018de5290fd" unrar_results=""/>
 		</queue>
 	</dlmanager>
 </metaTower>

@@ -16,7 +16,7 @@ def scan():
     for f in getFileList("files/"):
         basename, ext = os.path.splitext(f)
         if ( items.has_key(f) ): continue
-        if ( ext == ".avi" ):
+        if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
             idata = {}
             idata["path"] = f
             idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
