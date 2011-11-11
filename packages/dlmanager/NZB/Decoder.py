@@ -106,6 +106,7 @@ class SegmentDecoder(object):
                 for arg in args:
                     if ( arg.startswith("name=") ):
                         seg.decoded_filename = line.split("=")[-1]
+                        print "Filename line: " + line
                     if ( arg.startswith("part=") ):
                         seg.decoded_number = int(arg.split("=")[1])
 
@@ -117,7 +118,8 @@ class SegmentDecoder(object):
                 args = line.split(" ")
                 for arg in args:
                     if ( arg.startswith("pcrc32=") or arg.startswith("crc32=") ):
-                        seg.decoded_crc = arg.split("=")[1]
+                        c = arg.split("=")[1]
+                        seg.decoded_crc = '0' * (8 - len(c)) + c
 
                 end_found = True
                 break
