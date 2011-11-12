@@ -70,10 +70,8 @@ class NZBClient():
         # Generate a list of segments and build our queue.
         for file in self.nzb.files:
             for seg in file.segments:
-                # we don't need any duplicates.
-                if ( not seg.msgid in self.segment_list ): 
-                    self.segment_list.append(seg.msgid)
-                    self.segment_queue.append(seg)
+                self.segment_list.append(seg.msgid)
+                self.segment_queue.append(seg)
 
         # start the connections.
         for a in range(0, self.nntpConnections):
@@ -125,6 +123,7 @@ class NZBClient():
         self.segments_finished.append(seg.msgid) 
         if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
             self.all_decoded = True
+            print "All decoded."
 
     # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
