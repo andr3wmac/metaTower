@@ -8,6 +8,7 @@ from dlmanager.NZB.Decoder import ArticleDecoder
 
 class StatusReport(object):
     def __init__(self):
+        self.message = "Downloading.."
         self.total_bytes = 0
         self.current_bytes = 0
         self.completed = False

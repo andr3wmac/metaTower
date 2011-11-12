@@ -163,8 +163,9 @@ class QueueController(threading.Thread):
                         queue_item.completed = status.completed
                         queue_item.error = status.error_occured
                         queue_item.downloading = False
-                        self.nzb_engine.stopDownload()
-                        self.nzb_engine = None
+                        if ( self.nzb_engine != None ):                        
+                            self.nzb_engine.stopDownload()
+                            self.nzb_engine = None
                         if ( queue_item.completed ) and ( not queue_item.error ): self.nzbComplete(queue_item)
 
     def nzbComplete(self, queue_item):

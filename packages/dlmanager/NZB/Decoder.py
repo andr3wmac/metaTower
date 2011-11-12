@@ -106,7 +106,6 @@ class SegmentDecoder(object):
                 for arg in args:
                     if ( arg.startswith("name=") ):
                         seg.decoded_filename = line.split("=")[-1]
-                        print "Filename line: " + line
                     if ( arg.startswith("part=") ):
                         seg.decoded_number = int(arg.split("=")[1])
 
