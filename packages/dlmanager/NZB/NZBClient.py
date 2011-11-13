@@ -123,7 +123,6 @@ class NZBClient():
         self.segments_finished.append(seg.msgid) 
         if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
             self.all_decoded = True
-            print "All decoded."
 
     # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
@@ -200,12 +199,6 @@ class NZBClient():
             
     def stopDownload(self):
         self.running = False
-        del self.cache[:]
-        del self.segment_list[:]
-        del self.segments_finished[:]
-        del self.segments_aborted[:]
-        del self.segment_queue[:]
-        del self.failed_queue[:]
         self.clearCache()
 
 class NNTPConnection(Thread):
