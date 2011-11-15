@@ -61,7 +61,7 @@ def processRequest(session, request_type, request_path, post_data):
             file_parts = os.path.split(request_path[2:])
             output.file(file_parts[1], file_parts[0])
         elif ( request_path[1:].lower() == "metatower.js" ):
-            js_file = metaTowerJS.getJS()
+            js_file = metaTowerJS.content
             output = session.out()
             output.headers["Content-Type"] = "application/javascript"
             output.headers["Content-Length"] = len(js_file)

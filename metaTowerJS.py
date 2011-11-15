@@ -1,17 +1,5 @@
 # contains the metaTower.js file, this way it can be compiled into the program.
-js_content = ""
-def getJS():
-    global js_content
-    if ( js_content == "" ):
-        f = open(__file__)
-        contents = f.read()
-        f.close()
-        args = contents.split("\"\"\"")
-        js_content = args[1][1:-1]
-    return js_content
-
-# metaTower.js
-"""
+content = """
 mt = function(url, target_override)
 {
 	if ( !url ) { return; }

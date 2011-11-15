@@ -1,4 +1,4 @@
-import re, _yenc, string, os, time
+import re, string, os, time
 import mtCore as mt
 from threading import Thread
 
