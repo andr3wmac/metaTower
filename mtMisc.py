@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, sets, os, errno, shutil
+import inspect, uuid, commands, socket, os, errno, shutil
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")
@@ -44,7 +44,7 @@ def isLocalIP(IP):
     return False
 
 def removeDuplicates(arr):
-    s = sets.Set(arr)
+    s = set(arr)
     result = []
     try:
         result.append(s.pop())
