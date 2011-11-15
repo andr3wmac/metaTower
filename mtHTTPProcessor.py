@@ -11,7 +11,7 @@
 
 from socket import *
 import thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes
-import mtSession, mtHTTPServer, mtMisc
+import mtSession, mtHTTPServer, mtMisc, metaTowerJS
 import mtCore as mt
 
 def processCommand(path, session):
@@ -60,6 +60,12 @@ def processRequest(session, request_type, request_path, post_data):
             output = session.out()
             file_parts = os.path.split(request_path[2:])
             output.file(file_parts[1], file_parts[0])
+        elif ( request_path[1:].lower() == "metatower.js" ):
+            js_file = metaTowerJS.getJS()
+            output = session.out()
+            output.headers["Content-Type"] = "application/javascript"
+            output.headers["Content-Length"] = len(js_file)
+            output.text_entry = js_file
         else:
             output = session.out()
             output.file(request_path[1:])

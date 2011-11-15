@@ -127,11 +127,14 @@ class HTTPOut():
             self.headers["Content-Length"] = len(content)
         
         elif ( self.text_entry != "" ):
-            self.headers["Content-Type"] = "text/plain"
-            self.headers["Content-Length"] = len(self.text_entry)
+            if ( not self.headers.has_key("Content-Type") ): 
+                self.headers["Content-Type"] = "text/plain"
+            if ( not self.headers.has_key("Content-Type") ): 
+                self.headers["Content-Length"] = len(self.text_entry)
             content = self.text_entry
         else:
-            self.headers["Content-Length"] = 0
+            if ( not self.headers.has_key("Content-Length") ): 
+                self.headers["Content-Length"] = 0
             
         # Generate and send the headers.
         if ( self.http_version == "" ): self.http_version = "HTTP/1.1"
