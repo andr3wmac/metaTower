@@ -123,28 +123,14 @@ def update(session):
             # queued
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + os.path.basename(nzb.filename) + "', 0);")
 
-    # list of torrents.
     for torrent in torrent_queue:
         if ( torrent.removed ):
             out.js("dlmanager.remove('" + torrent.uid + "');")
-
-        state = 0
-        if ( torrent.completed ):
-            state = 2
-
-        filename = os.path.basename(torrent.filename)
-        if ( torrent.realFilename != None ):
-            filename = torrent.realFilename
-
-        if ( torrent_engine != None ):
-            if ( torrent.filename == torrent_engine.filename ):
-                if ( torrent_engine.realFilename != None ): filename = torrent_engine.realFilename
-                out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', 1, " + str(torrent_engine.percentDone) + ", '" + torrent_engine.downRate + "');")
-            else:
-                out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', " + str(state) + ");")
+        elif ( torrent.lt_entry == None ):
+            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 0);")
         else:
-            out.js("dlmanager.torrent('" + torrent.uid + "', '" + filename + "', " + str(state) + ");")
-            
+            status = torrent.lt_entry.status()
+            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 1, " + str(status.progress * 100) + ", '" + str(round(status.download_rate / 1000, 2)) + " kb/s');")
 
     out.js("dlmanager.update();")
     return out

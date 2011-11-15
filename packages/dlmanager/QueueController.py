@@ -1,7 +1,7 @@
 import mtCore as mt
+import libtorrent as lt # libtorrent.so
 import threading, os, mtMisc, commands, shutil
 from NZB.NZBClient import NZBClient, time
-from BitTornado.TorrentClient import TorrentClient
 
 class QueueController(threading.Thread):
     class NZBQueueItem():
@@ -26,6 +26,8 @@ class QueueController(threading.Thread):
         downloading = False
         last_update = 0
         uid = ""
+
+        lt_entry = None
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -72,6 +74,8 @@ class QueueController(threading.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
+            self.torrent_engine = lt.session()
+            self.torrent_engine.listen_on(6881, 6891)
         else:
             mt.log.info("Torrent downloader disabled, no configuration found.")
 
@@ -89,9 +93,9 @@ class QueueController(threading.Thread):
 
         for torrent in self.torrent_queue:
             if torrent.uid in items:
-                if ( torrent.downloading ):
-                    self.torrent_engine.stopDownload()
-                    self.torrent_engine = None
+                if ( torrent.lt_entry != None ):
+                    self.torrent_engine.remove_torrent(torrent.lt_entry)
+                    torrent.lt_entry = None
                 os.remove(torrent.filename)
                 torrent.removed = True
     
@@ -114,22 +118,14 @@ class QueueController(threading.Thread):
     def torrentUpdate(self):
         if ( not self.torrent_enabled ): return
 
-        if ( self.torrent_engine == None ):
-            for torrent in self.torrent_queue:
-                if ( not torrent.downloading ) and ( not torrent.completed ):
-                    torrent.downloading = True
-                    self.torrent_engine = TorrentClient()
-                    self.torrent_engine.start(torrent.filename)
-        else:
-            if ( self.torrent_engine.done ) or ( not self.torrent_engine.downloading ):
-                for torrent in self.torrent_queue:
-                    if ( torrent.filename == self.torrent_engine.filename ):
-                        if ( self.torrent_engine.realFilename != None ):
-                            torrent.realFilename = self.torrent_engine.realFilename
-                        torrent.completed = True
-                        torrent.downloading = False
-                        self.torrent_engine.stopDownload()
-                        self.torrent_engine = None
+        for torrent in self.torrent_queue:
+            if ( torrent.lt_entry == None ) and ( not torrent.removed ):
+                try:
+                    info = lt.torrent_info(torrent.filename)
+                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                except:
+                    mt.log.error("Could not add torrent.")
+                    pass
 
     def nzbUpdate(self):
         if ( not self.nzb_enabled ): return
@@ -250,7 +246,7 @@ class QueueController(threading.Thread):
                                 new_item = self.TorrentQueueItem()
                                 new_item.filename = torrent
                                 new_item.uid = mtMisc.uid()
-                                new_item.save_to = os.path.join(mt.config["dlmanager/torrent/dir"], os.path.basename(torrent)) + "/"
+                                new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], os.path.basename(torrent)) + "/"
                                 self.torrent_queue.append(new_item)
                         self.torrentUpdate()
                     
@@ -260,12 +256,11 @@ class QueueController(threading.Thread):
             self.shutdown() 
 
     def shutdown(self):
-        if ( self.nzb_engine != None ):
-            self.nzb_engine.stopDownload()
+        if ( hasattr(self, "nzb_engine") ):
+            if ( self.nzb_engine ): self.nzb_engine.stopDownload()
             del self.nzb_engine
         
-        if ( self.torrent_engine != None ):
-            self.torrent_engine.stopDownload()
+        if ( hasattr(self, "torrent_engine") ):
             del self.torrent_engine
 
         self.running = False

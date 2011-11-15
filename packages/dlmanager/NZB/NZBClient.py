@@ -107,7 +107,7 @@ class NZBClient():
         try:
             seg = self.cache.pop()
         except:
-            pass
+            pass	
 
         if ( seg == None ) and ( self.all_decoded ):
             return -1
