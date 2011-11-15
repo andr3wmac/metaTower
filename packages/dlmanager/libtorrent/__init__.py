@@ -9,8 +9,8 @@ libtorrent_rasterbar = None
 libtorrent = None
 
 def getLibrary():
-    global libboost_python, libboost_thread, libboost_system, libboost_filesystem, 
-        libboost_system, libtorrent_rasterbar, libtorrent
+    global libboost_python, libboost_thread, libboost_system, libboost_filesystem
+    global libboost_system, libtorrent_rasterbar, libtorrent
 
     if ( not libtorrent ):
         path = os.path.dirname(__file__)
