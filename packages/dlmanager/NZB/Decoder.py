@@ -2,6 +2,13 @@ import re, _yenc, string, os, time
 import mtCore as mt
 from threading import Thread
 
+yenc_found = False
+try:
+    import _yenc
+    yenc_found = True
+except:
+    pass
+
 class ArticleDecoder(Thread):
     def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None):
         Thread.__init__(self)
@@ -93,6 +100,7 @@ class ArticleDecoder(Thread):
         finally:
             del seg.data[:]
 
+YDEC_TRANS = ''.join([chr((i + 256 - 42) % 256) for i in range(256)])
 class SegmentDecoder(object):
     def yenc_decode(self, seg):
         ignore_errors = seg.lastTry()
@@ -131,13 +139,21 @@ class SegmentDecoder(object):
 
         # join the data together and decode it.
         data = ''.join(buffer)
-        decoded_data, crc, something = _yenc.decode_string(data)
+        if ( yenc_found ):
+            decoded_data, crc, something = _yenc.decode_string(data)
+        else:
+            # stolen from hellanzb.
+            for i in (0, 9, 10, 13, 27, 32, 46, 61):
+                j = '=%c' % (i + 64)
+            data = data.replace(j, chr(i))
+            decoded_data = data.translate(YDEC_TRANS)
+            crc = ""
         
         # if the article has failed multiple times we'll ignore errors and take
         # whatever we can get from it.
         if ( not ignore_errors ):
             # If a CRC was included, check it.
-            if ( seg.decoded_crc != "" ):
+            if ( seg.decoded_crc != "" ) and ( crc != "" ):
                 crc = '%08X' % ((crc ^ -1) & 2**32L - 1)
                 if ( seg.decoded_crc.upper() != crc ):
                     mt.log.debug("CRC does not match. A: " + seg.decoded_crc.upper() + " B: " + crc)
