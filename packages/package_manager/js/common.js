@@ -1,12 +1,14 @@
 var package_manager = {
-	status: function(msg)
+	status: function(msg, progress)
 	{
 		mt.html("package_manager_status", msg, false);
+        if ( progress >= 0 )
+            mt.progress("package_manager_progress", progress );
 	},
 
 	refresh: function()
 	{
-		package_manager.status("Refreshing sources..");
+		package_manager.status("Refreshing sources..", 0);
 		mt("package_manager.refresh()");
 	},
 

@@ -7,9 +7,11 @@ var fileman = {
 	up: function() {
 		mt("fileman.folderUp(\"" + this.current_path + "\")"); 
 	},
+    go: function(path)
+    {
+        mt("fileman.openFolder(\"" + path + "\", \"\")"); 
+    },
 	home: function () {
-		if ( this.home_path ) {
-			//switchPath(this.home_path);
-		}
+		mt("fileman.openFolder(\"~\", \"\")"); 
 	}
 };

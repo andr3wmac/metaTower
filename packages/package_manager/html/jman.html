@@ -1,15 +1,19 @@
 <div id="package_manager_main" title="Package Manager">
-	<div style="position: absolute; top: 5px; left: 5px; right: 7px; bottom: 32px; overflow-y: scroll;">
+    <div style="position: absolute; left: 5px; top: 5px; right: 5px; height: 30px; border-bottom: 1px solid #B6B6B2">
+        <button id="package_manager_btnInstalled" onclick="package_manager.showInstalled();" style="position: absolute; left: 0px; top: 0px; width: 150px;">Installed</button>
+        <button id="package_manager_btnUpdates" onclick="package_manager.showUpdates();" style="position: absolute; left: 160px; top: 0px; width: 150px;">Updates</button>
+        <button id="package_manager_btnAvailable" onclick="package_manager.showAvailable();" style="position: absolute; left: 320px; top: 0px; width: 150px;">Available</button>
+    </div>
+	<div style="position: absolute; right: 5px; height: 30px; top: 5px">
+		<button onclick="package_manager.refresh()"><span class="ui-icon ui-icon-refresh"></span></button>
+	</div>
+	<div style="position: absolute; top: 40px; left: 5px; right: 7px; bottom: 38px; overflow-y: scroll;">
 		<ul id="package_manager_menu"></ul>	
 		<ul id="package_manager_content"></ul>
 	</div>
 	<div style="position: absolute; bottom: 7px; left: 7px; right: 7px;">
-		<div style="float: left;">
-			<button onclick="package_manager.refresh()" style="height: 20px; width: 28px">
-				<span class="ui-icon ui-icon-refresh" style="position: absolute; top: 2px; left: 6px;"></span>
-			</button>
-		</div>
-		<div id="package_manager_status" style="float: left; padding-top: 3px; padding-left: 5px;"></div>
+		<div id="package_manager_status" style="position: absolute; top: 6px; left: 10px;">Status Eh?</div>
+        <div id="package_manager_progress"></div>
 	</div>
 	<div id="package_manager_confirm" title="Continue?" style="display: none;">
 		<p>

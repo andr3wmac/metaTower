@@ -55,14 +55,12 @@ def update(session, package_id):
     out = session.out()
     for package in package_list:
         if ( package.id == package_id ):
-            print "Updating " + package.name
             if ( package.source_url != "" ):
                 for update_file in package.update_files:
                     url = package.source_url + package_id + "/" + update_file
                     path = os.path.join(package_path, package_id, update_file)
                     saveFile(url, path)
             mt.packages.reload(package_id)
-            print "Package updated."
     out.js("mt.refresh()")
     return out
 
@@ -126,8 +124,9 @@ def delete(session, package_id):
 def refresh(session):
     out = session.out()
     _refreshSources()
-    out.append(mainMenu(session))
-    out.js("package_manager.status('Sources up to date.');")
+    #out.append(mainMenu(session))
+    out.append(packageListOut(session))
+    out.js("package_manager.status('Sources up to date.', 100);")
     return out
 
 def httpGet(url):
@@ -173,6 +172,35 @@ def jman_menu(session):
     out = session.out()
     out.js("jman.dialog('package_manager_main');")
     out.js("package_manager.refresh();")
+    return out
+
+def packageListOut(session):
+    global package_list
+    out = session.out()
+
+    # for each installed package
+    installed_packages = {}
+    for package_id in mt.packages.list:
+        package = mt.packages.list[package_id]
+        installed_packages[package_id] = package.name
+
+    # for each package in from sources.xml
+    updates = {}
+    available_packages = {}
+    for source_package in package_list:
+
+        # for each installed package.
+        installed = False
+        for package_id in mt.packages.list:
+            package = mt.packages.list[package_id]
+            if ( package.id == source_package.id ):
+                installed = True
+                if ( float(package.version) < float(source_package.version) ):
+                    updates[package.id] = package.name
+        if ( not installed ):
+            available_packages[source_package.id] = source_package.name
+
+    out.js("package_manager.packageList(" + str(installed_packages) + "," + str(updates) + "," + str(available_packages) + ")")
     return out
 
 def mainMenu(session):

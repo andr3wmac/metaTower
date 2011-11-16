@@ -28,6 +28,9 @@ fileman.data = function(path, dirs, files) {
 	if ( fileman.current_path == "" ) fileman.home_path = path;
 	fileman.current_path = path;
 
+    p = document.getElementById("fmanPath");
+    p.value = path;
+
 	for(i = 0; i < dirs.length; i++) {
 		mt.html("fileBrowser", "<li class='folder' ondblclick='fileman.openFolder(\"" + dirs[i] + "\");'>" + dirs[i] + "</li>", true);
 	}
@@ -44,3 +47,11 @@ fileman.jman = {
 		alert("Delete confirmed.");
 	}
 };
+
+fileman.onPathKeyPress = function(e) {
+    var key=e.keyCode;
+    if (key==13){
+        p = document.getElementById("fmanPath");
+        fileman.go(p.value);
+    }
+}

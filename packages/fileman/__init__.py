@@ -56,12 +56,26 @@ def jmanlite_menu(session):
     return out
     
 def openFolder(session, path, folder):
+    path = replaceHomeDir(session, path)
     path = os.path.join(path, folder)
     return listContents(session, path)
 
 def folderUp(session, path):
+    path = replaceHomeDir(session, path)
     path = os.path.split(path)[0]
     return listContents(session, path)
+
+def replaceHomeDir(session, path):
+    result = ""
+    home_dir = session.user.homedir
+    if ( home_dir == "" ): home_dir = os.getcwd()
+    else: home_dir = os.path.join(os.getcwd(), home_dir)
+
+    if ( path[0] == "~" ):
+        result = path.replace("~", home_dir)
+    else:
+        result = path.replace(home_dir, "~")
+    return result
 
 def listContents(session, path):
     dir_html = ""
@@ -71,6 +85,10 @@ def listContents(session, path):
         if ( entry.is_file ): file_html += ",'" + entry.file_name + "'"
     out = session.out()
     path = path.replace("\\", "/")
+
+    # shortens the path to ~ if its the users homedir.
+    path = path = replaceHomeDir(session, path)
+
     out.js("fileman.data('" + path + "', [" + dir_html[1:] + "], [" + file_html[1:] + "]);")
     return out
     

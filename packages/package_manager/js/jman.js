@@ -1,7 +1,7 @@
 $('#package_manager_main').dialog({
 	autoOpen: false, 
-	minWidth: 600,
-	minHeight: 500
+	minWidth: 530,
+	minHeight: 400
 });
 
 $( "#package_manager_confirm" ).dialog({
@@ -20,6 +20,8 @@ $( "#package_manager_confirm" ).dialog({
 	autoOpen: false
 });
 
+mt.progress("package_manager_progress", 50);
+
 package_manager.showMenu = function()
 {
 	$("#package_manager_menu").show();
@@ -29,6 +31,76 @@ package_manager.hideMenu = function()
 {
 	$("#package_manager_content").show();
 	$("#package_manager_menu").hide();
+};
+
+package_manager.installed = {};
+package_manager.updates = {};
+package_manager.available = {};
+
+package_manager.packageList = function(installed, updates, available)
+{
+    package_manager.installed = installed;
+    var installed_count = 0;
+    for ( i in installed ) installed_count++;
+    if ( installed_count > 0 )
+        mt.html("package_manager_btnInstalled", "Installed (" + installed_count + ")", false)
+    else
+        mt.html("package_manager_btnInstalled", "Installed", false)
+
+    package_manager.updates = updates;
+    var update_count = 0;
+    for ( i in updates ) update_count++;
+    if ( update_count > 0 )
+        mt.html("package_manager_btnUpdates", "Updates (" + update_count + ")", false)
+    else
+        mt.html("package_manager_btnUpdates", "Updates", false)
+
+    package_manager.available = available;
+    var available_count = 0;
+    for ( i in available ) available_count++;
+    if ( available_count > 0 )
+        mt.html("package_manager_btnAvailable", "Available (" + available_count + ")", false)
+    else
+        mt.html("package_manager_btnAvailable", "Available", false)
+};
+
+package_manager.showInstalled = function()
+{
+    var html = "<li class='cat'>Installed Packages</li>";
+
+    for ( package_id in package_manager.installed )
+    {
+        var package = package_manager.installed[package_id];
+        html += "<li class='subcat' onClick='package_manager.getPackageInfo(\"" + package_id + "\");'>" + package + "</li>";
+    }
+    mt.html("package_manager_menu", html, false);
+    package_manager.showMenu();
+};
+
+package_manager.showUpdates = function()
+{
+    var html = "<li class='cat'>Updates</li>";
+
+    for ( package_id in package_manager.updates )
+    {
+        var package = package_manager.updates[package_id];
+        html += "<li class='subcat' onClick='package_manager.getUpdateInfo(\"" + package_id + "\");'>" + package + "</li>";
+    }
+    mt.html("package_manager_menu", html, false);
+    package_manager.showMenu();
+};
+
+package_manager.showAvailable = function()
+{
+    var html = "<li class='cat'>Available Packages</li>";
+
+    for ( package_id in package_manager.available )
+    {
+        var package = package_manager.available[package_id];
+        html += "<li class='subcat' onClick='package_manager.getInstallInfo(\"" + package_id + "\");'>" + package + "</li>";
+    }
+    mt.html("package_manager_menu", html, false);
+    package_manager.showMenu();
 };
 
 package_manager.data = function(id, package_name, status, version, description) {

@@ -68,7 +68,8 @@ def remove_selected(session, selected):
     return update(session)
 
 def jman_load(session):
-    packages.jman.menu(session, "Download Manager", {"package": "dlmanager", "dialogs": ['dlmanager_main']})
+    packages.jman.menu(session, "Download Manager", 0)
+    packages.jman.taskbar(session, "Download Manager", ['dlmanager_main'])
     out = session.out()
     out.htmlFile("dlmanager/html/jman.html", "body", True)
     out.jsFile("dlmanager/js/common.js")
