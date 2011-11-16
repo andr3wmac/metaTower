@@ -1,6 +1,7 @@
 import re, string, os, time
 import mtCore as mt
 from threading import Thread
+from zlib import crc32
 
 yenc_found = False
 try:
@@ -13,6 +14,7 @@ class ArticleDecoder(Thread):
     def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None):
         Thread.__init__(self)
         self.daemon = True
+        self.decoder = SegmentDecoder()
 
         self.nextSeg = nextSeg
         self.save_to = save_to
@@ -77,9 +79,8 @@ class ArticleDecoder(Thread):
                 mt.log.error("File assembly error: " + str(inst.args))
 
     def decodeSegment(self, seg):
-        decoder = SegmentDecoder()
         try:
-            if ( decoder.yenc_decode(seg) ):
+            if ( self.decoder.yenc_decode(seg) ):
                 file_path = os.path.join(self.path, seg.decoded_filename + "." + str("%03d" % (seg.decoded_number,)))
                 cache_file = open(file_path, "wb")
                 cache_file.write(seg.decoded_data)
@@ -100,8 +101,11 @@ class ArticleDecoder(Thread):
         finally:
             del seg.data[:]
 
-YDEC_TRANS = ''.join([chr((i + 256 - 42) % 256) for i in range(256)])
+
 class SegmentDecoder(object):
+    def __init__(self):
+        self.YDEC_TRANS = ''.join([chr((i + 256 - 42) % 256) for i in range(256)])
+
     def yenc_decode(self, seg):
         ignore_errors = seg.lastTry()
         buffer = []
@@ -139,22 +143,23 @@ class SegmentDecoder(object):
 
         # join the data together and decode it.
         data = ''.join(buffer)
+        crc = ""
         if ( yenc_found ):
-            decoded_data, crc, something = _yenc.decode_string(data)
+            decoded_data, _yenc_crc, something = _yenc.decode_string(data)
+            crc = '%08X' % ((_yenc_crc ^ -1) & 2**32L - 1)
         else:
             # stolen from hellanzb.
             for i in (0, 9, 10, 13, 27, 32, 46, 61):
                 j = '=%c' % (i + 64)
-            data = data.replace(j, chr(i))
-            decoded_data = data.translate(YDEC_TRANS)
-            crc = ""
+                data = data.replace(j, chr(i))
+            decoded_data = data.translate(self.YDEC_TRANS)
+            crc = '%08X' % (crc32(decoded_data) & 2**32L - 1)
         
         # if the article has failed multiple times we'll ignore errors and take
         # whatever we can get from it.
         if ( not ignore_errors ):
             # If a CRC was included, check it.
             if ( seg.decoded_crc != "" ) and ( crc != "" ):
-                crc = '%08X' % ((crc ^ -1) & 2**32L - 1)
                 if ( seg.decoded_crc.upper() != crc ):
                     mt.log.debug("CRC does not match. A: " + seg.decoded_crc.upper() + " B: " + crc)
                     return False
