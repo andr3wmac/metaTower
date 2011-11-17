@@ -141,20 +141,22 @@ def httpGet(url):
 def _refreshSources():
     global package_list
     
-    data = httpGet("http://packages.metatower.com/packages.php?x=all")
     package_list = []
-    tree = ElementTree.fromstring(data)
-    for element in tree:
-        pack = Package()
-        pack.id = element.tag
-        for attr in element:
-            if ( attr.tag == "name" ): pack.name = attr.text
-            if ( attr.tag == "version" ): pack.version = attr.text
-            if ( attr.tag == "description" ): pack.description = attr.text
-            if ( attr.tag == "source_url" ): pack.source_url = attr.text
-            if ( attr.tag == "install_files" ): pack.install_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
-            if ( attr.tag == "update_files" ): pack.update_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
-        package_list.append(pack)
+    source_list = httpGet("http://packages.metatower.com/packtest.php").split("\r\n")
+    for source in source_list:
+        data = httpGet(source)
+        tree = ElementTree.fromstring(data)
+        for element in tree:
+            pack = Package()
+            pack.id = element.tag
+            for attr in element:
+                if ( attr.tag == "name" ): pack.name = attr.text
+                if ( attr.tag == "version" ): pack.version = attr.text
+                if ( attr.tag == "description" ): pack.description = attr.text
+                if ( attr.tag == "source_url" ): pack.source_url = attr.text
+                if ( attr.tag == "install_files" ): pack.install_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
+                if ( attr.tag == "update_files" ): pack.update_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
+            package_list.append(pack)
 
 def jman_load(session):
     mt.packages.jman.menu(session, "Package Manager", 0)

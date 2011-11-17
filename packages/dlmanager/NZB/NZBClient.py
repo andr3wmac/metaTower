@@ -159,8 +159,6 @@ class NZBClient():
             mt.log.error("Segment Failed " + str(seg.retries+1) + " Times, Aborting. MsgID: " + seg.msgid)
             self.segments_aborted.append(seg.msgid)
             del seg
-            if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-                self.all_decoded = True
             return
 
         seg.retries += 1
