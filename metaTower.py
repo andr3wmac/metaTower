@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.2
+ * metaTower v0.3.5
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -19,7 +19,7 @@ if False:
     import serial.win32, Queue
 
 if __name__ == '__main__':
-    print "metaTower v0.3.2\n"
+    print "metaTower v0.3.5\n"
     mtCore.start()
     mtAuth.start()
     mtHTTPServer.start()

@@ -1,3 +1,13 @@
+"""
+ * metaTower v0.3.5
+ * http://www.metatower.com
+ *
+ * Copyright 2011, Andrew W. MacIntyre
+ * http://www.andrewmac.ca
+ * Licensed under GPL v3.
+ * See license.txt 
+ *  or http://www.metatower.com/license.txt
+"""
 # contains the metaTower.js file, this way it can be compiled into the program.
 content = """
 mt = function(url, target_override)
