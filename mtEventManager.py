@@ -1,3 +1,14 @@
+"""
+ * metaTower v0.3.5
+ * http://www.metatower.com
+ *
+ * Copyright 2011, Andrew W. MacIntyre
+ * http://www.andrewmac.ca
+ * Licensed under GPL v3.
+ * See license.txt 
+ *  or http://www.metatower.com/license.txt
+"""
+
 import mtMisc, inspect
 
 class EventManager:
