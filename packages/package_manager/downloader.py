@@ -36,11 +36,16 @@ class PackageDownloader(threading.Thread):
             self.start()
 
     def installPackage(self, package):
+        print "Im here!"
         if ( package.source_url != "" ):
             for f in package.install_files:
+                print "F: " + f
                 url = package.source_url + package.id + "/" + f
+                print "URL: " + url
                 path = os.path.join("packages", package.id, f)
+                print "path: " + path
                 self.add(url, path)
+                print "added: " + url + " to save to: " + path
             self.package = package
             self.installing = True
             self.start()

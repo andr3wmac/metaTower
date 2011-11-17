@@ -103,7 +103,9 @@ def install(session, package_id):
     for package in package_list:
         if ( package.id == package_id ):
             package_downloader = PackageDownloader(dlStatus, dlInstallComplete, dlUpdateComplete)
+            print "got here"
             package_downloader.installPackage(package)
+            print "and here."
             setStatus("Starting install..", 0)
     return status(session)
 
@@ -151,6 +153,7 @@ def _refreshSources():
             pack.id = element.tag
             print "Package loaded: " + pack.id
             for attr in element:
+                attr.text = attr.text.strip()
                 if ( attr.tag == "name" ): pack.name = attr.text
                 if ( attr.tag == "version" ): pack.version = attr.text
                 if ( attr.tag == "description" ): pack.description = attr.text
