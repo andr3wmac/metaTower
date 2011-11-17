@@ -20,7 +20,7 @@
 			http://www.metatower.com
 		</author_website>
 		<source_url>
-			http://packages.metatower.com/
+			https://raw.github.com/andr3wmac/metaTower/master/packages/
 		</source_url>
 		<install_files>
 			dlmanager.xml,
@@ -53,7 +53,7 @@
             images/par2.png
 		</install_files>
 		<update_files>
-			package.xml,
+            package.xml,
 			__init__.py,
             QueueController.py,
             NZB/__init__.py,
