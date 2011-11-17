@@ -103,6 +103,13 @@ package_manager.showAvailable = function()
     package_manager.showMenu();
 };
 
+package_manager.statusUpdate = function(message, percent)
+{
+    package_manager.status(message, percent);
+    if ( percent < 100 )
+        setTimeout("mt(\"package_manager.status()\")", 500);
+};
+
 package_manager.data = function(id, package_name, status, version, description) {
 	package_manager.hideMenu();
 	document.getElementById("package_manager_content").innerHTML = "";

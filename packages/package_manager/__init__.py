@@ -1,14 +1,20 @@
 import os, re, time, string, urllib2
 import xml.etree.ElementTree as ElementTree
-import mtConfigManager
+import mtConfigManager, mtMisc
 import mtCore as mt
+from downloader import PackageDownloader
 
 package_list = []
+package_downloader = None
+current_status = ""
+current_percent = 0
+
 class Package:
     def __init__(self):
         self.id = ""
         self.name = ""
         self.version = "0.0"
+        self.path = ""
         self.description = ""
         self.source_url = ""
         self.install_files = []
@@ -50,71 +56,64 @@ def getInstallInfo(session, package_id):
     return out
 
 def update(session, package_id):
-    global package_list
+    global package_list, package_downloader
+    if ( package_downloader != None ): return
+
     package_path = "packages"
-    out = session.out()
     for package in package_list:
         if ( package.id == package_id ):
-            if ( package.source_url != "" ):
-                for update_file in package.update_files:
-                    url = package.source_url + package_id + "/" + update_file
-                    path = os.path.join(package_path, package_id, update_file)
-                    saveFile(url, path)
-            mt.packages.reload(package_id)
-    out.js("mt.refresh()")
+            package_downloader = PackageDownloader(dlStatus, dlInstallComplete, dlUpdateComplete)
+            package_downloader.updatePackage(package)
+            setStatus("Starting update..", 0)
+    return status(session)
+
+def dlStatus(package, queued, completed):
+    setStatus("Downloading..", int(float(completed)/float(queued)*100))
+
+def dlInstallComplete(package):
+    global package_downloader
+    mt.packages.load(package.id, "packages")
+    setStatus("Install Complete, Refreshing.", 100)
+    package_downloader = None
+
+def dlUpdateComplete(package):
+    global package_downloader
+    mt.packages.load(package.id, "packages")
+    setStatus("Update Complete, Refreshing.", 100)
+    package_downloader = None
+
+def setStatus(status, progress):
+    global current_status, current_progress
+    current_status = status
+    current_progress = progress
+
+def status(session):
+    global current_status, current_progress
+    out = session.out()
+    out.js("package_manager.statusUpdate(\"" + current_status + "\", " + str(current_progress) + ");")
+    if ( current_progress >= 100 ):
+        out.js("mt.refresh()")
     return out
-
-def deleteFolder(folder):
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-            if os.path.isdir(file_path):
-                deleteFolder(file_path)
-        except Exception, e:
-            print e
-    os.rmdir(folder)
-
-def saveFile(url, file_path):
-    path = os.path.split(file_path)[0]
-    if ( not os.path.isfile(file_path) ):
-        if ( not path == "" ) and ( not os.path.isdir(path) ):
-            os.makedirs(path)
-    data = httpGet(url)
-    if ( data == "" ): raise IOError
-    f = open(file_path, 'wb')
-    f.write(data)
-    f.close()
 
 def install(session, package_id):
-    global package_list
+    global package_list, package_downloader
+    if ( package_downloader != None ): return
+
     package_path = "packages"
-    out = session.out()
-    try:
-        for package in package_list:
-            if ( package.id == package_id ):
-                if ( package.source_url != "" ):
-                    for install_file in package.install_files:
-                        url = package.source_url + package_id + "/" + install_file
-                        path = os.path.join(package_path, package_id, install_file)
-                        saveFile(url, path)
-                mt.packages.load(package_id, package_path)
-                out.js("package_manager.status('Install success. Refreshing browser..');")
-        out.js("mt.refresh()")
-    except IOError:
-        deleteFolder(os.path.join(package_path,package_id))
-        out.js("package_manager.status('Installation failed. Missing files.');")
-    
-    return out
+    for package in package_list:
+        if ( package.id == package_id ):
+            package_downloader = PackageDownloader(dlStatus, dlInstallComplete, dlUpdateComplete)
+            package_downloader.installPackage(package)
+            setStatus("Starting install..", 0)
+    return status(session)
 
 def delete(session, package_id):
     out = session.out()
     path = os.path.join("packages", package_id)
     if ( os.path.isdir(path) ):
-        deleteFolder(path)
+        mtMisc.rmdir(path)
         mt.packages.unload(package_id)
-        out.js("package_manager.status('Package deleted. Restarting metaTower, please wait.');")
+        out.js("package_manager.status('Package deleted. Refreshing...');")
         out.js("mt.refresh();")
     else:
         out.js("package_manager.status('Could not delete, folder not found.');")
@@ -200,33 +199,5 @@ def packageListOut(session):
             available_packages[source_package.id] = source_package.name
 
     out.js("package_manager.packageList(" + str(installed_packages) + "," + str(updates) + "," + str(available_packages) + ")")
-    return out
-
-def mainMenu(session):
-    global package_list
-
-    out = session.out()
-    installed_html = "<li class='cat'>Installed Packages</li>"
-    update_html = "<li class='cat'>Updates Available</li>"
-    available_html = "<li class='cat'>Available Packages</li>"
-
-    # for each installed package
-    for package_name in mt.packages.list:
-        package = mt.packages.list[package_name]
-        installed_html += "<li class='subcat' onClick='package_manager.getPackageInfo(\"" + package_name + "\");'>" + package.name + " v" + package.version + "</li>"
-
-    # for each package in from sources.xml
-    for source_package in package_list:
-        # for each installed package.
-        installed = False
-        for package_name in mt.packages.list:
-            package = mt.packages.list[package_name]
-            if ( package.id == source_package.id ):
-                installed = True
-                if ( float(package.version) < float(source_package.version) ):
-                    update_html += "<li class='subcat' onClick='package_manager.getUpdateInfo(\"" + source_package.id + "\");'>" + source_package.name + " v" + source_package.version + "</li>"
-        if ( not installed ):
-            available_html += "<li class='subcat' onClick='package_manager.getInstallInfo(\"" + source_package.id + "\");'>" + source_package.name + " v" + source_package.version + "</li>"
-    out.html(installed_html + update_html + available_html, "package_manager_menu", False)
     return out
 
