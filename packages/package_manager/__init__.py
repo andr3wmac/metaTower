@@ -94,7 +94,6 @@ def install(session, package_id):
     try:
         for package in package_list:
             if ( package.id == package_id ):
-                print "Installing " + package.name
                 if ( package.source_url != "" ):
                     for install_file in package.install_files:
                         url = package.source_url + package_id + "/" + install_file
