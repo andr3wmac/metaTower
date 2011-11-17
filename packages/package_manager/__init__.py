@@ -149,6 +149,7 @@ def _refreshSources():
         for element in tree:
             pack = Package()
             pack.id = element.tag
+            print "Package loaded: " + pack.id
             for attr in element:
                 if ( attr.tag == "name" ): pack.name = attr.text
                 if ( attr.tag == "version" ): pack.version = attr.text

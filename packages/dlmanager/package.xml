@@ -1,31 +1,31 @@
 <?xml version="1.0" ?>
 <metaTower>
-	<dlmanager>
-		<version>
-			0.2
-		</version>
-		<name>
-			Download Manager
-		</name>
-		<description>
-			Upload .torrent or .nzb files to queue downloads.
-		</description>
-		<category>
-			Internet
-		</category>
-		<author_name>
-			Andrew MacIntyre
-		</author_name>
-		<author_website>
-			http://www.metatower.com
-		</author_website>
-		<source_url>
-			https://raw.github.com/andr3wmac/metaTower/master/packages/
-		</source_url>
-		<install_files>
-			dlmanager.xml,
+    <dlmanager>
+        <version>
+            0.2
+        </version>
+        <name>
+            Download Manager
+        </name>
+        <description>
+            Upload .torrent or .nzb files to queue downloads.
+        </description>
+        <category>
+            Internet
+        </category>
+        <author_name>
+            Andrew MacIntyre
+        </author_name>
+        <author_website>
+            http://www.metatower.com
+        </author_website>
+        <source_url>
+            https://raw.github.com/andr3wmac/metaTower/master/packages/
+        </source_url>
+        <install_files>
+            dlmanager.xml,
             package.xml,
-			__init__.py,
+            __init__.py,
             QueueController.py,
             NZB/__init__.py,
             NZB/Decoder.py,
@@ -51,10 +51,10 @@
             images/torrent.png,
             images/unrar.png,
             images/par2.png
-		</install_files>
-		<update_files>
+        </install_files>
+        <update_files>
             package.xml,
-			__init__.py,
+            __init__.py,
             QueueController.py,
             NZB/__init__.py,
             NZB/Decoder.py,
@@ -80,6 +80,6 @@
             images/torrent.png,
             images/unrar.png,
             images/par2.png
-		</update_files>
-	</dlmanager>
+        </update_files>
+    </dlmanager>
 </metaTower>
