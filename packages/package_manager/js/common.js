@@ -35,7 +35,7 @@ var package_manager = {
 
 	install: function(id)
 	{
-		package_manager.status("Installing " + id + "..", 0);
+		package_manager.status("Connecting..", 0);
 		mt("package_manager.install('" + id + "')");
 	},
 

@@ -103,10 +103,11 @@ def install(session, package_id):
     for package in package_list:
         if ( package.id == package_id ):
             package_downloader = PackageDownloader(dlStatus, dlInstallComplete, dlUpdateComplete)
-            print "got here"
-            package_downloader.installPackage(package)
-            print "and here."
-            setStatus("Starting install..", 0)
+            if ( package_downloader.installPackage(package) ):
+                setStatus("Starting install..", 0)
+            else:
+                setStatus("Error installing package.", 0)
+                package_downloader = None
     return status(session)
 
 def delete(session, package_id):
