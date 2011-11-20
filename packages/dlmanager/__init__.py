@@ -117,12 +117,15 @@ def update(session):
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
         elif ( nzb.completed ):
             # completed
+            filename = os.path.basename(nzb.filename).replace("'", "\'")
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 2, 0, 0, 0, 0, '" + nzb.par2_results + "', '" + nzb.unrar_results + "');")
         elif ( nzb.error ):
             # failed
+            filename = os.path.basename(nzb.filename).replace("'", "\'")
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 3);")
         else:
             # queued
+            filename = os.path.basename(nzb.filename).replace("'", "\'")
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 0);")
 
     for torrent in torrent_queue:
