@@ -112,7 +112,7 @@ def update(session):
             out.js("dlmanager.remove('" + nzb.uid + "');")
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
             status = nzb_engine.status
-            filename = os.path.basename(nzb.filename).replace("'", "\\'")
+            filename = os.path.basename(nzb.filename).replace("'", "\'")
 
             out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
         elif ( nzb.completed ):
