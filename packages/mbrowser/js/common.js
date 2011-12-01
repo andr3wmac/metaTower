@@ -3,14 +3,23 @@ var mbrowser = {
 	newAudio: function() { mt("mbrowser.query('audio', True, 50)"); },
 	allVideo: function() { mt("mbrowser.query('video')"); },
 	newVideo: function() { mt("mbrowser.query('video', True, 50)"); },
-    toggleInfo: function(element)
+    toggleInfo: function(id)
     {
-        var info = element.parentNode.children[2];
-        if ( info.style.display == "block" )
+        var info = document.getElementById(id + "_info");
+        if ( info == null )
         {
-            info.style.display = "none";
+            var html = "<div id='" + id + "_info' class='info'>";
+            html += "<ul><li><a id='" + id + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + id + "');\">Generate External Link</a></li>";
+            html += "<li><a id='" + id + "_webvideo' href='#'>Convert to Web Video</a></li></ul>";
+            html += "</div>";
+            mt.html(id, html, true);
         } else {
-            info.style.display = "block";
+            if ( info.style.display == "block" )
+            {
+                info.style.display = "none";
+            } else {
+                info.style.display = "block";
+            }
         }
     },
     getExternalLink: function(id)
@@ -34,12 +43,12 @@ mbrowser.data = function(contents)
     for (var i = 0; i < contents.length; i++)
     {
         var item = contents[i];
-        var html = "<li class='video' id='" + item["id"] + "'><img onclick='mbrowser.toggleInfo(this)' class='icon' src='mbrowser/images/mtfile.png'>";
+        //mbrowser.library[item["id"]] = item;
+
+        var html = "<li class='video' id='" + item["id"] + "'>";
+        html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
         html += "<div class='name'><a href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
-        html += "<div class='info'>";
-        html += "<ul><li><a id='" + item["id"] + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + item["id"] + "');\">Generate External Link</a></li>";
-        html += "<li><a id='" + item["id"] + "_webvideo' href='#'>Convert to Web Video</a></li></ul>";
-        html += "</div></li>";
+        html += "</li>";
 	    mt.html("mbrowser_content", html, true);
     }
 };
