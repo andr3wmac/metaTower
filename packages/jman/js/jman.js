@@ -64,6 +64,7 @@ mt.html = function(targetID, data, append)
         }
     }
 }
+
 mt.js = function(data)
 {
     $('head').append("<script type='text/javascript'>" + data + "</script>");

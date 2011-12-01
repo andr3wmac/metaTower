@@ -255,20 +255,29 @@ class HTTPHandler(threading.Thread):
 
                 # check to see if we have a session cookie and if its valid.    
                 try:    
-                    session = None
-                    if ( "session" in cookies ): 
-                        session = mtSession.findSession(cookies["session"])
-                    if ( session == None ):
-                        output.append(mtHTTPProcessor.processLogin(self.client_socket, request_path, auth_line))
-                    else:
-                        # keep session IP up to date.
-                        session.IP = self.client_addr[0]
-
-                        # check for a dirty url ( login when a cookie exists )
-                        if ( request_path.startswith("/?") ):
-                            output.append(session.cleanRedirect())
+                    # filekeys are one time use, external, check for that
+                    if ( request_path[:2] == "/*" ):
+                        key = request_path[2:]
+                        fkey = mtSession.fileKey(key)
+                        if ( fkey != None ):
+                            output.file(fkey, "")
                         else:
-                            output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
+                            output.text("Expired or invalid.")
+                    else:
+                        session = None
+                        if ( "session" in cookies ): 
+                            session = mtSession.findSession(cookies["session"])
+                        if ( session == None ):
+                            output.append(mtHTTPProcessor.processLogin(self.client_socket, request_path, auth_line))
+                        else:
+                            # keep session IP up to date.
+                            session.IP = self.client_addr[0]
+
+                            # check for a dirty url ( login when a cookie exists )
+                            if ( request_path.startswith("/?") ):
+                                output.append(session.cleanRedirect())
+                            else:
+                                output.append(mtHTTPProcessor.processRequest(session, request_type, request_path, post_data))
                 except Exception as inst:
                     raise
                     mt.log.error("Login: " + str(inst.args))

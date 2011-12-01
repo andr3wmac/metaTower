@@ -14,7 +14,25 @@
 #mbrowser_content .audio { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 #mbrowser_content .audio:hover { background-color: #E6E6E6; }
 
-#mbrowser_content .video { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px; padding-left: 25px; }
+#mbrowser_content .video {  }
 #mbrowser_content .video:hover { background-color: #E6E6E6; }
+
+#mbrowser_content .icon {
+    float: left;
+}
+#mbrowser_content .name {
+    padding-left: 20px;
+    padding-top: 2px;
+}
+#mbrowser_content .info {
+    display: none;
+    padding: 10px 30px;
+}
+
+#mbrowser_content .info li {
+    list-style-type: circle;
+    padding: 3px;
+    margin: 0px;
+}
 
 #mbrowser_content a { text-decoration: none; color: black; }

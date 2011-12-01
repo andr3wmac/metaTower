@@ -12,6 +12,7 @@
 import hashlib, uuid, time, os, mtHTTPServer, mtMisc, mtCore
 
 sessions = []
+filekeys = {}
 
 class Session():
     auth_key = ""
@@ -43,6 +44,16 @@ class Session():
         packet.headers["Content-Length"] = "0"
         return packet
 
+    def generateFileKey(self, path):
+        global filekeys
+        for key in filekeys:
+            if ( filekeys[key] == path ):
+                return key
+
+        key = mtMisc.uid()
+        filekeys[key] = path
+        return key
+
 def newSession():
     ns = Session()
     sessions.append(ns)
@@ -52,4 +63,10 @@ def findSession(key):
     for session in sessions:
         if ( session.auth_key == key ):
             return session
+    return None
+
+def fileKey(key):
+    global filekeys
+    if ( filekeys.has_key(key) ):
+        return filekeys[key]
     return None
