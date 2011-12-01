@@ -36,31 +36,8 @@ mbrowser.data = function(paths, names) {
         var html = "<li class='video'><img onclick='mbrowser.toggleInfo(this)' class='icon' src='mbrowser/images/mtfile.png'>";
         html += "<div class='name'><a href=':" + paths[i] + "'>" + names[i] + "</a></div>";
         html += "<div class='info'>";
-        html += "<ul><li><a href='#' onclick='mbrowser.getExternalLink(\"" + paths[i] + "\");'>Generate External Link</a></li><li><a href='#'>Convert to Web Video</a></li></ul>";
+        html += "<ul><li><a href='#' onclick='mbrowser.getExternalLink(\"" + paths[i] + "\", this);'>Generate External Link</a></li><li><a href='#'>Convert to Web Video</a></li></ul>";
         html += "</div></li>";
 		mt.html("mbrowser_content", html, true);
 	}
-};
-
-mbrowser.toggleInfo = function(element)
-{
-    var info = element.parentNode.children[2];
-    if ( info.style.display == "block" )
-    {
-        info.style.display = "none";
-    } else {
-        info.style.display = "block";
-    }
-};
-
-mbrowser.getExternalLink = function(link)
-{
-    mt("mbrowser.getExternalLink('" + link + "')");
-};
-
-mbrowser.externalLink = function(elink)
-{
-    $("#mbrowser_external_link").dialog("open");
-    $("#mbrowser_external_link_text").html("<a href='" + elink + "'>Link to File.</a>");
-    //jman.createClipboardLink("balls", "this was copied.");
 };

@@ -114,10 +114,10 @@ def searchLibrary(parms):
         if ( satisfied ): results.append(item)
     return results
         
-def getExternalLink(session, link):
+def getExternalLink(session, link, id):
     out = session.out()
     fkey = session.generateFileKey(link)
-    out.js("mbrowser.externalLink('*" + fkey + "');")
+    out.js("mbrowser.externalLink('*" + fkey + "', '" + id + "');")
     return out
     
 
