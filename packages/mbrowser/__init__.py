@@ -1,4 +1,4 @@
-import os, re, time, string
+import os, re, time, string, mtMisc
 import mtCore as mt
 
 items = {}
@@ -18,6 +18,7 @@ def scan():
         if ( items.has_key(f) ): continue
         if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
             idata = {}
+            idata["id"] = mtMisc.uid()
             idata["path"] = f
             idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
             idata["type"] = "video"
@@ -32,6 +33,7 @@ def scan():
 
         if ( ext == ".mp3" ):
             idata = {}
+            idata["id"] = mtMisc.uid()
             idata["path"] = f
             idata["name"] = os.path.split(basename)[1]
             idata["type"] = "audio"
@@ -89,17 +91,19 @@ def query(session, ftype = "", newest = False, limit = 10000):
     else:
         for item in lib_results: result[item["name"]] = item
     
-    paths = ""
-    names = ""
+    #paths = ""
+    #names = ""
     count = 0
     sorted_keys = sorted(result)
+    output = ""
     for key in sorted_keys:
         if ( count >= limit ): break
-        paths += ", '" + result[key]["path"] + "'"
-        names += ", '" + result[key]["name"] + "'"
+        output += ", " + str(result[key])
+        #paths += ", '" + result[key]["path"] + "'"
+        #names += ", '" + result[key]["name"] + "'"
         count += 1
-
-    out.js("mbrowser.data([" + paths[2:] + "], [" + names[2:] + "]);")
+    out.js("mbrowser.data([" + output[2:] + "]);")
+    #out.js("mbrowser.data([" + paths[2:] + "], [" + names[2:] + "]);")
     return out
 
 def searchLibrary(parms):
@@ -113,11 +117,21 @@ def searchLibrary(parms):
             else: satisfied = False
         if ( satisfied ): results.append(item)
     return results
+
+def findItemById(id):
+    global items
+    for key in items:
+        i = items[key]
+        if ( i["id"] == id ): return i
+    return None
         
-def getExternalLink(session, link, id):
+def getExternalLink(session, id):
     out = session.out()
-    fkey = session.generateFileKey(link)
-    out.js("mbrowser.externalLink('*" + fkey + "', '" + id + "');")
+    
+    item = findItemById(id)
+    if ( item != None ):
+        fkey = session.generateFileKey(item["path"])
+        out.js("mbrowser.externalLink('" + id + "', '*" + fkey + "');")
     return out
     
 
