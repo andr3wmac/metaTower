@@ -105,6 +105,8 @@ def query(session, ftype = "", newest = False, limit = 10000):
         output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
         if ( item.has_key("web") ):
             output += ", 'web': '" + item["web"] + "'"
+        if ( item.has_key("external") ):
+            output += ", 'external': '" + item["external"] + "'"
         output += "}"
         #paths += ", '" + result[key]["path"] + "'"
         #names += ", '" + result[key]["name"] + "'"
@@ -137,8 +139,8 @@ def getExternalLink(session, id):
     
     item = findItemById(id)
     if ( item != None ):
-        fkey = session.generateFileKey(item["path"])
-        out.js("mbrowser.externalLink('" + id + "', '*" + fkey + "');")
+        item["external"] = session.generateFileKey(item["path"])
+        out.js("mbrowser.externalLink('" + id + "', '*" + item["external"] + "');")
     return out
     
 
