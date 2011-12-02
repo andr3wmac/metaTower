@@ -40,12 +40,13 @@ mbrowser.data = function(contents)
     mbrowser.hideMenu();
     document.getElementById("mbrowser_content").innerHTML = "";
     mt.html("mbrowser_content", "<li class='menu' onclick='mbrowser.showMenu()'>Return to Main Menu</li>", true);
+    var html = "";
     for (var i = 0; i < contents.length; i++)
     {
         var item = contents[i];
         //mbrowser.library[item["id"]] = item;
 
-        var html = "<li class='video' id='" + item["id"] + "'>";
+        html += "<li class='video' id='" + item["id"] + "'>";
         html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
         html += "<div class='name'><a href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
 
@@ -58,6 +59,6 @@ mbrowser.data = function(contents)
         }
 
         html += "</li>";
-	    mt.html("mbrowser_content", html, true);
     }
+    mt.html("mbrowser_content", html, true);
 };
