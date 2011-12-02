@@ -39,8 +39,7 @@ mbrowser.data = function(contents)
 {
     mbrowser.hideMenu();
     document.getElementById("mbrowser_content").innerHTML = "";
-    mt.html("mbrowser_content", "<li class='menu' onclick='mbrowser.showMenu()'>Return to Main Menu</li>", true);
-    var html = "";
+    var html = "<li class='menu' onclick='mbrowser.showMenu()'>Return to Main Menu</li>";
     for (var i = 0; i < contents.length; i++)
     {
         var item = contents[i];
