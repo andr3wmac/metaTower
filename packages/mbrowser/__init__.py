@@ -23,11 +23,14 @@ def scan():
             idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
             idata["type"] = "video"
             idata["time"] = time.time() - os.stat(f).st_mtime
-
             tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
             if ( len(tv) == 4 ):
                 idata["name"] = string.capwords(tv[0], " ") + " - Season " + tv[1] + " Episode " + tv[2]
                 idata["vidtype"] = "tv"
+
+            # check to see if webvideo is available
+            webf = f.replace(ext, ".flv")
+            if ( os.path.isfile(webf) ): idata["web"] = webf
 
             items[f] = idata
 
@@ -52,7 +55,7 @@ def onLoad():
 
 def jman_load(session):
     mt.packages.jman.menu(session, "Media Browser", 3)
-    mt.packages.jman.taskbar(session, "Media Browser", ['mbrowser_main'])
+    mt.packages.jman.taskbar(session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
     out = session.out()
     out.htmlFile("mbrowser/html/jman.html", "body", True)
     out.jsFile("mbrowser/js/common.js")
@@ -98,7 +101,11 @@ def query(session, ftype = "", newest = False, limit = 10000):
     output = ""
     for key in sorted_keys:
         if ( count >= limit ): break
-        output += ", " + str(result[key])
+        item = result[key]
+        output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
+        if ( item.has_key("web") ):
+            output += ", 'web': '" + item["web"] + "'"
+        output += "}"
         #paths += ", '" + result[key]["path"] + "'"
         #names += ", '" + result[key]["name"] + "'"
         count += 1

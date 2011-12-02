@@ -48,6 +48,15 @@ mbrowser.data = function(contents)
         var html = "<li class='video' id='" + item["id"] + "'>";
         html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
         html += "<div class='name'><a href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
+
+        if ( item["web"] )
+        {
+            html += "<div id='" + item["id"] + "_info' class='info' style='display:none'>";
+            html += "<ul><li><a id='" + item["id"] + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + item["id"] + "');\">Generate External Link</a></li>";
+            html += "<li><a id='" + item["id"] + "_webvideo' onclick=\"mbrowser.openWebVideo('" + item["web"] + "')\" href='#'>Play Web Video</a></li></ul>";
+            html += "</div>";
+        }
+
         html += "</li>";
 	    mt.html("mbrowser_content", html, true);
     }
