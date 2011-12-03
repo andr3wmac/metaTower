@@ -1,5 +1,5 @@
 <div id="mbrowser_main" title="Media Browser">
-	<div style="position: absolute; top: 5px; left: 5px; right: 7px; bottom: 7px; overflow-y: scroll;">
+	<div id="mbrowser_body" style="position: absolute; top: 5px; left: 5px; right: 7px; bottom: 7px; overflow-y: scroll;">
 		<ul id="mbrowser_menu">		
 			<li class="cat">Audio</li>
 			<li class="subcat" onclick="mbrowser.allAudio()">All</li>
@@ -9,17 +9,13 @@
 			<li class="subcat" onclick="mbrowser.movies()">Movies</li>
 			<li class="subcat" onclick="mbrowser.tv()">TV Shows</li>
 			<li class="subcat" onclick="mbrowser.newVideo()">Newest</li>
+            <li class="cat" onclick="mbrowser.refresh()" style="cursor: pointer;">Refresh Library</li>
 		</ul>		
 		<ul id="mbrowser_content"></ul>
 	</div>
-	<div id="mbrowser_external_link" title="External Link">
-		<p>
-			<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-            <span id="mbrowser_external_link_text"></span>
-		</p>
+	<div id="mbrowser_statusbar" style="display: none; position: absolute; bottom: 7px; left: 7px; right: 7px;">
+		<div id="mbrowser_status" onclick="mt('mbrowser.stopConvert()');" style="position: absolute; top: 6px; left: 10px; cursor: pointer">Click to Stop</div>
+        <div id="mbrowser_progress"></div>
 	</div>
 </div>
-
-<div id="mbrowser_player" title="Media Player">
-	
-</div>
+<div id="mbrowser_player" title="Media Player"></div>

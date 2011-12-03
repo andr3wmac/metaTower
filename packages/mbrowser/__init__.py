@@ -1,8 +1,57 @@
-import os, re, time, string, mtMisc
+import os, re, time, string, mtMisc, ffmpeg
 import mtCore as mt
 
 items = {}
-        
+status_msg = "Idle."
+status_prog = 0
+converting = False
+convert_id = ""
+convert_success = False
+convert_output = ""
+
+def onLoad():
+    mt.events.register("jman.load", jman_load)
+    mt.events.register("jman.menu.mbrowser", jman_menu)
+
+    mt.events.register("jmanlite.load", jmanlite_load)
+    mt.events.register("jmanlite.menu.mbrowser", jmanlite_menu)
+
+    scan()
+
+def onUnload():
+    ffmpeg.stop()
+
+def jman_load(session):
+    mt.packages.jman.menu(session, "Media Browser", 3)
+    mt.packages.jman.taskbar(session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
+    out = session.out()
+    out.htmlFile("mbrowser/html/jman.html", "body", True)
+    out.jsFile("mbrowser/js/common.js")
+    out.jsFile("mbrowser/js/jman.js")
+    out.cssFile("mbrowser/css/style.css")
+    return out
+
+def jman_menu(session):
+    global converting
+    scan()
+    out = session.out()
+    out.js("jman.dialog('mbrowser_main');")
+    if ( converting ): out.append(status(session))
+    return out
+
+def jmanlite_load(session):
+    mt.packages.jmanlite.menu(session, "Media Browser", "mbrowser")
+    return None
+
+def jmanlite_menu(session):
+    scan()
+    out = session.out()
+    out.htmlFile("mbrowser/html/jmanlite.html", "jmanlite_content", False)
+    out.jsFile("mbrowser/js/common.js")
+    out.jsFile("mbrowser/js/jmanlite.js")
+    out.cssFile("mbrowser/css/style.css")
+    return out
+
 def getFileList(path):
     results = []
     for f in os.listdir(path):
@@ -25,7 +74,10 @@ def scan():
             idata["time"] = time.time() - os.stat(f).st_mtime
             tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
             if ( len(tv) == 4 ):
-                idata["name"] = string.capwords(tv[0], " ") + " - Season " + tv[1] + " Episode " + tv[2]
+                idata["tv_name"] = string.capwords(tv[0], " ")
+                idata["tv_season"] = tv[1]
+                idata["tv_episode"] = tv[2]
+                idata["name"] = idata["tv_name"] + " - Season " + idata["tv_season"] + " Episode " + idata["tv_episode"]
                 idata["vidtype"] = "tv"
 
             # check to see if webvideo is available
@@ -43,43 +95,60 @@ def scan():
             idata["time"] = time.time() - os.stat(f).st_mtime
             items[f] = idata
             
-
-def onLoad():
-    mt.events.register("jman.load", jman_load)
-    mt.events.register("jman.menu.mbrowser", jman_menu)
-
-    mt.events.register("jmanlite.load", jmanlite_load)
-    mt.events.register("jmanlite.menu.mbrowser", jmanlite_menu)
-
+def refresh():
+    global items
+    items = {}
     scan()
 
-def jman_load(session):
-    mt.packages.jman.menu(session, "Media Browser", 3)
-    mt.packages.jman.taskbar(session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
+def refreshLibrary(session):
     out = session.out()
-    out.htmlFile("mbrowser/html/jman.html", "body", True)
-    out.jsFile("mbrowser/js/common.js")
-    out.jsFile("mbrowser/js/jman.js")
-    out.cssFile("mbrowser/css/style.css")
+    refresh()
+    out.js("mbrowser.refreshComplete();")
     return out
 
-def jman_menu(session):
-    scan()
+def tvQuery(session, name = "", season = ""):
     out = session.out()
-    out.js("jman.dialog('mbrowser_main');")
-    return out
 
-def jmanlite_load(session):
-    mt.packages.jmanlite.menu(session, "Media Browser", "mbrowser")
-    return None
+    if ( name == "" ):
+        parms = {"vidtype": "tv"}
+        lib_results = searchLibrary(parms)
 
-def jmanlite_menu(session):
-    scan()
-    out = session.out()
-    out.htmlFile("mbrowser/html/jmanlite.html", "jmanlite_content", False)
-    out.jsFile("mbrowser/js/common.js")
-    out.jsFile("mbrowser/js/jmanlite.js")
-    out.cssFile("mbrowser/css/style.css")
+        shows = []
+        for item in lib_results: shows.append(item["tv_name"])
+        shows = mtMisc.removeDuplicates(shows)
+        shows.sort()
+
+        out.js("mbrowser.tvShows(" + str(shows) + ");")
+
+    elif ( season == "" ):
+        parms = {"vidtype": "tv", "tv_name": name}
+        lib_results = searchLibrary(parms)
+
+        seasons = []
+        for item in lib_results: seasons.append(item["tv_season"])
+        seasons = mtMisc.removeDuplicates(seasons)
+        seasons.sort()
+
+        out.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")
+
+    else:
+        parms = {"vidtype": "tv", "tv_name": name, "tv_season": season}
+        lib_results = searchLibrary(parms)
+        result = {}
+        for item in lib_results: result[item["name"]] = item
+        
+        sorted_keys = sorted(result)
+        output = ""
+        for key in sorted_keys:
+            item = result[key]
+            output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
+            if ( item.has_key("web") ):
+                output += ", 'web': '" + item["web"] + "'"
+            if ( item.has_key("external") ):
+                output += ", 'external': '" + item["external"] + "'"
+            output += "}"
+        out.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
+
     return out
 
 def query(session, ftype = "", newest = False, limit = 10000):
@@ -142,5 +211,55 @@ def getExternalLink(session, id):
         item["external"] = session.generateFileKey(item["path"])
         out.js("mbrowser.externalLink('" + id + "', '*" + item["external"] + "');")
     return out
+
+def convertStatus(f, prog):
+    global converting, convert_success, convert_output
+    if ( prog > 100 ):
+        setStatus("Finished.", 100)
+        converting = False
+        convert_output = f
+        convert_success = True
+
+        item = findItemById(id)
+        if ( item != None ):
+            item["web"] = f
+    else:
+        setStatus("Converting.. (click to stop)", prog)
+
+def convertToWeb(session, id):
+    global converting, convert_id, convert_success
+    if ( converting ):
+        return
+
+    out = session.out()
+    item = findItemById(id)
+    if ( item != None ):
+        ffmpeg.convertToFlash(item["path"], convertStatus)
+        setStatus("Converting.. (click to stop)", 0)
+        converting = True
+        convert_id = id
+        convert_success = False
+        out.append(status(session))
+    return out
+
+def stopConvert(session):
+    global converting
+    ffmpeg.stop()
+    converting = False
+    setStatus("Cancelled.", 100)
     
+def setStatus(msg, progress):
+    global status_msg, status_prog
+    status_msg = msg
+    status_prog = progress
+
+def status(session):
+    global status_msg, status_prog, convert_success, convert_id, convert_output
+    out = session.out()
+    out.js("mbrowser.statusUpdate(\"" + status_msg + "\", " + str(status_prog) + ");")
+
+    if ( status_prog == 100 ) and ( convert_success ):
+        out.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
+
+    return out
 

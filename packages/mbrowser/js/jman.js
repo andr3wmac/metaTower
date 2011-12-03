@@ -1,7 +1,7 @@
 $('#mbrowser_main').dialog({
 	autoOpen: false, 
-	minWidth: 400,
-	minHeight: 250
+	minWidth: 550,
+	minHeight: 350
 });
 
 $('#mbrowser_player').dialog({
@@ -9,18 +9,6 @@ $('#mbrowser_player').dialog({
 	minWidth: 664,
 	minHeight: 358,
     resizable: false
-});
-
-$( "#mbrowser_external_link" ).dialog({
-	resizable: false,
-	height:145,
-	modal: true,
-	buttons: {
-		"Close": function() {
-			$('#mbrowser_external_link').dialog("close");
-		}
-	},
-	autoOpen: false
 });
 
 mbrowser.showMenu = function()
@@ -31,7 +19,7 @@ mbrowser.showMenu = function()
 mbrowser.hideMenu = function()
 {
 	$("#mbrowser_content").show();
-	$("#mbrowser_menu").hide("blind");
+	$("#mbrowser_menu").hide();
 };
 
 mbrowser.openWebVideo = function(f)
@@ -52,3 +40,20 @@ mbrowser.openWebVideo = function(f)
     mt.html("mbrowser_player", html, false);
     jman.dialog("mbrowser_player");
 };
+
+mbrowser.showStatus = function()
+{
+    var sBar = document.getElementById("mbrowser_statusbar");
+    sBar.style.display = "block";
+    var pBody = document.getElementById("mbrowser_body");
+    pBody.style.bottom = "38px";
+};
+mbrowser.hideStatus = function()
+{
+    var sBar = document.getElementById("mbrowser_statusbar");
+    sBar.style.display = "none";
+    var pBody = document.getElementById("mbrowser_body");
+    pBody.style.bottom = "8px";
+};
+
+

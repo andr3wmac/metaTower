@@ -2,7 +2,7 @@
 <metaTower>
 	<package_manager>
 		<sources>
-			<source url="http://packages.metatower.com/packages.php"/>
+			<source url="http://packages.metatower.com/packtest.php"/>
 		</sources>
 	</package_manager>
 </metaTower>

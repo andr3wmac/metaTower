@@ -145,7 +145,7 @@ def _refreshSources():
     global package_list
     
     package_list = []
-    source_list = httpGet("http://packages.metatower.com/packtest.php").split("\r\n")
+    source_list = httpGet("http://packages.metatower.com/packtest.php").split("\n")
     for source in source_list:
         data = httpGet(source)
         tree = ElementTree.fromstring(data)

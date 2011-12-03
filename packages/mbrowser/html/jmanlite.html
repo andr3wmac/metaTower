@@ -1,11 +1,16 @@
-<ul id="mbrowser_menu">		
-	<li class="cat">Audio</li>
-	<li class="subcat" onclick="mbrowser.allAudio()">All</li>
-	<li class="subcat" onclick="mbrowser.newAudio()">Newest</li>
-	<li class="cat">Video</li>
-	<li class="subcat" onclick="mbrowser.allVideo()">All</li>
-	<li class="subcat" onclick="mbrowser.movies()">Movies</li>
-	<li class="subcat" onclick="mbrowser.tv()">TV Shows</li>
-	<li class="subcat" onclick="mbrowser.newVideo()">Newest</li>
-</ul>		
+<div id="mbrowser_statusbar" style="display: none;">
+    <div id="mbrowser_status" onclick="mt('mbrowser.stopConvert()');" style="float:left; padding-top: 6px; padding-left:10px; cursor: pointer">Click to Stop</div>
+    <div id="mbrowser_progress"></div>
+</div>
+<ul id="mbrowser_menu">        
+    <li class="cat">Audio</li>
+    <li class="subcat" onclick="mbrowser.allAudio()">All</li>
+    <li class="subcat" onclick="mbrowser.newAudio()">Newest</li>
+    <li class="cat">Video</li>
+    <li class="subcat" onclick="mbrowser.allVideo()">All</li>
+    <li class="subcat" onclick="mbrowser.movies()">Movies</li>
+    <li class="subcat" onclick="mbrowser.tv()">TV Shows</li>
+    <li class="subcat" onclick="mbrowser.newVideo()">Newest</li>
+    <li class="cat" onclick="mbrowser.refresh()" style="cursor: pointer;">Refresh Library</li>
+</ul>        
 <ul id="mbrowser_content"></ul>
