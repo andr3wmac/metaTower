@@ -17,7 +17,7 @@ dlmanager.jman = {
 	removeSelected: function()
 	{
 		var toBeRemoved = ""
-		$('.ui-selected').each( function() { toBeRemoved += $.trim($(this).attr("id")) + ","; } );
+		$('.ui-selected').each( function() { toBeRemoved += $.trim($(this).attr("id")) + ","; $(this).hide(); } );
 		mt("dlmanager.remove_selected('" + toBeRemoved + "')");
 	},
 
