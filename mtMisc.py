@@ -46,10 +46,11 @@ def isLocalIP(IP):
 def removeDuplicates(arr):
     s = set(arr)
     result = []
-    try:
-        result.append(s.pop())
-    except KeyError:
-        pass
+    while True:
+        try:
+            result.append(s.pop())
+        except KeyError:
+            break
     return result
 
 def mkdir(path):

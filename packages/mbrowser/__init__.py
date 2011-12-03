@@ -74,9 +74,9 @@ def scan():
             idata["time"] = time.time() - os.stat(f).st_mtime
             tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
             if ( len(tv) == 4 ):
-                idata["tv_name"] = string.capwords(tv[0], " ")
-                idata["tv_season"] = tv[1]
-                idata["tv_episode"] = tv[2]
+                idata["tv_name"] = string.capwords(tv[0], " ").strip()
+                idata["tv_season"] = tv[1].strip()
+                idata["tv_episode"] = tv[2].strip()
                 idata["name"] = idata["tv_name"] + " - Season " + idata["tv_season"] + " Episode " + idata["tv_episode"]
                 idata["vidtype"] = "tv"
 

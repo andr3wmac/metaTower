@@ -2,7 +2,7 @@
 #mbrowser_menu li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }
 
 #mbrowser_menu .cat { font-weight: bold; }
-#mbrowser_menu .subcat { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_menu .subcat { background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 #mbrowser_menu .subcat:hover { background-color: #E6E6E6; }
 
 #mbrowser_content { list-style-type: none; margin: 0; padding: 0; }
