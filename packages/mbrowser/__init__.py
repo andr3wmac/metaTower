@@ -188,12 +188,10 @@ def searchLibrary(parms):
     results = []
     for key in items:
         item = items[key]
-        satisfied = False
-        if ( len(parms) == 0 ): satisfied = True
+        satisfied_parms = 0
         for pkey in parms:
-            if ( item.has_key(pkey) ) and ( item[pkey] == parms[pkey] ): satisfied = True
-            else: satisfied = False
-        if ( satisfied ): results.append(item)
+            if ( item.has_key(pkey) ) and ( item[pkey] == parms[pkey] ): satisfied_parms += 1
+        if ( satisfied_parms == len(parms) ): results.append(item)
     return results
 
 def findItemById(id):
