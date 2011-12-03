@@ -18,7 +18,9 @@
 #mbrowser_content .video:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .show { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_content .show:hover { background-color: #E6E6E6; }
 #mbrowser_content .season { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_content .season:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .icon {
     float: left;
