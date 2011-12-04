@@ -20,10 +20,10 @@ var mbrowser = {
         var info = document.getElementById(id + "_info");
         if ( info == null )
         {
-            var html = "<div id='" + id + "_info' class='info' style='display:block;'>";
-            html += "<ul><li><a id='" + id + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + id + "');\">Generate External Link</a></li>";
-            html += "<li><a id='" + id + "_webvideo' href='#' onclick=\"mbrowser.webConvert('" + id + "');\">Convert to Web Video</a></li></ul>";
-            html += "</div>";
+            var file = document.getElementById(id + "_file");
+            var f_args = file.href.split("/");
+            var f = f_args[f_args.length-1];
+            var html = mbrowser.getInfoHTML(id, f, null, null, true);
             mt.html(id, html, true);
         } else {
             if ( info.style.display == "none" )
@@ -32,6 +32,22 @@ var mbrowser = {
             } else {
                 info.style.display = "none";
             }
+        }
+    },
+
+    toggleRename: function(id)
+    {
+        var rename = document.getElementById(id + "_rename");
+        var rename_toggle = document.getElementById(id + "_renametoggle");
+        if ( rename.style.display == "none" )
+        {
+            rename.style.display = "list-item";
+            rename_toggle.style.display = "none";
+        }
+        else
+        {
+            rename.style.display = "none";
+            rename_toggle.style.display = "list-item";
         }
     },
 
@@ -83,6 +99,40 @@ var mbrowser = {
             mt.progress("mbrowser_progress", progress );
         if ( progress >= 100 )
             setTimeout("mbrowser.hideStatus()", 2000);
+    },
+
+    getInfoHTML: function(id, file, elink, webvid, visible)
+    {
+        var html = "";
+    
+        // Should it be visible?
+        if ( visible )
+            html += "<div id='" + id + "_info' class='info' style='display: block;'><ul>";
+        else
+            html += "<div id='" + id + "_info' class='info' style='display: none;'><ul>";
+
+        // Rename
+        if ( file )
+        {
+            html += "<li id='" + id + "_renametoggle'><a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Rename</a></li>";
+            html += "<li id='" + id + "_rename' style='display: none;'><input class='rename_input' type='text' name='lastname' value='" + file + "'/>";
+            html += "<a href='#'>Save</a> / <a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Cancel</a></li>";
+        }
+
+        // Do we have an external link?
+        if ( elink )
+            html += "<li><a id='" + id + "_elink' href='" + elink + "'>External Link</a></li>";
+        else
+            html += "<li><a id='" + id + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + id + "');\">Generate External Link</a></li>";
+
+        // Is a web version available?
+        if ( webvid )
+            html += "<li><a id='" + id + "_webvideo' href='#' onclick=\"mbrowser.openWebVideo('" + webvid + "');\">Play Web Video</a></li>";
+        else
+            html += "<li><a id='" + id + "_webvideo' href='#' onclick=\"mbrowser.webConvert('" + id + "');\">Convert to Web Video</a></li>";
+
+        html += "</ul></div>";
+        return html;
     }
 };
 
@@ -102,24 +152,11 @@ mbrowser.data = function(contents, returnLine)
 
         html += "<li class='video' id='" + id + "'>";
         html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
-        html += "<div class='name'><a href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
+        html += "<div class='name'><a id='" + id + "_file' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
 
-        if ( item["web"] || item["external"] )
-        {
-            html += "<div id='" + id + "_info' class='info' style='display: none;'>";
-
-            if ( item["external"] )
-                html += "<ul><li><a id='" + id + "_elink' href='" + item["external"] + "'>External Link</a></li>";
-            else
-                html += "<ul><li><a id='" + id + "_elink' href='#' onclick=\"mbrowser.getExternalLink('" + id + "');\">Generate External Link</a></li>";
-
-            if ( item["web"] )
-                html += "<li><a id='" + id + "_webvideo' href='#' onclick=\"mbrowser.openWebVideo('" + item["web"] + "');\">Play Web Video</a></li></ul>";
-            else
-                html += "<li><a id='" + id + "_webvideo' href='#' onclick=\"mbrowser.webConvert('" + id + "');\">Convert to Web Video</a></li></ul>";
-
-            html += "</div>";
-        }
+        var f_args = item["path"].split("/");
+        var f = f_args[f_args.length-1];
+        html += mbrowser.getInfoHTML(id, f, item["external"], item["web"]);
 
         html += "</li>";
     }
