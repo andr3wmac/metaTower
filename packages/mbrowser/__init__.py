@@ -63,37 +63,41 @@ def getFileList(path):
 def scan():
     global items
     for f in getFileList("files/"):
-        basename, ext = os.path.splitext(f)
         if ( items.has_key(f) ): continue
-        if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
-            idata = {}
-            idata["id"] = mtMisc.uid()
-            idata["path"] = f
-            idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
-            idata["type"] = "video"
-            idata["time"] = time.time() - os.stat(f).st_mtime
-            tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
-            if ( len(tv) == 4 ):
-                idata["tv_name"] = string.capwords(tv[0], " ").strip()
-                idata["tv_season"] = tv[1].strip()
-                idata["tv_episode"] = tv[2].strip()
-                idata["name"] = idata["tv_name"] + " - Season " + idata["tv_season"] + " Episode " + idata["tv_episode"]
-                idata["vidtype"] = "tv"
+        idata = processFile(f)
+        if ( idata ): items[f] = idata
 
-            # check to see if webvideo is available
-            webf = f.replace(ext, ".flv")
-            if ( os.path.isfile(webf) ): idata["web"] = webf
+def processFile(f):
+    idata = None
+    basename, ext = os.path.splitext(f)
+    if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
+        idata = {}
+        idata["id"] = mtMisc.uid()
+        idata["path"] = f
+        idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
+        idata["type"] = "video"
+        idata["time"] = time.time() - os.stat(f).st_mtime
+        tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
+        if ( len(tv) == 4 ):
+            idata["tv_name"] = string.capwords(tv[0], " ").strip()
+            idata["tv_season"] = tv[1].strip()
+            idata["tv_episode"] = tv[2].strip()
+            idata["name"] = idata["tv_name"] + " - Season " + idata["tv_season"] + " Episode " + idata["tv_episode"]
+            idata["vidtype"] = "tv"
 
-            items[f] = idata
+        # check to see if webvideo is available
+        webf = f.replace(ext, ".flv")
+        if ( os.path.isfile(webf) ): idata["web"] = webf
 
-        if ( ext == ".mp3" ):
-            idata = {}
-            idata["id"] = mtMisc.uid()
-            idata["path"] = f
-            idata["name"] = os.path.split(basename)[1]
-            idata["type"] = "audio"
-            idata["time"] = time.time() - os.stat(f).st_mtime
-            items[f] = idata
+    if ( ext == ".mp3" ):
+        idata = {}
+        idata["id"] = mtMisc.uid()
+        idata["path"] = f
+        idata["name"] = os.path.split(basename)[1]
+        idata["type"] = "audio"
+        idata["time"] = time.time() - os.stat(f).st_mtime
+        
+    return idata
             
 def refresh():
     global items
@@ -198,7 +202,7 @@ def findItemById(id):
     global items
     for key in items:
         i = items[key]
-        if ( i["id"] == id ): return i
+        if ( i.has_key("id") ) and ( i["id"] == id ): return i
     return None
         
 def getExternalLink(session, id):
@@ -259,5 +263,24 @@ def status(session):
     if ( status_prog == 100 ) and ( convert_success ):
         out.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
 
+    return out
+
+def rename(session, id, new):
+    global items
+    out = session.out()
+    item = findItemById(id)
+    if ( item ):
+        old = item["path"]
+        old_dir = os.path.dirname(old)
+        new = os.path.join(old_dir, new)
+        os.rename(old, new)
+        new_item = processFile(new)
+        new_item["id"] = id
+
+        items[new] = new_item
+        del items[old]
+
+        values = {'name': new_item["name"], 'path': new_item["path"]}
+        out.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
     return out
 

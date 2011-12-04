@@ -68,7 +68,6 @@ var mbrowser = {
         var e = document.getElementById(id + "_webvideo");
         e.innerHTML = "Play Web Video";
         e.setAttribute("onclick", "mbrowser.openWebVideo('" + weblink + "')");
-        e.href = weblink;
     },
     webConvert: function(id)
     {
@@ -101,6 +100,21 @@ var mbrowser = {
             setTimeout("mbrowser.hideStatus()", 2000);
     },
 
+    getFileHTML: function(item)
+    {
+        var id = item["id"];
+
+        var html = "<li class='video' id='" + id + "'>";
+        html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
+        html += "<div class='name'><a id='" + id + "_file' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
+
+        var f_args = item["path"].split("/");
+        var f = f_args[f_args.length-1];
+        html += mbrowser.getInfoHTML(id, f, item["external"], item["web"]);
+
+        html += "</li>";
+        return html;
+    },
     getInfoHTML: function(id, file, elink, webvid, visible)
     {
         var html = "";
@@ -115,8 +129,8 @@ var mbrowser = {
         if ( file )
         {
             html += "<li id='" + id + "_renametoggle'><a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Rename</a></li>";
-            html += "<li id='" + id + "_rename' style='display: none;'><input class='rename_input' type='text' name='lastname' value='" + file + "'/>";
-            html += "<a href='#'>Save</a> / <a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Cancel</a></li>";
+            html += "<li id='" + id + "_rename' style='display: none;'><input id='" + id + "_renameinp' class='rename_input' type='text' name='lastname' value='" + file + "'/>";
+            html += "<a href='#' onclick='mbrowser.rename(\"" + id + "\");'>Save</a> | <a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Hide</a></li>";
         }
 
         // Do we have an external link?
@@ -133,6 +147,11 @@ var mbrowser = {
 
         html += "</ul></div>";
         return html;
+    },
+    rename: function(id)
+    {
+        var new_name = document.getElementById(id + "_renameinp").value;
+        mt("mbrowser.rename('" + id + "', '" + new_name + "')");
     }
 };
 
@@ -145,24 +164,19 @@ mbrowser.data = function(contents, returnLine)
     if ( returnLine ) html = returnLine;
 
     for (var i = 0; i < contents.length; i++)
-    {
-        var item = contents[i];
-        var id = item["id"];
-        //mbrowser.library[item["id"]] = item;
+        html += mbrowser.getFileHTML(contents[i])
 
-        html += "<li class='video' id='" + id + "'>";
-        html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
-        html += "<div class='name'><a id='" + id + "_file' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
-
-        var f_args = item["path"].split("/");
-        var f = f_args[f_args.length-1];
-        html += mbrowser.getInfoHTML(id, f, item["external"], item["web"]);
-
-        html += "</li>";
-    }
     mt.html("mbrowser_content", html, true);
 };
 
+mbrowser.updateFile = function(id, values)
+{
+    var f = document.getElementById(id + "_file");
+    if ( values["name"] ) f.innerHTML = values["name"];
+    if ( values["path"] ) f.href = values["path"];
+    if ( values["external"] ) mbrowser.externalLink(id, values["external"]);
+    if ( values["web"] ) mbrowser.webVideo(id, values["web"]);
+};
 
 mbrowser.tvData = function(show, contents)
 {
