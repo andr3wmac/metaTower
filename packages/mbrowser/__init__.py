@@ -274,6 +274,11 @@ def rename(session, id, new):
         old_dir = os.path.dirname(old)
         new = os.path.join(old_dir, new)
         os.rename(old, new)
+
+        if ( item["web"] ):
+            basename, ext = os.path.splitext(old)
+            os.rename(item["web"], new.replace(ext, ".flv"))
+        
         new_item = processFile(new)
         new_item["id"] = id
 
@@ -281,6 +286,7 @@ def rename(session, id, new):
         del items[old]
 
         values = {'name': new_item["name"], 'path': new_item["path"]}
+        if ( new_item["web"] ): values["web"] = new_item["web"]
         out.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
     return out
 
