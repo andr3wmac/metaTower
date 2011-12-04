@@ -21,7 +21,7 @@ class ffmpegThread(threading.Thread):
     def run(self):
         global fThread
 
-        cmd = '/usr/bin/ffmpeg -i ' + self.input_file + ' -ac 2 -ab 96k -ar 44100 -b 345k -s 640x360 ' + self.output_file
+        cmd = '/usr/bin/ffmpeg -i ' + os.path.join(os.getcwd(), self.input_file) + ' -ac 2 -ab 96k -ar 44100 -b 345k -s 640x360 ' + os.path.join(os.getcwd(), self.output_file)
         fThread = pexpect.spawn(cmd)
         fThread.expect("  Duration: (.+), start:")
         duration = self.hmsToSeconds(fThread.match.group(1)[11:-11])
