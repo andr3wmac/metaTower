@@ -187,7 +187,7 @@ class QueueController(threading.Thread):
         if ( not os.path.isdir(path) ): return False
 
         for f in os.listdir(path):
-            if ( result != False ): break
+            #if ( result != False ): break
 
             ff = os.path.join(path, f)
             if ( os.path.isfile(ff) and f.endswith(".rar") ):
@@ -209,7 +209,7 @@ class QueueController(threading.Thread):
         if ( not os.path.isdir(path) ): return False
 
         for f in os.listdir(path):
-            if ( result != False ): break
+            #if ( result != False ): break
 
             ff = os.path.join(path, f)
             if ( os.path.isfile(ff) and f.endswith(".par2") ): 
