@@ -214,7 +214,7 @@ class QueueController(threading.Thread):
             ff = os.path.join(path, f)
             if ( os.path.isfile(ff) and f.endswith(".rar") ): 
                 par2_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)").replace(".rar", ".par2")
-                if ( !os.path.isfile(par2_file) ): continue
+                if ( not os.path.isfile(par2_file) ): continue
                 try:
                     output = commands.getoutput('/usr/bin/par2 r ' + par2_file)
                     output_args = output.splitlines()
