@@ -190,7 +190,7 @@ class QueueController(threading.Thread):
             #if ( result != False ): break
 
             ff = os.path.join(path, f)
-            if ( os.path.isfile(ff) and f.endswith(".rar") ):
+            if ( f.endswith(".rar") and os.path.isfile(ff) ):
                 rar_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
                 try:
                     output = commands.getoutput('/usr/bin/unrar e -o+ -ts0 ' + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
@@ -212,8 +212,8 @@ class QueueController(threading.Thread):
             #if ( result != False ): break
 
             ff = os.path.join(path, f)
-            if ( os.path.isfile(ff) and f.endswith("rar") ): 
-                par2_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")[:-3] + ".par2"
+            if ( f.endswith(".rar") and os.path.isfile(ff) ): 
+                par2_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")[:-3] + "par2"
                 if ( not os.path.isfile(par2_file) ): continue
                 try:
                     output = commands.getoutput('/usr/bin/par2 r ' + par2_file)
@@ -221,6 +221,7 @@ class QueueController(threading.Thread):
                     result = output_args[len(output_args)-1]
                 except:
                     mt.log.error("Par2 error.")
+                par2_file = ""
             if ( os.path.isdir(ff) ): folders.append(ff)
         if ( result == False ):
             for f in folders: result = self.par2Folder(f)
