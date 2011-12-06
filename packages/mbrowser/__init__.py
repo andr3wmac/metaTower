@@ -250,7 +250,7 @@ def rename(resp, id, new):
         new = os.path.join(old_dir, new)
         os.rename(old, new)
 
-        if ( item["web"] ):
+        if ( item.has_key("web") ):
             basename, ext = os.path.splitext(old)
             os.rename(item["web"], new.replace(ext, ".flv"))
         
