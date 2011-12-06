@@ -17,6 +17,7 @@ def getFileList(session, path):
         newEntry.path = path
         newEntry.file_name = f
         results.append(newEntry)
+    results = sorted(results, key=lambda r: r.file_name) 
     return results
 
 def onLoad():
