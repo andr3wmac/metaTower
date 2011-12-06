@@ -14,62 +14,64 @@ import thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes
 import mtSession, mtHTTPServer, mtMisc, metaTowerJS
 import mtCore as mt
 
-def processCommand(path, session):
-    cmds = path[2:].split("\n")
-    for cmd in cmds:
-        try:
-            # find the open bracket and inject the session variable.
-            o = cmd.find("(")
-            cmd = cmd[:o+1] + "response," + cmd[o+1:]
-
-            #result = ""
-            #exec("result = mt.packages." + cmd)
-            #return result
-            response = mtHTTPServer.HTTPOut(session)
-            exec("mt.packages." + cmd)
-            return response
-        except Exception as inst:
-            mt.log.error("Executing command " + path + ": " + str(inst.args))
-            return None
-
 def processRequest(session, request_type, request_path, post_data):
     output = mtHTTPServer.HTTPOut(session)
+
+    # GET Request
     if ( request_type == "GET" ):
         # too short to process.
         if ( len(request_path) < 1 ): return
         
-        # either no path given, or trying to relogin on an active session, either go with default command.
-        if ( len(request_path) > 1 ) and ( request_path[1] == "-" ):
-            session.user.windowmanager = request_path[2:]
-            request_path = "/"
+        # These commands allow the user to change user/window
+        # managers therefore they need to be executed first.
+        if ( len(request_path) > 1 ):
+            # Change window manager.
+            if ( request_path[1] == "-" ):
+                session.user.windowmanager = request_path[2:]
+                request_path = "/"
 
-        if ( len(request_path) > 1 ) and ( request_path[1] == "@" ):
-            login_info = request_path[2:].split(":")
+            # Change user.
+            if ( request_path[1] == "@" ):
+                login_info = request_path[2:].split(":")
 
-            new_user = None
-            if ( len(login_info) == 1 ):
-                new_user = userLogin(request_path[2:], "", session.local)
-            if ( len(login_info) == 2 ):
-                new_user = userLogin(login_info[0], login_info[1], session.local)
-            
-            if ( new_user != None ): session.user = new_user
-            request_path = "/"
+                new_user = None
+                if ( len(login_info) == 1 ):
+                    new_user = verifyUser(request_path[2:], "", session.local)
+                if ( len(login_info) == 2 ):
+                    new_user = verifyUser(login_info[0], login_info[1], session.local)
+                
+                if ( new_user != None ): session.user = new_user
+                request_path = "/"
 
+        # '/' = default request
+        # '/?' = Login key, useless at this point we're already logged in.
         if ( request_path == "/" ) or ( request_path[1] == "?" ):
             mt.events.trigger(session.user.windowmanager + ".onIndex", output)
+
+        # Execute a command.
         elif ( request_path[1] == "!" ):
             output = processCommand(request_path, session)
+
+        # Request a file.
+        # The ':' tells metaTower the file search can be anywhere.
         elif ( request_path[1] == ":" ):
             file_parts = os.path.split(request_path[2:])
             output.file(file_parts[1], file_parts[0])
+
+        # metaTower.js is kept internal in metaTowerJS.py
+        # we output it at request.
         elif ( request_path[1:].lower() == "metatower.js" ):
             js_file = metaTowerJS.content
             output.headers["Content-Type"] = "application/javascript"
             output.headers["Content-Length"] = len(js_file)
             output.text_entry = js_file
+
+        # anything else process like a file request.
+        # unlike ':' the search is in packages/ folders
         else:
             output.file(request_path[1:])
                 
+    # POST Request
     if ( request_type == "POST" ):
         post_args = post_data.splitlines()
         
@@ -105,7 +107,33 @@ def processRequest(session, request_type, request_path, post_data):
             mt.events.trigger("upload_success_" + form_name, output)
     return output
 
+# Processes a command, often from a package.
+def processCommand(path, session):
+    cmds = path[2:].split("\n")
+    for cmd in cmds:
+        try:
+
+            # HTTPOut contains all the functions needed to output data to 
+            # the javascript side. Response is included by default on all
+            # executed commands.
+            response = mtHTTPServer.HTTPOut(session)
+
+            # here we 'inject' the response variable into the parms of the
+            # command.
+            o = cmd.find("(")
+            cmd = cmd[:o+1] + "response," + cmd[o+1:]
+
+            # execute and return.
+            exec("mt.packages." + cmd)
+            return response
+
+        except Exception as inst:
+            mt.log.error("Executing command " + path + ": " + str(inst.args))
+            return None
+
+# Process login from a client.
 def processLogin(socket, path, auth_line):
+    # Default values for seom variables.
     config = mt.config
     user = None
     resp = None
@@ -116,23 +144,30 @@ def processLogin(socket, path, auth_line):
     client_addr = socket.getpeername()
     local_client = mtMisc.isLocalIP(client_addr[0])
     
-    # see if we have post data.
+    # Check for an auth line that would have came from a POST.
     if ( auth_line != "" ):
         args = auth_line.split(":")
         login_username = args[0]
         login_password = str(hashlib.md5(args[1]).hexdigest())
 
-    # security.
+    # Set security level based on local/remote setting.
     if ( local_client ): security = int(config["local_security"])
     else: security = int(config["remote_security"])
 
+    # Level 0 Security
+    #   - Just use default user, no authentication required.
     if ( security == 0 ):
         user = mt.users[config["default_user"]]
 
+    # Level 1 Security
+    #   - Prompt user for a username/password if not specific.
     if ( security == 1 ):
-        user = userLogin(login_username, login_password, local_client)
+        user = verifyUser(login_username, login_password, local_client)
         resp = showLoginForm()
 
+    # Level 2 Security
+    #   - Requires the proper auth key from a third party
+    #   - Requires a proper username/password for a local user.
     if ( security == 2 ):
         if ( len(path) > 2 ) and ( path[1] == "?" ):
             args = path.split("@")
@@ -142,27 +177,44 @@ def processLogin(socket, path, auth_line):
                 user = mt.users[user_login[0]]
                 if (( user != None ) and ( user.password_md5[16:] != user_login[1] )): user = None
         
+    # If the user variable is set, login was successful.
     if ( user != None ):
+        # Create  new session.
         sesh = mtSession.newSession()
         sesh.user = user
         sesh.IP = client_addr[0]
-        mt.log.info(user.name + " has logged in.")
         sesh.local = local_client
+        mt.log.info(user.name + " has logged in.")
+
+        # Create a response variable and
         resp = mtHTTPServer.HTTPOut(sesh)
-        mt.packages.onLogin(resp)
         resp.cookies["session"] = sesh.auth_key
+
+        # Trigger any login events.
+        mt.packages.onLogin(resp)
+        
+        # A proper login can still have a request on the end of it.
+        # For instance with a local, no security auto-login.
+        # Therefore if the URL contains any commands, we'll pass it
+        # back around for execution.
         if ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
             resp.append(processRequest(sesh, "GET", path, ""))
         else:
+            # Clean redirect will remove the auth_key from the URL,
+            # it's rather unsightly for the user.
             resp = sesh.cleanRedirect(resp)
     
+    # If resp is None at this point, all login attempts have failed.
     if ( resp == None ):
         resp = mtHTTPServer.HTTPOut()
         resp.text("Access denied.")
 
     return resp
 
-def userLogin(username, password, local):
+# This function will take the relevant information and see
+# if it all matches up. Username/Password(MD5) it will also
+# enforce local_only flag on users.
+def verifyUser(username, password, local):
     if ( username == None ) or ( username == "" ): return None
 
     mt.log.info("Login attempt from: " + username)
@@ -173,6 +225,7 @@ def userLogin(username, password, local):
         if ( mt.users[username].password_md5 == password ): return user
     return None
 
+# this will cause a username/password dialog to popup.
 def showLoginForm(key = ""):
     if ( key != "" ): key = "!" + key
 
