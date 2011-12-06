@@ -15,6 +15,7 @@ def onIndex(resp):
     resp.file("jmanlite/index.html")
     
 def onPageLoad(resp):
+    print "On Page Load."
     mt.events.trigger("jmanlite.load", resp)
     menuJS = ""
     for entry in resp.session.jmanlite_menu:
