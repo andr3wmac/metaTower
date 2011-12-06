@@ -49,10 +49,12 @@ class QueueController(threading.Thread):
         # load any queue data that could be left from the last run.
         config = mt.config
         self.nzb_enabled = ( config["dlmanager/nzb/server"] != "" )
+        if ( not self.nzb_enabled ):
+            mt.log.info("NZB disabled.")
         if ( lt ):
             self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" )
         else:
-            print "LT FALSE."
+            mt.log.info("Torrents disabled.")
 
         if ( self.nzb_enabled ):
             for item in config.get("dlmanager/queue/nzb"):

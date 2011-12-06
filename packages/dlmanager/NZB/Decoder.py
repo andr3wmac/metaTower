@@ -11,7 +11,7 @@ except:
     pass
 
 class ArticleDecoder(Thread):
-    def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None):
+    def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None, onAssemblyPercent = None):
         Thread.__init__(self)
         self.daemon = True
         self.decoder = SegmentDecoder()
@@ -20,6 +20,7 @@ class ArticleDecoder(Thread):
         self.save_to = save_to
         self.onFinish = onFinish
         self.onSuccess = onSuccess
+        self.onAssemblyPercent = onAssemblyPercent
         self.onFail = onFail
         self.running = True
         self.path = path
@@ -34,7 +35,9 @@ class ArticleDecoder(Thread):
 
                 if ( seg == -1 ):
                     # this means we're finished here.
+                    if ( self.onAssemblyPercent ): self.onAssemblyPercent(0)
                     self.assembleSegments()
+                    if ( self.onAssemblyPercent ): self.onAssemblyPercent(100)
                     self.running = False
                     break
 
@@ -59,6 +62,8 @@ class ArticleDecoder(Thread):
 
         # check if the save folder exists
         if ( not os.path.isdir(self.save_to) ): os.mkdir(self.save_to)
+        file_count = len(file_index)
+        files_complete = 0
         for file_name in file_index:
             try:
                 file = open(os.path.join(self.save_to, file_name), "wb")
@@ -77,6 +82,12 @@ class ArticleDecoder(Thread):
                 mt.log.debug("Assembled file: " + file_name + ".")
             except Exception as inst:
                 mt.log.error("File assembly error: " + str(inst.args))
+            
+            # report assembly completion status
+            if ( self.onAssemblyPercent ):
+                files_complete += 1
+                percent = int((float(files_complete)/float(file_count))*100.0)
+                self.onAssemblyPercent(percent)
 
     def decodeSegment(self, seg):
         try:

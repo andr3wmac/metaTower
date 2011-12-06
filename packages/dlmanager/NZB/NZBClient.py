@@ -16,6 +16,8 @@ class StatusReport(object):
         self.start_time = 0
         self.file_name = ""
         self.kbps = 0
+        self.assembly = False
+        self.assembly_percent = 0
 
 class NZBClient():
     def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cache_path=""):
@@ -94,7 +96,8 @@ class NZBClient():
                 self.cache_path, 
                 self.decodeFinished, 
                 self.decodeSuccess, 
-                self.decodeFailed)
+                self.decodeFailed,
+                self.assemblyStatus)
         self.articleDecoder.start()
 
     # Article Decoder - Next segment.
@@ -129,6 +132,11 @@ class NZBClient():
         if ( seg == None ): return
         mt.log.debug("Segment failed to decode: " + seg.msgid)
         self.segFailed(seg)
+
+    # Article Decoder - Assembly Status.
+    def assemblyStatus(self, percent):
+        self.status.assembly = True
+        self.status.assembly_percent = percent
 
     # NNTP Connection - Thread stopped.
     def threadStopped(self, thread_num):

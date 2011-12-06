@@ -15,12 +15,12 @@ def onIndex(resp):
     resp.file("jmanlite/index.html")
     
 def onPageLoad(resp):
-    mt.events.trigger("jmanlite.load", resp.session)
+    mt.events.trigger("jmanlite.load", resp)
     menuJS = ""
     for entry in resp.session.jmanlite_menu:
         menuJS += "jmanlite.menu('" + entry.caption + "', '" + entry.package_name + "');"
     resp.js(menuJS)
-    mt.events.trigger("jmanlite.menu.mbrowser", resp.session)
+    mt.events.trigger("jmanlite.menu.mbrowser", resp)
 
 class MenuEntry:
     caption = ""

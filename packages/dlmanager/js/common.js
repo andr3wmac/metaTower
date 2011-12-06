@@ -1,5 +1,5 @@
 var dlmanager = {
-	nzb: function(id, filename, status, total, completed, percent, dl_rate, par2, unrar)
+	nzb: function(id, filename, state, args)
 	{
 		// the actual output
 		var nzb_element = document.getElementById(id);
@@ -10,56 +10,54 @@ var dlmanager = {
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", false);
             mt.progress("prog_" + id, 0);
 		}
-		// Queued.
-		if ( status == 0 )
-		{
-            mt.html(id + "_file", "<b>" + filename + "</b>", false);
-            mt.html(id + "_message", "Queued.", false);
-			mt.progress("prog_" + id, 0);
-		}
-		// Downloading.
-		if ( status == 1 )
-		{
-            if ( completed > total ) { completed = total; }
-            if ( completed == total )
-            {
+        
+        switch ( state )
+        {
+		    // Queued.
+		    case 0:
                 mt.html(id + "_file", "<b>" + filename + "</b>", false);
-                mt.html(id + "_message", "Decoding..", false);
-			    //mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Decoding..<div id=\"prog_" + id + "\"></div>", false);
-			    mt.progress("prog_" + id, 100);
-            }
-            else
-            {
-                mt.html(id + "_file", "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )", false);
-                mt.html(id + "_message", "Downloading at " + dl_rate + "kb/s", false);
-                //mt.html(id, "<b>" + filename + "</b> ( " + completed + "/" + total + " MB )<br>Downloading at " + dl_rate + "kb/s<div id=\"prog_" + id + "\"></div>", false);
-                mt.progress("prog_" + id, percent);
-            }
-		}
-		// Completed
-		if ( status == 2 )
-		{
-            var par2_element = document.getElementById(id + "_par2");
-            var unrar_element = document.getElementById(id + "_unrar");
-            if ( !par2_element || !unrar_element )
-            {
-                mt.html(id, "<b>" + filename + "</b><br><img src=\"dlmanager/images/par2.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_par2\"></span><br><img src=\"dlmanager/images/unrar.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_unrar\"></span>", false);
-                par2_element = document.getElementById(id + "_par2");
-                unrar_element = document.getElementById(id + "_unrar");
-            }
+                mt.html(id + "_message", "Queued.", false);
+			    mt.progress("prog_" + id, 0);
+		        break;
 
-			mt.html(id + "_par2", par2);
-            mt.html(id + "_unrar", unrar);
-		}
-		// Error
-		if ( status == 3 )
-		{
-			mt.html(id, "<b>" + filename + "</b><br>Failed<div id=\"prog_" + id + "\"></div>", false);
-			mt.progress("prog_" + id, 0);
-		}
+		    // Downloading.
+		    case 1:
+                mt.html(id + "_file", "<b>" + filename + "</b> ( " + args["completed"] + "/" + args["total"] + " MB )", false);
+                mt.html(id + "_message", "Downloading at " + args["dl_rate"] + "kb/s", false);
+                mt.progress("prog_" + id, args["percent"]);
+                break;
+
+		    // Assembly
+		    case 2:
+                mt.html(id + "_file", "<b>" + filename + "</b>", false);
+                mt.html(id + "_message", "Assembling files..", false);
+                mt.progress("prog_" + id, args["assembly_percent"]);
+		        break;
+
+		    // Error
+		    case 3:
+			    mt.html(id, "<b>" + filename + "</b><br>Failed<div id=\"prog_" + id + "\"></div>", false);
+			    mt.progress("prog_" + id, 0);
+		        break;
+
+		    // Completed
+		    case 4:
+                var par2_element = document.getElementById(id + "_par2");
+                var unrar_element = document.getElementById(id + "_unrar");
+                if ( !par2_element || !unrar_element )
+                {
+                    mt.html(id, "<b>" + filename + "</b><br><img src=\"dlmanager/images/par2.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_par2\"></span><br><img src=\"dlmanager/images/unrar.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_unrar\"></span>", false);
+                    par2_element = document.getElementById(id + "_par2");
+                    unrar_element = document.getElementById(id + "_unrar");
+                }
+
+			    mt.html(id + "_par2", args["par2"]);
+                mt.html(id + "_unrar", args["unrar"]);
+		        break;
+        }
 	},
 
-	torrent: function(id, filename, state, progress, dl_rate)
+	torrent: function(id, filename, state, args)
 	{
 		// the actual output
 		var torrent_element = document.getElementById(id);
@@ -69,21 +67,34 @@ var dlmanager = {
 			torrent_element = document.getElementById(id);
 		}
 
-		if ( state == 0 )
-		{
-			mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false)
-			mt.progress("prog_" + id, 0);	
-		} 
-		else if ( state == 1 )
-		{
-			mt.html(id, "<b>" + filename + "</b><br>Downloading at " + dl_rate + "<div id=\"prog_" + id + "\"></div>", false);
-			mt.progress("prog_" + id, progress);	
-		}
-		else if ( state == 2 )
-		{
-			mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false)
-			mt.progress("prog_" + id, 100);	
-		} else {
+        switch(state)
+        {
+            // Queued.
+		    case 0:
+			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false)
+			    mt.progress("prog_" + id, 0);	
+		        break;
+
+            // Downloading.
+		    case 1:
+                var html = "<b>" + filename + "</b><br>";
+                html += args["msg"];
+                html += "  <i>DL</i>: " + args["dl_rate"] + " kb/s";
+                html += "  <i>UL</i>: " + args["ul_rate"] + " kb/s";
+                html += "  <i>Peers</i>: " + args["peers"];
+                html += "<div id=\"prog_" + id + "\"></div>";
+			    mt.html(id, html, false);
+			    mt.progress("prog_" + id, args["progress"]);	
+		        break;
+
+            // Completed.
+		    case 2:
+			    mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false)
+			    mt.progress("prog_" + id, 100);	
+                break;
+    
+            // Other Status, display.
+		    default:
 			mt.html(id, "<b>" + filename + "</b><br>" + state + "<div id=\"prog_" + id + "\"></div>", false)
 			mt.progress("prog_" + id, 0);
 		}

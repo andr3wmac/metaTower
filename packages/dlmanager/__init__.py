@@ -87,7 +87,7 @@ def jmanlite_menu(resp):
     resp.jsFile("dlmanager/js/common.js")
     resp.jsFile("dlmanager/js/jmanlite.js")
     resp.cssFile("dlmanager/css/style.css")
-    update(session, resp)
+    update(resp)
 
 def update(resp):
     global QueueControl
@@ -96,36 +96,68 @@ def update(resp):
     torrent_engine = QueueControl.torrent_engine
     torrent_queue = QueueControl.torrent_queue
 
-    # list of nzbs.
+    # gather data from NZB queue.
     for nzb in nzb_queue:
+        # already deleted.
         if ( nzb.removed ):
             resp.js("dlmanager.remove('" + nzb.uid + "');")
+
+        # downloading
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
             status = nzb_engine.status
             filename = os.path.basename(nzb.filename).replace("'", "\'")
 
-            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
-        elif ( nzb.completed ):
-            # completed
-            filename = os.path.basename(nzb.filename).replace("'", "\'")
-            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 2, 0, 0, 0, 0, '" + nzb.par2_results + "', '" + nzb.unrar_results + "');")
+            # State 1: currently downloading
+            if ( not status.assembly ):
+                args = {"total": status.total_bytes/1048576, 
+                        "completed": status.current_bytes/1048576,
+                        "percent": round(status.current_bytes/float(status.total_bytes)*100),
+                        "dl_rate": status.kbps}
+                resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(args) + ");")
+
+            # State 2: being assembled.
+            else:
+                args = {"assembly_percent": status.assembly_percent}
+                resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 2, " + str(args) + ");")
+
+        # State 3: failed
         elif ( nzb.error ):
-            # failed
             filename = os.path.basename(nzb.filename).replace("'", "\'")
             resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 3);")
+
+        # State 4: completed
+        elif ( nzb.completed ):
+            filename = os.path.basename(nzb.filename).replace("'", "\'")
+            args = {"par2": nzb.par2_results, 
+                    "unrar": nzb.unrar_results}
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 4, " + str(args) + ");")
+
+        # State 0: queued
         else:
-            # queued
             filename = os.path.basename(nzb.filename).replace("'", "\'")
             resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 0);")
 
+    # Gather data from torrent queue.
     for torrent in torrent_queue:
+        # Torrent Removed.
         if ( torrent.removed ):
             resp.js("dlmanager.remove('" + torrent.uid + "');")
+
+        # Torrent is inactive.
         elif ( torrent.lt_entry == None ):
             resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 0);")
+
+        # Torrent is in an active state.
         else:
             status = torrent.lt_entry.status()
-            resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 1, " + str(status.progress * 100) + ", '" + str(round(status.download_rate / 1000, 2)) + " kb/s');")
+            state_str = ['Queued.', 'Checking..', 'Downloading metadata..', 'Downloading..', 'Finished.', 'Seeding.', 'Allocating..']
+            args = {"msg": state_str[status.state],
+                    "progress": status.progress * 100,
+                    "dl_rate": round(status.download_rate / 1000, 2),
+                    "ul_rate": round(status.upload_rate / 1000, 2),
+                    "peers": status.num_peers}
+            resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 1, " + str(args) + ");")
 
+    # Trigger an update for next time.
     resp.js("dlmanager.update();")
 
