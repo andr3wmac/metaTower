@@ -70,3 +70,9 @@ def rmdir(path):
             os.remove(path)
     except:
         pass
+
+def copy(src, dst):
+    shutil.copy(src, dst)
+
+def move(src, dst):
+    shutil.move(src, dst)

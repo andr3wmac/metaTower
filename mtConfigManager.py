@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import ConfigParser, os, sys, mtAuth, logging, mtCore
+import ConfigParser, os, sys, mtAuth, logging, mtCore, mtMisc
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom as xml
 
@@ -37,6 +37,8 @@ class ConfigManager:
 
     def __init__(self):
         self.items = []
+        self.backup_dir = os.path.join("sys", "cfg")
+        mtMisc.mkdir(self.backup_dir)
 
     def _loadTree(self, tree, path = "", filename = ""):
         for a in tree: 
@@ -54,12 +56,22 @@ class ConfigManager:
             self._loadTree(a, path + a.tag + "/", filename)
     
     def load(self, filename):
+        backup = os.path.join(self.backup_dir, filename.replace(os.sep, "."))
         try:
             newTree = ElementTree.ElementTree()
             newTree.parse(filename)
+
             self._loadTree(newTree.getroot(), "", filename)
+
+            # If we're still here it was a successful load.
+            # so we backup the cfg file.
+            mtMisc.copy(filename, backup)
         except Exception as inst:
-            mtCore.log.error("Error loading config file " + filename + ": " + str(inst.args))
+            print "Error loading cfg file: " + filename
+            if ( os.path.isfile(backup) ):
+                print "  Restoring backup and trying again.."
+                mtMisc.move(backup, filename)
+                self.load(filename)
 
     def loadString(self, data, filename = ""):
         newTree = ElementTree.fromstring(data)

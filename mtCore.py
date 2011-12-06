@@ -24,6 +24,9 @@ login_tickets = {}
 def start():
     global running, config, log, users, packages, events
 
+    # logging system
+    log = mtLogManager.LogManager()
+
     # load initial configurations
     running = True
     config = mtConfigManager.ConfigManager()
@@ -45,9 +48,6 @@ def start():
         users[un].windowmanager = user["windowmanager"]
         users[un].auth_url = user["auth_url"]
         if ( user["local_only"] != "" ): users[un].local_only = True
-        
-    # logging system
-    log = mtLogManager.LogManager()
 
     # events
     events = mtEventManager.EventManager()

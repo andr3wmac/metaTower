@@ -46,6 +46,7 @@ def jmanlite_menu(resp):
     resp.jsFile("mbrowser/js/common.js")
     resp.jsFile("mbrowser/js/jmanlite.js")
     resp.cssFile("mbrowser/css/style.css")
+    if ( converting ): status(resp)
 
 def getFileList(path):
     results = []

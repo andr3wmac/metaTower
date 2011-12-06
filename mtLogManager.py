@@ -18,10 +18,11 @@ class LogWriteThread(threading.Thread):
             self.level = level
             self.data = data
 
-    def __init__(self):
+    def __init__(self, log_dir):
         threading.Thread.__init__(self)
         self.daemon = True
         self.queue = []
+        self.log_dir = log_dir
 
     def run(self):
         file_handles = {}
@@ -30,7 +31,7 @@ class LogWriteThread(threading.Thread):
                 try:
                     item = self.queue.pop()
                     if ( not file_handles.has_key(item.source) ):
-                        file_handles[item.source] = open(os.path.join("logs", item.source + ".log"), "w")
+                        file_handles[item.source] = open(os.path.join(self.log_dir, item.source + ".log"), "w")
                     file_handles[item.source].write(item.level + ": " + item.data + "\n")
                     file_handles[item.source].flush()
                 except:
@@ -45,10 +46,12 @@ class LogWriteThread(threading.Thread):
 
 class LogManager:
     def __init__(self):
-        self.logThread = LogWriteThread()
+        self.log_dir = os.path.join("sys", "logs")
+        mtMisc.rmdir(self.log_dir)
+        mtMisc.mkdir(self.log_dir)
+
+        self.logThread = LogWriteThread(self.log_dir)
         self.logThread.start()
-        mtMisc.rmdir("logs")
-        mtMisc.mkdir("logs")
         #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', filename='metaTower.log', filemode='w')
         #self.log = logging.getLogger("metatower")
 
