@@ -10,6 +10,8 @@ convert_success = False
 convert_output = ""
 
 def onLoad():
+    mt.config.load("packages/mbrowser/mbrowser.xml")
+
     mt.events.register("jman.load", jman_load)
     mt.events.register("jman.menu.mbrowser", jman_menu)
 

@@ -1,9 +1,7 @@
+import libtorrent as lt
 import mtCore as mt
 import threading, os, mtMisc, commands, shutil
 from NZB.NZBClient import NZBClient, time
-
-from libtorrent import getLibrary
-lt = getLibrary()
 
 class QueueController(threading.Thread):
     class NZBQueueItem():
