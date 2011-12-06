@@ -40,11 +40,16 @@ fileman.data = function(path, dirs, files) {
 };
 
 fileman.jman = {
+    deleteQueue: [],
 	deleteSelected: function() {
 		$( "#fileman_confirm_delete" ).dialog("open");
+        var selected_items = [];
+        $('.ui-selected').each( function() { selected_items.push("'" + $.trim($(this).html()) + "'"); } );
+        this.deleteQueue = selected_items;
 	},
 	confirmDelete: function() {
-		alert("Delete confirmed.");
+		$( "#fileman_confirm_delete" ).dialog("hide");
+        mt("fileman.delete('" + fileman.current_path + "', [" + this.deleteQueue + "])");
 	}
 };
 

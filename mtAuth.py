@@ -30,6 +30,10 @@ class UpdateThread( threading.Thread ):
         self.last_update = 0
 
     def run ( self ):
+        # Fetch the remote_ip
+        mt.config["remote_ip"] = urllib.urlopen('http://whatismyip.org').read()
+        print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
+
         while True:
             #auth_url = mt.config["auth_url"]
             mt.config["auth_key"] = mtMisc.uid()

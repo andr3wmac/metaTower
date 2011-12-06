@@ -63,13 +63,6 @@ def start():
     config["local_ip"] = mtMisc.getLocalIP()
     if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
     print " http://" + config["local_ip"] + ":" + config["port"] + "/"
-
-    #  - remote
-    try:
-        config["remote_ip"] = urllib.urlopen('http://whatismyip.org').read()
-        print " http://" + config["remote_ip"] + ":" + config["port"] + "/"
-    except:
-        pass
         
 def stop():
     global running, config, packages

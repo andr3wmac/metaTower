@@ -66,5 +66,7 @@ def rmdir(path):
         if ( os.path.isdir(path) ):
             shutil.rmtree(path, True)
             os.rmdir(path)
+        else:
+            os.remove(path)
     except:
         pass

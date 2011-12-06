@@ -1,4 +1,4 @@
-import os
+import os, mtMisc
 import mtCore as mt
 
 class fmanEntry:
@@ -26,8 +26,6 @@ def onLoad():
 
     mt.events.register("jmanlite.load", jmanlite_load)
     mt.events.register("jmanlite.menu.fileman", jmanlite_menu)
-
-    mt.log.error("SHIT WENT WRONG BRO!")
 
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "File Manager", 3)
@@ -84,5 +82,12 @@ def listContents(resp, path):
     # shortens the path to ~ if its the users homedir.
     path = path = replaceHomeDir(resp.session, path)
     resp.js("fileman.data('" + path + "', [" + dir_html[1:] + "], [" + file_html[1:] + "]);")
+
+def delete(resp, path, items):
+    path = replaceHomeDir(resp.session, path)
+    for f in items:
+        fpath = os.path.join(path, f)
+        mtMisc.rmdir(fpath)
+    listContents(resp, path)
     
 
