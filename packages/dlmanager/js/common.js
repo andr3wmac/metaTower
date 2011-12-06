@@ -9,7 +9,7 @@ var dlmanager = {
 			nzb_element = document.getElementById(id);
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", false);
             mt.progress("prog_" + id, 0);
-		}
+		};
         
         switch ( state )
         {
@@ -54,7 +54,7 @@ var dlmanager = {
 			    mt.html(id + "_par2", args["par2"]);
                 mt.html(id + "_unrar", args["unrar"]);
 		        break;
-        }
+        };
 	},
 
 	torrent: function(id, filename, state, args)
@@ -71,7 +71,7 @@ var dlmanager = {
         {
             // Queued.
 		    case 0:
-			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false)
+			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false);
 			    mt.progress("prog_" + id, 0);	
 		        break;
 
@@ -89,15 +89,15 @@ var dlmanager = {
 
             // Completed.
 		    case 2:
-			    mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false)
+			    mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false);
 			    mt.progress("prog_" + id, 100);	
                 break;
     
             // Other Status, display.
 		    default:
-			mt.html(id, "<b>" + filename + "</b><br>" + state + "<div id=\"prog_" + id + "\"></div>", false)
-			mt.progress("prog_" + id, 0);
-		}
+			    mt.html(id, "<b>" + filename + "</b><br>" + state + "<div id=\"prog_" + id + "\"></div>", false);
+			    mt.progress("prog_" + id, 0);
+		};
 	},
 
 	remove: function(selected)
