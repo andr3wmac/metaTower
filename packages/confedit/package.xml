@@ -1,11 +1,11 @@
 <?xml version="1.0" ?>
 <metaTower>
-	<configmanager>
+	<confedit>
 		<version>
 			0.1
 		</version>
 		<name>
-			Config Manager
+			Config Editor
 		</name>
 		<description>
 			Allows you to edit and view values of all configuration values.
@@ -35,5 +35,5 @@
 		<update_files>
 			__init__.py, html/jman.html, html/jmanlite.html, package.xml, js/common.js, js/jman.js, js/jmanlite.js, css/style.css, images/mtfile.png, images/mtfolder.png
 		</update_files>
-	</configmanager>
+	</confedit>
 </metaTower>

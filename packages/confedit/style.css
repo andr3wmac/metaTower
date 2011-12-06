@@ -1,4 +1,4 @@
-.configmanager_edit
+.confedit_edit
 {
     position: absolute; 
     top: 10px; 
@@ -7,19 +7,19 @@
     right: 10px;
 }
 
-.configmanager_edit li
+.confedit_edit li
 {
     font-weight: bold;
     padding: 5px;
 }
 
-.configmanager_edit input
+.confedit_edit input
 {
     width: 100%; 
     border: 1px solid black;
 }
 
-.configmanager_edit button
+.confedit_edit button
 {
     float: right;
 }

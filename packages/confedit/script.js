@@ -1,10 +1,10 @@
-$('#configmanager_main').dialog({
+$('#confedit_main').dialog({
 	autoOpen: false, 
 	minWidth: 550,
 	minHeight: 300
 });
 
-var configmanager = {
+var confedit = {
     tree: function(path_list, value_list, file_list)
     {
         var html = "";
@@ -32,8 +32,8 @@ var configmanager = {
             pos["_path"] = path;
             pos["_file"] = file;
         }
-        mt.html("configmanager_tree", this.tableToHTML(table), false);
-        $("#configmanager_tree").treeview({collapsed: true});
+        mt.html("confedit_tree", this.tableToHTML(table), false);
+        $("#confedit_tree").treeview({collapsed: true});
     },
 
     tableToHTML: function(table)
@@ -44,7 +44,7 @@ var configmanager = {
             var item = table[item_name];
             if (( item["_value"] ) || ( item["_path"] ) || ( item["_file"] ))
             {
-                html += "<li href='#' onclick='configmanager.edit(\"" + item["_path"] + "\", \"" + item["_value"] + "\", \"" + item["_file"] + "\")'>" + item_name + "</li>";
+                html += "<li href='#' onclick='confedit.edit(\"" + item["_path"] + "\", \"" + item["_value"] + "\", \"" + item["_file"] + "\")'>" + item_name + "</li>";
             } else {
                 html += "<li>" + item_name;
                 html += "<ul>" + this.tableToHTML(item) + "</ul>";
@@ -56,13 +56,13 @@ var configmanager = {
 
     edit: function(path, value, file)
     {
-        mt.value("configmanager_edit_path", path);
-        mt.value("configmanager_edit_value", value);
-        mt.value("configmanager_edit_file", file);
+        mt.value("confedit_edit_path", path);
+        mt.value("confedit_edit_value", value);
+        mt.value("confedit_edit_file", file);
     },
 
     save: function()
     {
-        mt("configmanager.save('" + mt.value("configmanager_edit_path") + "', '" + mt.value("configmanager_edit_value") + "', '" + mt.value("configmanager_edit_file") + "')");
+        mt("confedit.save('" + mt.value("confedit_edit_path") + "', '" + mt.value("confedit_edit_value") + "', '" + mt.value("confedit_edit_file") + "')");
     }
 };
