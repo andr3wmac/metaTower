@@ -120,11 +120,11 @@ class PackageManager:
             package = self.list[packid]
             print " - " + package.name + " (" + package.id + " v" + package.version + ")"
 
-    def event(self, session, event, args = {}):
-        return mt.events.trigger(event, session, args)
+    def event(self, resp, event, args = {}):
+        mt.events.trigger(event, resp, args)
         
-    def pageLoaded(self, session):
-        return mt.events.trigger(session.user.windowmanager + ".onPageLoad", session)
+    def pageLoaded(self, resp):
+        mt.events.trigger(resp.session.user.windowmanager + ".onPageLoad", resp)
 
-    def onLogin(self, session):
-        mt.events.trigger("session.onLogin", session)
+    def onLogin(self, resp):
+        mt.events.trigger("session.onLogin", resp)

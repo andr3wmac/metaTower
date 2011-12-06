@@ -4,11 +4,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>metaTower</title>
     
-    <link href="jman/css/style.css" rel="stylesheet" type="text/css" />
+    <link type="text/css" href="jman/css/style.css" rel="stylesheet"  />
+    <link type="text/css" href="jman/css/jquery.treeview.css" rel="stylesheet" />
     <link type="text/css" href="jman/css/redmond/jquery-ui-1.8.13.custom.css" rel="stylesheet" />
     
     <script type="text/javascript" src="metaTower.js"></script>
     <script type="text/javascript" src="jman/js/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="jman/js/jquery.treeview.js"></script>
     <script type="text/javascript" src="jman/js/jquery-ui-1.8.10.custom.min.js"></script>
     
     <script type="text/javascript">
@@ -29,9 +31,15 @@
 <body onLoad="mt.load()">
     <iframe id="hiddenFrame" style="display: none"></iframe>
     <ul id="jman_taskbar_contents" class="jman_taskbar">
-                <li>
-            <span id="jman_taskbar_main" class=""></span>
+        <li>
+            <span id="jman_taskbar_main" class="menu_trigger"></span>
             <ul id="jman_taskbar_main_contents" class="menu" style="display: none; ">
+            </ul>
+        </li>
+        <li id="jman_notify">
+            <ul id="jman_notify_box" class="menu" style="display: none; ">
+                <li id="jman_notify_text"><span class="ui-icon ui-icon-alert" style="float:left; margin-right: 7px;"></span>Testing</li>
+                
             </ul>
         </li>
     </ul>

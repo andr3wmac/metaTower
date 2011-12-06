@@ -22,7 +22,8 @@ class HTTPOut():
             self.data = ""
             self.target = ""
 
-    def __init__(self):
+    def __init__(self, session = None):
+        self.session = session
         self.http_version = ""
         self.status = ""
         self.cookies = {}

@@ -20,17 +20,20 @@ def processCommand(path, session):
         try:
             # find the open bracket and inject the session variable.
             o = cmd.find("(")
-            cmd = cmd[:o+1] + "session," + cmd[o+1:]
+            cmd = cmd[:o+1] + "response," + cmd[o+1:]
 
-            result = ""
-            exec("result = mt.packages." + cmd)
-            return result
+            #result = ""
+            #exec("result = mt.packages." + cmd)
+            #return result
+            response = mtHTTPServer.HTTPOut(session)
+            exec("mt.packages." + cmd)
+            return response
         except Exception as inst:
             mt.log.error("Executing command " + path + ": " + str(inst.args))
             return None
 
 def processRequest(session, request_type, request_path, post_data):
-    output = mtHTTPServer.HTTPOut()
+    output = mtHTTPServer.HTTPOut(session)
     if ( request_type == "GET" ):
         # too short to process.
         if ( len(request_path) < 1 ): return
@@ -53,21 +56,18 @@ def processRequest(session, request_type, request_path, post_data):
             request_path = "/"
 
         if ( request_path == "/" ) or ( request_path[1] == "?" ):
-            output = mt.events.trigger(session.user.windowmanager + ".onIndex", session)
+            mt.events.trigger(session.user.windowmanager + ".onIndex", output)
         elif ( request_path[1] == "!" ):
             output = processCommand(request_path, session)
         elif ( request_path[1] == ":" ):
-            output = session.out()
             file_parts = os.path.split(request_path[2:])
             output.file(file_parts[1], file_parts[0])
         elif ( request_path[1:].lower() == "metatower.js" ):
             js_file = metaTowerJS.content
-            output = session.out()
             output.headers["Content-Type"] = "application/javascript"
             output.headers["Content-Length"] = len(js_file)
             output.text_entry = js_file
         else:
-            output = session.out()
             output.file(request_path[1:])
                 
     if ( request_type == "POST" ):
@@ -102,13 +102,13 @@ def processRequest(session, request_type, request_path, post_data):
             f.close()
             output = session.out()
             output.text("Upload successful.")
-            mt.events.trigger("upload_success_" + form_name, session)
+            mt.events.trigger("upload_success_" + form_name, output)
     return output
 
 def processLogin(socket, path, auth_line):
     config = mt.config
     user = None
-    sout = None
+    resp = None
     login_username = ""
     login_password = ""
 
@@ -131,7 +131,7 @@ def processLogin(socket, path, auth_line):
 
     if ( security == 1 ):
         user = userLogin(login_username, login_password, local_client)
-        sout = showLoginForm()
+        resp = showLoginForm()
 
     if ( security == 2 ):
         if ( len(path) > 2 ) and ( path[1] == "?" ):
@@ -148,19 +148,19 @@ def processLogin(socket, path, auth_line):
         sesh.IP = client_addr[0]
         mt.log.info(user.name + " has logged in.")
         sesh.local = local_client
-        mt.packages.onLogin(sesh)
-        sout = sesh.out()
-        sout.cookies["session"] = sesh.auth_key
+        resp = mtHTTPServer.HTTPOut(sesh)
+        mt.packages.onLogin(resp)
+        resp.cookies["session"] = sesh.auth_key
         if ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
-            sout.append(processRequest(sesh, "GET", path, ""))
+            resp.append(processRequest(sesh, "GET", path, ""))
         else:
-            sout = sesh.cleanRedirect(sout)
+            resp = sesh.cleanRedirect(resp)
     
-    if ( sout == None ):
-        sout = mtHTTPServer.HTTPOut()
-        sout.text("Access denied.")
+    if ( resp == None ):
+        resp = mtHTTPServer.HTTPOut()
+        resp.text("Access denied.")
 
-    return sout
+    return resp
 
 def userLogin(username, password, local):
     if ( username == None ) or ( username == "" ): return None
@@ -176,11 +176,8 @@ def userLogin(username, password, local):
 def showLoginForm(key = ""):
     if ( key != "" ): key = "!" + key
 
-    output = mtHTTPServer.HTTPOut()
-    output.status = "401 Forbidden"
-    output.headers["WWW-Authenticate"] = "Basic realm=\"metaTower\""
-    #output.textOut += "<html><form method='POST' action='" + key + "'>"
-     #output.textOut += "Username: <input type='text' name='user' size='15' /><br />Password: <input type='password' name='pass' size='15' /><br />"
-      #output.textOut += "<div align='center'><p><input type='submit' value='Login' /></p></div></form></html>"
-    
-    return output
+    resp = mtHTTPServer.HTTPOut()
+    resp.status = "401 Forbidden"
+    resp.headers["WWW-Authenticate"] = "Basic realm=\"metaTower\""
+    return resp
+

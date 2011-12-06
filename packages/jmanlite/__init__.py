@@ -10,21 +10,17 @@ def onUnload():
     mt.events.clear(onIndex)
     mt.events.clear(onPageLoad)
 
-def onIndex(session):
-    session.jmanlite_menu = []
-    out = session.out()
-    out.file("jmanlite/index.html")
-    return out
+def onIndex(resp):
+    resp.session.jmanlite_menu = []
+    resp.file("jmanlite/index.html")
     
-def onPageLoad(session):
-    out = session.out()
-    out.append(mt.events.trigger("jmanlite.load", session))
+def onPageLoad(resp):
+    mt.events.trigger("jmanlite.load", resp.session)
     menuJS = ""
-    for entry in session.jmanlite_menu:
+    for entry in resp.session.jmanlite_menu:
         menuJS += "jmanlite.menu('" + entry.caption + "', '" + entry.package_name + "');"
-    out.js(menuJS)
-    out.append(mt.events.trigger("jmanlite.menu.mbrowser", session))
-    return out
+    resp.js(menuJS)
+    mt.events.trigger("jmanlite.menu.mbrowser", resp.session)
 
 class MenuEntry:
     caption = ""

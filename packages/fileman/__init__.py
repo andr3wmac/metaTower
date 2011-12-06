@@ -26,44 +26,39 @@ def onLoad():
     mt.events.register("jmanlite.load", jmanlite_load)
     mt.events.register("jmanlite.menu.fileman", jmanlite_menu)
 
-def jman_load(session):
-    mt.packages.jman.menu(session, "File Manager", 3)
-    mt.packages.jman.taskbar(session, "File Manager", ['fileman_main'])
-    out = session.out()
-    out.htmlFile("fileman/html/jman.html", "body", True)
-    out.jsFile("fileman/js/common.js")
-    out.jsFile("fileman/js/jman.js")
-    out.cssFile("fileman/css/style.css")
-    return out
+    mt.log.error("SHIT WENT WRONG BRO!")
 
-def jman_menu(session):
-    out = session.out()
-    out.append(openFolder(session, os.getcwd(), "files"))
-    out.js("jman.dialog('fileman_main');")
-    return out
+def jman_load(resp):
+    mt.packages.jman.menu(resp.session, "File Manager", 3)
+    mt.packages.jman.taskbar(resp.session, "File Manager", ['fileman_main'])
+    resp.htmlFile("fileman/html/jman.html", "body", True)
+    resp.jsFile("fileman/js/common.js")
+    resp.jsFile("fileman/js/jman.js")
+    resp.cssFile("fileman/css/style.css")
 
-def jmanlite_load(session):
-    mt.packages.jmanlite.menu(session, "File Manager", "fileman")
-    return None
+def jman_menu(resp):
+    openFolder(resp, os.getcwd(), "files")
+    resp.js("jman.dialog('fileman_main');")
 
-def jmanlite_menu(session):
-    out = session.out()
-    out.htmlFile("fileman/html/jmanlite.html", "jmanlite_content", False)
-    out.jsFile("fileman/js/common.js")
-    out.jsFile("fileman/js/jmanlite.js")
-    out.cssFile("fileman/css/style.css")
-    out.append(openFolder(session, os.getcwd(), "files"))
-    return out
+def jmanlite_load(resp):
+    mt.packages.jmanlite.menu(resp.session, "File Manager", "fileman")
+
+def jmanlite_menu(resp):
+    resp.htmlFile("fileman/html/jmanlite.html", "jmanlite_content", False)
+    resp.jsFile("fileman/js/common.js")
+    resp.jsFile("fileman/js/jmanlite.js")
+    resp.cssFile("fileman/css/style.css")
+    openFolder(resp, os.getcwd(), "files")
     
-def openFolder(session, path, folder):
-    path = replaceHomeDir(session, path)
+def openFolder(resp, path, folder):
+    path = replaceHomeDir(resp.session, path)
     path = os.path.join(path, folder)
-    return listContents(session, path)
+    listContents(resp, path)
 
-def folderUp(session, path):
-    path = replaceHomeDir(session, path)
+def folderUp(resp, path):
+    path = replaceHomeDir(resp.session, path)
     path = os.path.split(path)[0]
-    return listContents(session, path)
+    listContents(resp, path)
 
 def replaceHomeDir(session, path):
     result = ""
@@ -77,19 +72,16 @@ def replaceHomeDir(session, path):
         result = path.replace(home_dir, "~")
     return result
 
-def listContents(session, path):
+def listContents(resp, path):
     dir_html = ""
     file_html = ""
-    for entry in getFileList(session, path):
+    for entry in getFileList(resp.session, path):
         if ( entry.is_dir ): dir_html += ",'" + entry.file_name + "'"
         if ( entry.is_file ): file_html += ",'" + entry.file_name + "'"
-    out = session.out()
     path = path.replace("\\", "/")
 
     # shortens the path to ~ if its the users homedir.
-    path = path = replaceHomeDir(session, path)
-
-    out.js("fileman.data('" + path + "', [" + dir_html[1:] + "], [" + file_html[1:] + "]);")
-    return out
+    path = path = replaceHomeDir(resp.session, path)
+    resp.js("fileman.data('" + path + "', [" + dir_html[1:] + "], [" + file_html[1:] + "]);")
     
 

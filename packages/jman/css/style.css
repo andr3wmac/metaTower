@@ -58,7 +58,7 @@ ul.jman_taskbar li a{
 ul.jman_taskbar li a:hover{
 	font-weight: bold;
 }
-ul.jman_taskbar li span { /*--Drop down trigger styles--*/
+ul.jman_taskbar li span.menu_trigger { /*--Drop down trigger styles--*/
 	width: 17px;
 	height: 35px;
 	float: left;
@@ -104,5 +104,21 @@ html ul.jman_taskbar li ul.menu li a:hover { /*--Hover effect for menu links--*/
 	width: 32px;
 	height: 35px;
 	float: left;
-	background: url(../images/tower.png) no-repeat center 1px;
+	background: url(../images/loading.gif) no-repeat center 1px;
+}
+
+#jman_notify {
+    float: right;
+}
+
+#jman_notify_box {
+    width: 250px;
+    left: -250px;
+    padding: 0px;
+}
+
+#jman_notify_text {
+    color: white;
+    padding: 15px;
+    font-size:14px;
 }

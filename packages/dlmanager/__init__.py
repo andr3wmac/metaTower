@@ -60,83 +60,72 @@ def onUnload():
         config.save("packages/dlmanager/dlmanager.xml")
         QueueControl.shutdown()
     
-def remove_selected(session, selected):
+def remove_selected(resp, selected):
     global QueueControl
 
     items = selected.split(",")
     QueueControl.removeItems(items)
-    return update(session)
+    update(session, resp)
 
-def jman_load(session):
-    packages.jman.menu(session, "Download Manager", 0)
-    packages.jman.taskbar(session, "Download Manager", ['dlmanager_main'])
-    out = session.out()
-    out.htmlFile("dlmanager/html/jman.html", "body", True)
-    out.jsFile("dlmanager/js/common.js")
-    out.jsFile("dlmanager/js/jman.js")
-    out.cssFile("dlmanager/css/style.css")
-    return out
+def jman_load(resp):
+    packages.jman.menu(resp.session, "Download Manager", 0)
+    packages.jman.taskbar(resp.session, "Download Manager", ['dlmanager_main'])
+    resp.htmlFile("dlmanager/html/jman.html", "body", True)
+    resp.jsFile("dlmanager/js/common.js")
+    resp.jsFile("dlmanager/js/jman.js")
+    resp.cssFile("dlmanager/css/style.css")
     
-def jman_menu(session):
-    out = session.out()
-    out.js("jman.dialog('dlmanager_main');")
-    out.append(update(session))
-    return out
+def jman_menu(resp):
+    resp.js("jman.dialog('dlmanager_main');")
+    update(resp)
 
-def jmanlite_load(session):
-    packages.jmanlite.menu(session, "Download Manager", "dlmanager")
-    return None
+def jmanlite_load(resp):
+    packages.jmanlite.menu(resp.session, "Download Manager", "dlmanager")
     
-def jmanlite_menu(session):
-    out = session.out()
-    out.htmlFile("dlmanager/html/jmanlite.html", "jmanlite_content", False)
-    out.jsFile("dlmanager/js/common.js")
-    out.jsFile("dlmanager/js/jmanlite.js")
-    out.cssFile("dlmanager/css/style.css")
-    out.append(update(session))
-    return out
+def jmanlite_menu(resp):
+    resp.htmlFile("dlmanager/html/jmanlite.html", "jmanlite_content", False)
+    resp.jsFile("dlmanager/js/common.js")
+    resp.jsFile("dlmanager/js/jmanlite.js")
+    resp.cssFile("dlmanager/css/style.css")
+    update(session, resp)
 
-def update(session):
+def update(resp):
     global QueueControl
     nzb_engine = QueueControl.nzb_engine
     nzb_queue = QueueControl.nzb_queue
     torrent_engine = QueueControl.torrent_engine
     torrent_queue = QueueControl.torrent_queue
 
-    # prepare our session.
-    out = session.out()
-
     # list of nzbs.
     for nzb in nzb_queue:
         if ( nzb.removed ):
-            out.js("dlmanager.remove('" + nzb.uid + "');")
+            resp.js("dlmanager.remove('" + nzb.uid + "');")
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
             status = nzb_engine.status
             filename = os.path.basename(nzb.filename).replace("'", "\'")
 
-            out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(status.total_bytes/1048576) + "," + str(status.current_bytes/1048576) + "," + str(round(status.current_bytes/float(status.total_bytes)*100)) + "," + str(status.kbps) + ");")
         elif ( nzb.completed ):
             # completed
             filename = os.path.basename(nzb.filename).replace("'", "\'")
-            out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 2, 0, 0, 0, 0, '" + nzb.par2_results + "', '" + nzb.unrar_results + "');")
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 2, 0, 0, 0, 0, '" + nzb.par2_results + "', '" + nzb.unrar_results + "');")
         elif ( nzb.error ):
             # failed
             filename = os.path.basename(nzb.filename).replace("'", "\'")
-            out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 3);")
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 3);")
         else:
             # queued
             filename = os.path.basename(nzb.filename).replace("'", "\'")
-            out.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 0);")
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 0);")
 
     for torrent in torrent_queue:
         if ( torrent.removed ):
-            out.js("dlmanager.remove('" + torrent.uid + "');")
+            resp.js("dlmanager.remove('" + torrent.uid + "');")
         elif ( torrent.lt_entry == None ):
-            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 0);")
+            resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 0);")
         else:
             status = torrent.lt_entry.status()
-            out.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 1, " + str(status.progress * 100) + ", '" + str(round(status.download_rate / 1000, 2)) + " kb/s');")
+            resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 1, " + str(status.progress * 100) + ", '" + str(round(status.download_rate / 1000, 2)) + " kb/s');")
 
-    out.js("dlmanager.update();")
-    return out
+    resp.js("dlmanager.update();")
 

@@ -173,6 +173,14 @@ mt.progress = function(id, progress)
 	prog.style.width = Math.round(progress) + "%";
 };
 
+mt.value = function(id, value)
+{
+    if ( value )
+        document.getElementById(id).value = value;
+    else
+        return document.getElementById(id).value;
+};
+
 mt.removeValueFromArray = function(array, value)
 {
     newArray = [];

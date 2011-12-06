@@ -40,15 +40,12 @@ class EventManager:
             if e.source != source: new_list.append(e)
         self.events = new_list
 
-    def trigger(self, event, session = None, args = {}):
-        out = None
-        if ( session != None ): out = session.out()
+    def trigger(self, event, resp = None, args = {}):
+        result = None
         for e in self.events:
             if e.event == event:
-                result = None
                 arg_count = len(inspect.getargspec(e.function).args)
                 if ( arg_count == 0 ) : result = e.function()
-                if ( arg_count == 1 ) : result = e.function(session)
-                if ( arg_count == 2 ) and ( len(args) > 0 ) : result = e.function(session, args)
-                if ( result != None ) and ( out != None ): out.append(result)
-        return out
+                if ( arg_count == 1 ) : result = e.function(resp)
+                if ( arg_count == 2 ) and ( len(args) > 0 ) : result = e.function(resp, args)
+        return result

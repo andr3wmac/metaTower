@@ -31,31 +31,25 @@ def onUnload():
     mt.events.clear(jman_load)
     mt.events.clear(jman_menu)
 
-def getPackageInfo(session, package_id):
-    out = session.out()
+def getPackageInfo(resp, package_id):
     for package in mt.packages.list:
         pack = mt.packages.list[package]
         if ( pack.id == package_id ):
-            out.js("package_manager.data('" + package_id + "', '" + pack.name + "', 0, '" + pack.version + "', '" + mt.config[package_id + "/description"] + "');");
-    return out
+            resp.js("package_manager.data('" + package_id + "', '" + pack.name + "', 0, '" + pack.version + "', '" + mt.config[package_id + "/description"] + "');");
 
-def getUpdateInfo(session, package_id):
+def getUpdateInfo(resp, package_id):
     global package_list
-    out = session.out()
     for package in package_list:
         if ( package.id == package_id ):
-            out.js("package_manager.data('" + package_id + "', '" + package.name + "', 1, '" + package.version + "', '" + package.description + "');");
-    return out
+            resp.js("package_manager.data('" + package_id + "', '" + package.name + "', 1, '" + package.version + "', '" + package.description + "');");
 
-def getInstallInfo(session, package_id):
+def getInstallInfo(resp, package_id):
     global package_list
-    out = session.out()
     for package in package_list:
         if ( package.id == package_id ):
-            out.js("package_manager.data('" + package_id + "', '" + package.name + "', 2, '" + package.version + "', '" + package.description + "');");
-    return out
+            resp.js("package_manager.data('" + package_id + "', '" + package.name + "', 2, '" + package.version + "', '" + package.description + "');");
 
-def update(session, package_id):
+def update(resp, package_id):
     global package_list, package_downloader
     if ( package_downloader != None ): return
 
@@ -65,7 +59,7 @@ def update(session, package_id):
             package_downloader = PackageDownloader(dlStatus, dlInstallComplete, dlUpdateComplete)
             package_downloader.updatePackage(package)
             setStatus("Starting update..", 0)
-    return status(session)
+    status(resp)
 
 def dlStatus(package, queued, completed):
     setStatus("Downloading..", int(float(completed)/float(queued)*100))
@@ -87,15 +81,13 @@ def setStatus(status, progress):
     current_status = status
     current_progress = progress
 
-def status(session):
+def status(resp):
     global current_status, current_progress
-    out = session.out()
-    out.js("package_manager.statusUpdate(\"" + current_status + "\", " + str(current_progress) + ");")
+    resp.js("package_manager.statusUpdate(\"" + current_status + "\", " + str(current_progress) + ");")
     if ( current_progress >= 100 ):
-        out.js("mt.refresh()")
-    return out
+        resp.js("mt.refresh()")
 
-def install(session, package_id):
+def install(resp, package_id):
     global package_list, package_downloader
     if ( package_downloader != None ): return
 
@@ -108,27 +100,22 @@ def install(session, package_id):
             else:
                 setStatus("Error installing package.", 0)
                 package_downloader = None
-    return status(session)
+    status(resp)
 
-def delete(session, package_id):
-    out = session.out()
+def delete(resp, package_id):
     path = os.path.join("packages", package_id)
     if ( os.path.isdir(path) ):
         mtMisc.rmdir(path)
         mt.packages.unload(package_id)
-        out.js("package_manager.status('Package deleted. Refreshing...');")
-        out.js("mt.refresh();")
+        resp.js("package_manager.status('Package deleted. Refreshing...');")
+        resp.js("mt.refresh();")
     else:
-        out.js("package_manager.status('Could not delete, folder not found.');")
-    return out
+        resp.js("package_manager.status('Could not delete, folder not found.');")
 
-def refresh(session):
-    out = session.out()
+def refresh(resp):
     _refreshSources()
-    #out.append(mainMenu(session))
-    out.append(packageListOut(session))
-    out.js("package_manager.status('Sources up to date.', 100);")
-    return out
+    packageListOut(resp)
+    resp.js("package_manager.status('Sources up to date.', 100);")
 
 def httpGet(url):
     data = ""
@@ -163,25 +150,20 @@ def _refreshSources():
                 if ( attr.tag == "update_files" ): pack.update_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
             package_list.append(pack)
 
-def jman_load(session):
-    mt.packages.jman.menu(session, "Package Manager", 0)
-    mt.packages.jman.taskbar(session, "Package Manager", ['package_manager_main'])
-    out = session.out()
-    out.htmlFile("package_manager/html/jman.html", "body", True)
-    out.jsFile("package_manager/js/common.js")
-    out.jsFile("package_manager/js/jman.js")
-    out.cssFile("package_manager/css/style.css")
-    return out
+def jman_load(resp):
+    mt.packages.jman.menu(resp.session, "Package Manager", 5)
+    mt.packages.jman.taskbar(resp.session, "Package Manager", ['package_manager_main'])
+    resp.htmlFile("package_manager/html/jman.html", "body", True)
+    resp.jsFile("package_manager/js/common.js")
+    resp.jsFile("package_manager/js/jman.js")
+    resp.cssFile("package_manager/css/style.css")
 
-def jman_menu(session):
-    out = session.out()
-    out.js("jman.dialog('package_manager_main');")
-    out.js("package_manager.refresh();")
-    return out
+def jman_menu(resp):
+    resp.js("jman.dialog('package_manager_main');")
+    resp.js("package_manager.refresh();")
 
-def packageListOut(session):
+def packageListOut(resp):
     global package_list
-    out = session.out()
 
     # for each installed package
     installed_packages = {}
@@ -205,6 +187,5 @@ def packageListOut(session):
         if ( not installed ):
             available_packages[source_package.id] = source_package.name
 
-    out.js("package_manager.packageList(" + str(installed_packages) + "," + str(updates) + "," + str(available_packages) + ")")
-    return out
+    resp.js("package_manager.packageList(" + str(installed_packages) + "," + str(updates) + "," + str(available_packages) + ")")
 

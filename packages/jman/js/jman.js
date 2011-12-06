@@ -85,6 +85,42 @@ var jman = {
         $("#" + dname).dialog("open");
     },
 
+    // Called after all the menu items have been loaded.
+    finishedLoading: function()
+    {
+        var menuElement = document.getElementById("jman_taskbar_main");
+        menuElement.style.background = "url(jman/images/tower.png) no-repeat center 1px";
+    },
+
+    // Notification engine
+    notify: function(text, icon)
+    {
+        if ( this._nTimeout ) this.hideNotify();
+
+        var html = "";
+        if ( !icon || icon === "notice" )
+        {
+            //html += "<span class='ui-icon ui-icon-notice' style='float:left; margin-right: 7px;'></span>";
+            html += text;
+        }
+        else if ( icon === "error" )
+        {
+            //html += "<span class='ui-icon ui-icon-alert' style='float:left; margin-right: 7px;'></span>";
+            html += "<font color='red'>" + text + "</font>";
+        }
+        
+        mt.html("jman_notify_text", html);
+
+        $("#jman_notify_box").slideToggle('medium');
+        this._nTimeout = setTimeout("jman.hideNotify()", 5000);
+    },
+    hideNotify: function()
+    {
+        $("#jman_notify_box").slideToggle('fast');
+        clearTimeout(this._nTimeout);
+        this._nTimeout = null;
+    },
+
     // Contains all menu related functions.
     menu: {
         items: [],
@@ -170,7 +206,8 @@ var jman = {
         // When you add a new item to a div in jquery, it gets pissed. Need to refresh the events.
         refresh: function()
         {
-            $("ul.jman_taskbar li span").click(function() { //When trigger is clicked...
+            // ul.jman_taskbar li span
+            $("span.menu_trigger").click(function() { //When trigger is clicked...
                 //Drop down the menu on click
                 $(this).parent().find("ul.menu").slideDown('fast').show(); 
     
@@ -210,7 +247,7 @@ var jman = {
                 // taskbar entry html.
                 entry_html = "<li style='z-index: 2000' id='jman_taskbar_" + item.package_name;
                 entry_html += "'><a href='#' onClick='jman.taskbar.onClick(\"" +item.package_name + "\")'>";
-                entry_html += item.caption + "</a><span></span><ul class='menu' style='display: none;'>";
+                entry_html += item.caption + "</a><span class='menu_trigger'></span><ul class='menu' style='display: none;'>";
         
                 // context menus.
                 for ( var caption in item.context )

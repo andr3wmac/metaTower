@@ -10,7 +10,7 @@
 """
 
 import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect, urllib
-import mtAuth, mtConfigManager, mtEventManager, mtPackageManager, mtMisc
+import mtAuth, mtConfigManager, mtEventManager, mtPackageManager, mtMisc, mtLogManager
 
 running = False
 restart = False
@@ -47,8 +47,7 @@ def start():
         if ( user["local_only"] != "" ): users[un].local_only = True
         
     # logging system
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', filename='metaTower.log', filemode='w')
-    log = logging.getLogger("metatower")
+    log = mtLogManager.LogManager()
 
     # events
     events = mtEventManager.EventManager()

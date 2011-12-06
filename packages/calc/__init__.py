@@ -8,16 +8,12 @@ def onUnload():
     mt.events.clear(jman_load)
     mt.events.clear(jman_menu)
 
-def jman_load(session):
-    mt.packages.jman.menu(session, "Calculator", 3)
-    mt.packages.jman.taskbar(session, "Calculator", ["calc_main"], {"context1": "alert('yeah buddy!');"})
+def jman_load(resp):
+    mt.packages.jman.menu(resp.session, "Calculator", 0)
+    mt.packages.jman.taskbar(resp.session, "Calculator", ["calc_main"], {"context1": "alert('yeah buddy!');"})
 
-    out = session.out()
-    out.htmlFile("calc/index.html", "body", True)
-    out.jsFile("calc/script.js")
-    return out
+    resp.htmlFile("calc/index.html", "body", True)
+    resp.jsFile("calc/script.js")
     
-def jman_menu(session):
-    out = session.out()
-    out.js("jman.dialog('calc_main')");
-    return out
+def jman_menu(resp):
+    resp.js("jman.dialog('calc_main')");

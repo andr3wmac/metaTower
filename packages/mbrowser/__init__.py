@@ -21,36 +21,29 @@ def onLoad():
 def onUnload():
     ffmpeg.stop()
 
-def jman_load(session):
-    mt.packages.jman.menu(session, "Media Browser", 3)
-    mt.packages.jman.taskbar(session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
-    out = session.out()
-    out.htmlFile("mbrowser/html/jman.html", "body", True)
-    out.jsFile("mbrowser/js/common.js")
-    out.jsFile("mbrowser/js/jman.js")
-    out.cssFile("mbrowser/css/style.css")
-    return out
+def jman_load(resp):
+    mt.packages.jman.menu(resp.session, "Media Browser", 3)
+    mt.packages.jman.taskbar(resp.session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
+    resp.htmlFile("mbrowser/html/jman.html", "body", True)
+    resp.jsFile("mbrowser/js/common.js")
+    resp.jsFile("mbrowser/js/jman.js")
+    resp.cssFile("mbrowser/css/style.css")
 
-def jman_menu(session):
+def jman_menu(resp):
     global converting
     scan()
-    out = session.out()
-    out.js("jman.dialog('mbrowser_main');")
-    if ( converting ): out.append(status(session))
-    return out
+    resp.js("jman.dialog('mbrowser_main');")
+    if ( converting ): status(resp)
 
-def jmanlite_load(session):
-    mt.packages.jmanlite.menu(session, "Media Browser", "mbrowser")
-    return None
+def jmanlite_load(resp):
+    mt.packages.jmanlite.menu(resp.session, "Media Browser", "mbrowser")
 
-def jmanlite_menu(session):
+def jmanlite_menu(resp):
     scan()
-    out = session.out()
-    out.htmlFile("mbrowser/html/jmanlite.html", "jmanlite_content", False)
-    out.jsFile("mbrowser/js/common.js")
-    out.jsFile("mbrowser/js/jmanlite.js")
-    out.cssFile("mbrowser/css/style.css")
-    return out
+    resp.htmlFile("mbrowser/html/jmanlite.html", "jmanlite_content", False)
+    resp.jsFile("mbrowser/js/common.js")
+    resp.jsFile("mbrowser/js/jmanlite.js")
+    resp.cssFile("mbrowser/css/style.css")
 
 def getFileList(path):
     results = []
@@ -104,15 +97,11 @@ def refresh():
     items = {}
     scan()
 
-def refreshLibrary(session):
-    out = session.out()
+def refreshLibrary(resp):
     refresh()
-    out.js("mbrowser.refreshComplete();")
-    return out
+    resp.js("mbrowser.refreshComplete();")
 
-def tvQuery(session, name = "", season = ""):
-    out = session.out()
-
+def tvQuery(resp, name = "", season = ""):
     if ( name == "" ):
         parms = {"vidtype": "tv"}
         lib_results = searchLibrary(parms)
@@ -122,7 +111,7 @@ def tvQuery(session, name = "", season = ""):
         shows = mtMisc.removeDuplicates(shows)
         shows.sort()
 
-        out.js("mbrowser.tvShows(" + str(shows) + ");")
+        resp.js("mbrowser.tvShows(" + str(shows) + ");")
 
     elif ( season == "" ):
         parms = {"vidtype": "tv", "tv_name": name}
@@ -133,7 +122,7 @@ def tvQuery(session, name = "", season = ""):
         seasons = mtMisc.removeDuplicates(seasons)
         seasons.sort()
 
-        out.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")
+        resp.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")
 
     else:
         parms = {"vidtype": "tv", "tv_name": name, "tv_season": season}
@@ -151,13 +140,9 @@ def tvQuery(session, name = "", season = ""):
             if ( item.has_key("external") ):
                 output += ", 'external': '" + item["external"] + "'"
             output += "}"
-        out.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
+        resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
 
-    return out
-
-def query(session, ftype = "", newest = False, limit = 10000):
-    out = session.out()
-
+def query(resp, ftype = "", newest = False, limit = 10000):
     if ( ftype != "" ): lib_results = searchLibrary({"type": ftype})
     else: lib_results = searchLibrary()
 
@@ -184,9 +169,8 @@ def query(session, ftype = "", newest = False, limit = 10000):
         #paths += ", '" + result[key]["path"] + "'"
         #names += ", '" + result[key]["name"] + "'"
         count += 1
-    out.js("mbrowser.data([" + output[2:] + "]);")
-    #out.js("mbrowser.data([" + paths[2:] + "], [" + names[2:] + "]);")
-    return out
+    resp.js("mbrowser.data([" + output[2:] + "]);")
+    #resp.js("mbrowser.data([" + paths[2:] + "], [" + names[2:] + "]);")
 
 def searchLibrary(parms):
     results = []
@@ -205,14 +189,11 @@ def findItemById(id):
         if ( i.has_key("id") ) and ( i["id"] == id ): return i
     return None
         
-def getExternalLink(session, id):
-    out = session.out()
-    
+def getExternalLink(resp, id):
     item = findItemById(id)
     if ( item != None ):
-        item["external"] = session.generateFileKey(item["path"])
-        out.js("mbrowser.externalLink('" + id + "', '*" + item["external"] + "');")
-    return out
+        item["external"] = resp.session.generateFileKey(item["path"])
+        resp.js("mbrowser.externalLink('" + id + "', '*" + item["external"] + "');")
 
 def convertStatus(f, prog):
     global converting, convert_success, convert_output
@@ -228,12 +209,11 @@ def convertStatus(f, prog):
     else:
         setStatus("Converting.. (click to stop)", prog)
 
-def convertToWeb(session, id):
+def convertToWeb(resp, id):
     global converting, convert_id, convert_success
     if ( converting ):
         return
 
-    out = session.out()
     item = findItemById(id)
     if ( item != None ):
         ffmpeg.convertToFlash(item["path"], convertStatus)
@@ -241,10 +221,9 @@ def convertToWeb(session, id):
         converting = True
         convert_id = id
         convert_success = False
-        out.append(status(session))
-    return out
+        status(resp)
 
-def stopConvert(session):
+def stopConvert(resp):
     global converting
     ffmpeg.stop()
     converting = False
@@ -255,19 +234,15 @@ def setStatus(msg, progress):
     status_msg = msg
     status_prog = progress
 
-def status(session):
+def status(resp):
     global status_msg, status_prog, convert_success, convert_id, convert_output
-    out = session.out()
-    out.js("mbrowser.statusUpdate(\"" + status_msg + "\", " + str(status_prog) + ");")
+    resp.js("mbrowser.statusUpdate(\"" + status_msg + "\", " + str(status_prog) + ");")
 
     if ( status_prog == 100 ) and ( convert_success ):
-        out.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
+        resp.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
 
-    return out
-
-def rename(session, id, new):
+def rename(resp, id, new):
     global items
-    out = session.out()
     item = findItemById(id)
     if ( item ):
         old = item["path"]
@@ -287,6 +262,5 @@ def rename(session, id, new):
 
         values = {'name': new_item["name"], 'path': new_item["path"]}
         if ( new_item["web"] ): values["web"] = new_item["web"]
-        out.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
-    return out
+        resp.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
 
