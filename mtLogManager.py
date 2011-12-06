@@ -47,6 +47,7 @@ class LogManager:
     def __init__(self):
         self.logThread = LogWriteThread()
         self.logThread.start()
+        mtMisc.rmdir("logs")
         mtMisc.mkdir("logs")
         #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', filename='metaTower.log', filemode='w')
         #self.log = logging.getLogger("metatower")
