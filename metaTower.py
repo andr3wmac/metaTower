@@ -10,12 +10,12 @@
 """
 
 import mtHTTPServer, mtAuth, mtCore
-import sys, os
+import sys, os, time
 
 # These exist only to have the librarys included when
 # using py-installer.
 if False:
-    import nntplib, libtorrent, shutil, commands
+    import nntplib, shutil, commands
     import serial.win32, Queue
 
 if __name__ == '__main__':
@@ -52,5 +52,6 @@ if __name__ == '__main__':
         print "Shutting down.."
         if ( mtCore.running ): mtCore.stop()
         if ( mtCore.restart ):
+                time.sleep(2)
                 mtexe = sys.executable
                 os.execl(mtexe, mtexe, * sys.argv)

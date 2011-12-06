@@ -118,28 +118,32 @@ def refresh(resp):
     resp.js("package_manager.status('Sources up to date.', 100);")
 
 def httpGet(url):
-    data = ""
+    data = None
     try:
         http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())
         response = http.open(url)
         data = response.read()
     except:
-        print "HTTP GET FAILED: " + url
-        data = ""
+        mt.log.error("HTTP Get Failed: " + url)
+        data = None
     return data
 
 def _refreshSources():
     global package_list
     
     package_list = []
-    source_list = httpGet("http://packages.metatower.com/packtest.php").split("\n")
+    source_list = httpGet("http://packages.metatower.com/packtest.php")
+    if ( source_list == None ): return
+    source_list = source_list.split("\n")
+
     for source in source_list:
         data = httpGet(source)
+        if ( data == None ): continue
+
         tree = ElementTree.fromstring(data)
         for element in tree:
             pack = Package()
             pack.id = element.tag
-            print "Package loaded: " + pack.id
             for attr in element:
                 attr.text = attr.text.strip()
                 if ( attr.tag == "name" ): pack.name = attr.text

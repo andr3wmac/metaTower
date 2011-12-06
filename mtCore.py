@@ -82,3 +82,4 @@ def restart():
     global restart
     stop()
     restart = True
+    raise Exception

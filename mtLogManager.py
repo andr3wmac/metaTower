@@ -51,14 +51,14 @@ class LogManager:
         #logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', filename='metaTower.log', filemode='w')
         #self.log = logging.getLogger("metatower")
 
+    def getSource(self):
+        return mtMisc.getSource(3).split(".")[0]
+
     def debug(self, text):
-        source = mtMisc.getSource()
-        self.logThread.addItem(source, "DEBUG", text)
+        self.logThread.addItem(self.getSource(), "DEBUG", text)
     
     def error(self, text):
-        source = mtMisc.getSource()
-        self.logThread.addItem(source, "ERROR", text)
+        self.logThread.addItem(self.getSource(), "ERROR", text)
     
     def info(self, text):
-        source = mtMisc.getSource()
-        self.logThread.addItem(source, "INFO", text)
+        self.logThread.addItem(self.getSource(), "INFO", text)

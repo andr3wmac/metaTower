@@ -261,6 +261,6 @@ def rename(resp, id, new):
         del items[old]
 
         values = {'name': new_item["name"], 'path': new_item["path"]}
-        if ( new_item["web"] ): values["web"] = new_item["web"]
+        if ( new_item.has_key("web") ): values["web"] = new_item["web"]
         resp.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
 
