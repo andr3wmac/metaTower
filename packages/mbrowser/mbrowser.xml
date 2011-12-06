@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<metaTower>
+	<mbrowser>
+		<ffmpeg>
+            <posix>
+                /usr/bin/ffmpeg
+            </posix>
+            <win32>
+                packages/mbrowser/ffmpeg/ffmpeg.exe
+            </win32>
+            <video>
+			    <bitrate>
+				    345k
+			    </bitrate>
+			    <size>
+				    640x360
+			    </size>
+            </video>
+            <audio>
+			    <channels>
+				    2
+			    </channels>
+			    <bitrate>
+				    96k
+			    </bitrate>
+			    <freq>
+				    44100
+			    </freq>
+            </audio>
+        </ffmpeg>
+    </mbrowser>
+</metaTower>

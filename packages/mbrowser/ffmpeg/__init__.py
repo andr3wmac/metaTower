@@ -29,7 +29,7 @@ class ffmpegThread(threading.Thread):
     def run(self):
         global fThread
         
-        cmd = self.cmd + " -i " + self.input_file.replace(" ", "\\ ") + self.cmd_args + " " + self.output_file.replace(" ", "\\ ") + " > /home/server/ffmpeg.log"
+        cmd = self.cmd + " -i " + self.input_file.replace(" ", "\\ ") + self.cmd_args + " " + self.output_file.replace(" ", "\\ ")
         mt.log.info("Executing Command: " + cmd)
 
         fThread = pexpect.spawn(cmd)
