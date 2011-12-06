@@ -44,16 +44,19 @@ class ffmpegThread(threading.Thread):
         percent_complete = 0
         while True:
             i = fThread.expect_list(cpl, timeout=None)
-            if i == 0: # EOF
-                print "EOF!"
+
+            # EOF
+            if i == 0: 
                 if ( self.status_callback ): self.status_callback(self.output_file, 101)
                 break
+    
+            # Duration
             elif i == 1:
-                print "Duration Found!"
                 duration = self.hmsToSeconds(fThread.match.group(1)[11:-11])
                 fThread.close
+
+            # Progress Update
             elif i == 2:
-                print "Status Found!"
                 t = fThread.match.group(1)
                 percent = int((float(t) / duration) * 100)
                 if ( percent != percent_complete ):
