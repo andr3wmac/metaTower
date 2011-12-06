@@ -10,6 +10,8 @@ var jmanlite = {
 
 	menu: function(caption, package_name)
 	{
+        alert("menu item");
+
 		var item = new this.MenuItem();
 		item.caption = caption;
 		item.package_name = package_name;
