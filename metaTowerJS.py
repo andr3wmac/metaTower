@@ -33,6 +33,7 @@ mt = function(url, target_override)
 mt.load = function()
 {
 	mt("pageLoaded()");
+    //window.onerror = mt.error;
 };
 
 mt.timed = function(url, time, target_override)
@@ -73,49 +74,49 @@ mt.response = function(request, target_override)
     	{
     		dataIn = request.responseText;
 
-		var strPos = 0;
-		if ( dataIn.substr(0, 4) == "!mt:" )
-		{
-			var intStr = "";
-			for(strPos = 4; strPos < dataIn.length; strPos++)
-			{
-				var chr = dataIn.charAt(strPos);
-				if ( chr == ';' ) { strPos++; break; }
+		    var strPos = 0;
+		    if ( dataIn.substr(0, 4) == "!mt:" )
+		    {
+			    var intStr = "";
+			    for(strPos = 4; strPos < dataIn.length; strPos++)
+			    {
+				    var chr = dataIn.charAt(strPos);
+				    if ( chr == ';' ) { strPos++; break; }
 				
-				intStr += chr;
-			}
+				    intStr += chr;
+			    }
 			
-			var allData = dataIn.substr(strPos + parseInt(intStr), dataIn.length - strPos + parseInt(intStr));
-			var dataLocations = dataIn.substr(strPos, parseInt(intStr)).split(";");
+			    var allData = dataIn.substr(strPos + parseInt(intStr), dataIn.length - strPos + parseInt(intStr));
+			    var dataLocations = dataIn.substr(strPos, parseInt(intStr)).split(";");
 			
-			for( dataPos = 0; dataPos < dataLocations.length; dataPos++ )
-			{
-				if ( dataLocations[dataPos] == "" ) continue;
+			    for( dataPos = 0; dataPos < dataLocations.length; dataPos++ )
+			    {
+				    if ( dataLocations[dataPos] == "" ) continue;
 				
-				var args = dataLocations[dataPos].split(":");
-				var locationArgs = args[1].split(",");
+				    var args = dataLocations[dataPos].split(":");
+				    var locationArgs = args[1].split(",");
 				
-				var pos = locationArgs[0];
-				var len = locationArgs[1];
+				    var pos = locationArgs[0];
+				    var len = locationArgs[1];
 				
-				var data = allData.substr(pos, len);
+				    var data = allData.substr(pos, len);
 				
-				if ( args[0] == "html" )
-				{
-					var target = locationArgs[2];
-					var append = false;
-					if ( target.charAt(0) == "+" )
-					{
-						target = target.substr(1, target.length -1);
-						append = true;
-					}
-					mt.html(target, data, append);
-				} else {
-					if ( args[0] == "css" ) mt.css(data);
-					if ( args[0] == "js" ) mt.js(data);
-				}
-			}
-		}
+				    if ( args[0] == "html" )
+				    {
+					    var target = locationArgs[2];
+					    var append = false;
+					    if ( target.charAt(0) == "+" )
+					    {
+						    target = target.substr(1, target.length -1);
+						    append = true;
+					    }
+					    mt.html(target, data, append);
+				    } else {
+					    if ( args[0] == "css" ) mt.css(data);
+					    if ( args[0] == "js" ) mt.js(data);
+				    }
+			    }
+		    }
     	}
 };
 
@@ -127,7 +128,7 @@ mt.response = function(request, target_override)
 mt.html = function(targetID, data, append)
 {
 	var target = null;
-	if ( targetID == "body" ) target = document.body;
+	if ( targetID == "" || !targetID || targetID == "body" ) target = document.body;
 	else target = document.getElementById(targetID);
 	
 	if ( append ) target.innerHTML += data;
@@ -187,5 +188,10 @@ mt.removeValueFromArray = function(array, value)
     for ( i = 0; i < array.length; i++ )
         if ( array[i] != value ) newArray.push(array[i]);
     return newArray;
+};
+
+mt.error = function(err)
+{
+    alert("An error occured." + err);
 };
 """

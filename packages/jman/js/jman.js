@@ -51,8 +51,24 @@ $(document).ready(function() {
 mt.html = function(targetID, data, append)
 {
     var target = null;
-    if ( targetID == "body" ) target = $("body");
-    else target = $("#" + targetID);
+    switch ( targetID )
+    {
+        case null:
+        case "":
+        case undefined:
+            // jquery will bring the dialog to the main body if it's successfully loaded.
+            // therefore we put it into failed_dialogs expecting it to be gone by the time
+            // the page is done loading. Anything left behind has failed to load.
+            target = $("#" + "jman_failed_dialogs");
+            break;
+
+        case "body":
+            target = $("body");
+            break;
+
+        default:
+            target = $("#" + targetID);
+    }
 
     if ( append ) target.append(data);
     else 
@@ -88,8 +104,19 @@ var jman = {
     // Called after all the menu items have been loaded.
     finishedLoading: function()
     {
+        // Switch icon.
         var menuElement = document.getElementById("jman_taskbar_main");
         menuElement.style.background = "url(jman/images/tower.png) no-repeat center 1px";
+
+        // Notify user of any failed dialogs.
+        var failed = document.getElementById("jman_failed_dialogs").children;
+        if ( failed.length > 0 )
+        {
+            var failed_list = failed[0].id;
+            for (var i = 1; i < failed.length; i++)
+                failed_list += ", " + failed[i].id;
+            this.notify(failed_list + " failed to load.", "error");
+        }
     },
 
     // Notification engine

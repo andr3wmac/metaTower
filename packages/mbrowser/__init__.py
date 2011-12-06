@@ -26,7 +26,7 @@ def onUnload():
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "Media Browser", 3)
     mt.packages.jman.taskbar(resp.session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
-    resp.htmlFile("mbrowser/html/jman.html", "body", True)
+    resp.htmlFile("mbrowser/html/jman.html", append = True)
     resp.jsFile("mbrowser/js/common.js")
     resp.jsFile("mbrowser/js/jman.js")
     resp.cssFile("mbrowser/css/style.css")

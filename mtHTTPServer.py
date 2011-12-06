@@ -49,8 +49,8 @@ class HTTPOut():
         newEntry.js = True
         self.mt_entrys.append(newEntry)
         
-    def htmlFile(self, filename, target="body", append=False): self.html(self._getFileContents(filename), target, append)
-    def html(self, data, target="body", append = False):
+    def htmlFile(self, filename, target="", append=False): self.html(self._getFileContents(filename), target, append)
+    def html(self, data, target="", append = False):
         newEntry = HTTPOut.mtEntry()
         newEntry.data = data
         

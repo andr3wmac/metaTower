@@ -1,6 +1,11 @@
 var jmanlite = {
-	menu_items: [],
+    // Quick function to scroll to the top.
+    top: function()
+    {
+        window.scrollTo(0,0);
+    },
 
+	menu_items: [],
 	MenuItem: function()
 	{
 		this.caption = "";
@@ -29,4 +34,14 @@ var jmanlite = {
 			}
 		}
 	}
+};
+
+// This little hack will auto-scroll to the top of the window
+// when you switch between pages.
+mt.htmlOld = mt.html;
+mt.html = function(targetID, data, append)
+{
+    if (( targetID == "" || !targetID || targetID == "body" ) && ( !append ))
+        jmanlite.top();
+    mt.htmlOld(targetID, data, append);
 };
