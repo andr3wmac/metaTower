@@ -37,8 +37,9 @@ class ConfigManager:
 
     def __init__(self):
         self.items = []
-        self.backup_dir = os.path.join("sys", "cfg")
-        mtMisc.mkdir(self.backup_dir)
+
+        self.header = "<?xml version=\"1.0\" ?>\n<metaTower>\n\t"
+        self.footer = "\n</metaTower>\n"
 
     def _loadTree(self, tree, path = "", filename = ""):
         for a in tree: 
@@ -56,22 +57,19 @@ class ConfigManager:
             self._loadTree(a, path + a.tag + "/", filename)
     
     def load(self, filename):
-        backup = os.path.join(self.backup_dir, filename.replace(os.sep, "."))
+        basename, ext = os.path.splitext(filename)
+        default = filename.replace(ext, ".default" + ext)
         try:
-            newTree = ElementTree.ElementTree()
-            newTree.parse(filename)
-
-            self._loadTree(newTree.getroot(), "", filename)
-
-            # If we're still here it was a successful load.
-            # so we backup the cfg file.
-            mtMisc.copy(filename, backup)
+            f = open(filename)
+            data = self.header + f.read() + self.footer
+            f.close()
+            tree = ElementTree.fromstring(data)
+            self._loadTree(tree, "", filename)
         except Exception as inst:
             print "Error loading cfg file: " + filename
-            if ( os.path.isfile(backup) ):
-                print "  Restoring backup and trying again.."
-                mtMisc.move(backup, filename)
-                self.load(filename)
+            if ( os.path.isfile(default) ):
+                print "  Using default version instead.."
+                self.load(default)
 
     def loadString(self, data, filename = ""):
         newTree = ElementTree.fromstring(data)
@@ -175,7 +173,10 @@ class ConfigManager:
 
             for tree in trees_out:
                 try:
+                    # first it's converted to pretty xml, then cleaned of all the xml junk.
                     prettyxml = xml.parseString(ElementTree.tostring(trees_out[tree])).toprettyxml()
+                    prettyxml = prettyxml.replace(self.header, "").replace(self.footer, "").replace("\n\t", "\n")
+
                     f = open(tree, 'w')
                     f.write(prettyxml)
                     f.close()

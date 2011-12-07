@@ -13,7 +13,7 @@ def onLoad():
     global QueueControl
 
     # load configuration
-    config.load("packages/dlmanager/dlmanager.xml")
+    config.load("packages/dlmanager/dlmanager.cfg")
     
     # start up our queue monitor.
     QueueControl = QueueController()

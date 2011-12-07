@@ -47,7 +47,7 @@ class PackageManager:
 
         # load config files if they aren't already.
         if ( not mt.config.contains(package_name) ):
-            mt.config.load(os.path.join(path, package_name, "package.xml"))
+            mt.config.load(os.path.join(path, package_name, "package.cfg"))
             mod.name = mt.config[package_name + "/name"]
             mod.path = path
             mod.id = package_name
@@ -103,13 +103,13 @@ class PackageManager:
                 package_files = os.listdir(package_path)
 
                 has_init = False
-                has_xml = False
+                has_cfg = False
                 if len(package_files) > 0:
                     for af in package_files:
                         if af == "__init__.py": has_init = True
-                        if af == "package.xml": has_xml = True
+                        if af == "package.cfg": has_cfg = True
 
-                if ( has_init ) and ( has_xml ):
+                if ( has_init ) and ( has_cfg ):
                     package = self.load(f, path)
                 
         self.listPackages()        

@@ -30,8 +30,8 @@ def start():
     # load initial configurations
     running = True
     config = mtConfigManager.ConfigManager()
-    config.load("metaTower.xml")
-    config.load("users.xml")
+    config.load("metaTower.cfg")
+    config.load("users.cfg")
     
     # load users.
     users_list = config.get("users/user")

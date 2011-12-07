@@ -46,7 +46,7 @@ class LogWriteThread(threading.Thread):
 
 class LogManager:
     def __init__(self):
-        self.log_dir = os.path.join("sys", "logs")
+        self.log_dir = "logs"
         mtMisc.rmdir(self.log_dir)
         mtMisc.mkdir(self.log_dir)
 

@@ -22,7 +22,7 @@ class Package:
 
 def onLoad():
     cfg = mt.config
-    cfg.load("packages/package_manager/sources.xml")
+    cfg.load("packages/package_manager/sources.cfg")
 
     mt.events.register("jman.load", jman_load)
     mt.events.register("jman.menu.package_manager", jman_menu)

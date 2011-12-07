@@ -11,7 +11,7 @@ convert_output = ""
 this_year = int(time.strftime('%Y'))
 
 def onLoad():
-    mt.config.load("packages/mbrowser/mbrowser.xml")
+    mt.config.load("packages/mbrowser/mbrowser.cfg")
 
     mt.events.register("jman.load", jman_load)
     mt.events.register("jman.menu.mbrowser", jman_menu)
