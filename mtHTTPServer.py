@@ -253,6 +253,8 @@ class HTTPHandler(threading.Thread):
                 request_path = request_path.replace("%20", " ")
                 request_path = request_path.replace("%22", '"')
                 request_path = request_path.replace("%27", "'")
+                request_path = request_path.replace("%7B", "{")
+                request_path = request_path.replace("%7D", "}")
 
                 # check to see if we have a session cookie and if its valid.    
                 try:    

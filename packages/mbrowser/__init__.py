@@ -8,6 +8,7 @@ converting = False
 convert_id = ""
 convert_success = False
 convert_output = ""
+this_year = int(time.strftime('%Y'))
 
 def onLoad():
     mt.config.load("packages/mbrowser/mbrowser.xml")
@@ -65,12 +66,12 @@ def scan():
 
 def processFile(f):
     idata = None
-    basename, ext = os.path.splitext(f)
+    basename, ext = os.path.splitext(os.path.split(f)[1])
     if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
         idata = {}
         idata["id"] = mtMisc.uid()
         idata["path"] = f
-        idata["name"] = os.path.split(basename)[1].replace(".", " ").strip()
+        idata["name"] = basename.replace(".", " ").strip()
         idata["type"] = "video"
         idata["time"] = time.time() - os.stat(f).st_mtime
         tv = re.split("(?x)(?i)[\//]*S(\d+)E(\d+)*", idata["name"])
@@ -80,6 +81,22 @@ def processFile(f):
             idata["tv_episode"] = tv[2].strip()
             idata["name"] = idata["tv_name"] + " - Season " + idata["tv_season"] + " Episode " + idata["tv_episode"]
             idata["vidtype"] = "tv"
+        else:
+            idata["vidtype"] = "movie"
+
+            # Process names into a nice "Movie Name (YEAR)" format.
+            args = " ".join(basename.split(".")).split(" ")
+            name_parts = []
+            for arg in args:
+                # Test if we've found a valid year.
+                year_test = arg.replace("(", "").replace(")", "")
+                if ( year_test.isdigit() ):
+                    if ( int(year_test) > 1888 and int(year_test) <= this_year and len(name_parts) > 0 ):
+                        idata["movie_year"] = year_test
+                        break
+                name_parts.append(arg)
+            idata["name"] = string.capwords(" ".join(name_parts))
+            if ( idata.has_key("movie_year") ): idata["name"] += " (" + idata["movie_year"] + ")"
 
         # check to see if webvideo is available
         webf = f.replace(ext, ".flv")
@@ -145,9 +162,8 @@ def tvQuery(resp, name = "", season = ""):
             output += "}"
         resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
 
-def query(resp, ftype = "", newest = False, limit = 10000):
-    if ( ftype != "" ): lib_results = searchLibrary({"type": ftype})
-    else: lib_results = searchLibrary()
+def query(resp, args, newest = False, limit = 10000):
+    lib_results = searchLibrary(args)
 
     result = {}
     if ( newest ):
@@ -162,18 +178,20 @@ def query(resp, ftype = "", newest = False, limit = 10000):
     output = ""
     for key in sorted_keys:
         if ( count >= limit ): break
+
         item = result[key]
         output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
+
+        # check if it has a weblink.
         if ( item.has_key("web") ):
             output += ", 'web': '" + item["web"] + "'"
+
+        # check for external link.
         if ( item.has_key("external") ):
             output += ", 'external': '" + item["external"] + "'"
         output += "}"
-        #paths += ", '" + result[key]["path"] + "'"
-        #names += ", '" + result[key]["name"] + "'"
         count += 1
     resp.js("mbrowser.data([" + output[2:] + "]);")
-    #resp.js("mbrowser.data([" + paths[2:] + "], [" + names[2:] + "]);")
 
 def searchLibrary(parms):
     results = []
