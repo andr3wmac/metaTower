@@ -35,13 +35,3 @@ var jmanlite = {
 		}
 	}
 };
-
-// This little hack will auto-scroll to the top of the window
-// when you switch between pages.
-/*mt.htmlOld = mt.html;
-mt.html = function(targetID, data, append)
-{
-    if (( targetID == "" || !targetID || targetID == "body" ) && ( !append ))
-        jmanlite.top();
-    mt.htmlOld(targetID, data, append);
-};*/
