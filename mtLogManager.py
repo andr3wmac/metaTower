@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -47,6 +47,7 @@ class LogWriteThread(threading.Thread):
 class LogManager:
     def __init__(self):
         self.log_dir = "logs"
+        self.names = {};
         mtMisc.rmdir(self.log_dir)
         mtMisc.mkdir(self.log_dir)
 
@@ -56,7 +57,10 @@ class LogManager:
         #self.log = logging.getLogger("metatower")
 
     def getSource(self):
-        return mtMisc.getSource(3).split(".")[0]
+        source = mtMisc.getSource(3).split(".")[0]
+        if ( self.names.has_key(source) ):
+            return self.names[source]
+        return source
 
     def debug(self, text):
         self.logThread.addItem(self.getSource(), "DEBUG", text)
@@ -66,3 +70,6 @@ class LogManager:
     
     def info(self, text):
         self.logThread.addItem(self.getSource(), "INFO", text)
+
+    def alias(self, source, name):
+        self.names[source] = name

@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -31,8 +31,12 @@ class UpdateThread( threading.Thread ):
 
     def run ( self ):
         # Fetch the remote_ip
-        mt.config["remote_ip"] = urllib.urlopen('http://whatismyip.org').read()
-        print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
+        remote_url = "http://whatismyip.org"
+        try:
+            mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
+            print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
+        except:
+            mt.log.error("Could not fetch remote_ip from: " + remote_url)
 
         while True:
             #auth_url = mt.config["auth_url"]

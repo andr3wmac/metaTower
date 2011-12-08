@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -82,9 +82,9 @@ class PackageManager:
         mt.events.clearSource(package_name)
 
         # finally delete it.
-        for mod_name in package.__includes__:
-            mod = sys.modules[mod_name]
-            if ( mod != None ): del sys.modules[mod_name]
+        #for mod_name in package.__includes__:
+        #    mod = sys.modules[mod_name]
+        #    if ( mod != None ): del sys.modules[mod_name]
             
         #except:
         #    print "Error unloading package: " + package_name

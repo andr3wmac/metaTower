@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -12,6 +12,8 @@
 import socket, thread, os, time, sys, Cookie, uuid, hashlib, mtAuth, mimetypes, threading, base64
 import mtSession, mtHTTPProcessor
 import mtCore as mt
+
+running = False
 
 class HTTPOut():
     class mtEntry():
@@ -180,7 +182,7 @@ class HTTPHandler(threading.Thread):
             local_ip, local_port = self.client_socket.getpeername()
             other_ip, other_port = self.client_socket.getsockname()
             mt.log.info("Connection opened by " + str(self.client_addr[0]))
-            
+
             keep_alive = True
             while keep_alive:
                 # receive and split the data.
@@ -270,6 +272,7 @@ class HTTPHandler(threading.Thread):
                         session = None
                         if ( "session" in cookies ): 
                             session = mtSession.findSession(cookies["session"])
+
                         if ( session == None ):
                             output.append(mtHTTPProcessor.processLogin(self.client_socket, request_path, auth_line))
                         else:
@@ -306,26 +309,57 @@ class HTTPHandler(threading.Thread):
             self.client_socket.close()
 
 class HTTPServer( threading.Thread ):
-    def run ( self ):
-        config = mt.config
-        addr = ("", int(config["port"]))
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        server_socket.bind(addr)
-        server_socket.listen(10)
-        server_socket.settimeout(1)
-    
-        while mt.running:
-            try:
-                client_socket, client_addr = server_socket.accept()
-                client_socket.setblocking(1)
-                client_thread = HTTPHandler(client_socket, client_addr)
-                client_thread.start()
-            except socket.timeout:
-                pass
-        server_socket.shutdown(1)
+    def __init__(self, onFinish = None):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.onFinish = onFinish
 
-def start():
-    http = HTTPServer()
-    http.daemon = True
-    http.start()
+    def run ( self ):
+        global running
+
+        try:
+            config = mt.config
+            addr = ("", int(config["port"]))
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            server_socket.bind(addr)
+            server_socket.listen(10)
+            server_socket.settimeout(0.1)
+        
+            try:
+                while running:
+                    try:
+                        client_socket, client_addr = server_socket.accept()
+                        client_socket.setblocking(1)
+                        client_thread = HTTPHandler(client_socket, client_addr)
+                        client_thread.start()
+                    except socket.timeout:
+                        pass
+            finally:
+                server_socket.shutdown(1)
+        except:
+            print "Could not start HTTP Server, try another port."
+
+        finally:
+            if ( self.onFinish ): self.onFinish()
+
+thread_running = True
+def onThreadFinished():
+    global thread_running
+    thread_running = False
+
+def start(onFinish = None):
+    global running, thread_running
+    running = True
+    thread_running = True
+
+    http_thread = HTTPServer(onThreadFinished)
+    http_thread.start()
+    
+def stop():
+    global running, thread_running
+    running = False
+    while ( thread_running ):
+        time.sleep(0.1)
+
+

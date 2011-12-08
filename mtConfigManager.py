@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -9,7 +9,8 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import ConfigParser, os, sys, mtAuth, logging, mtCore, mtMisc
+import mtCore as mt
+import ConfigParser, os, sys, mtAuth, logging, mtMisc
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom as xml
 
@@ -36,8 +37,8 @@ class ConfigManager:
             self.attrib = target.attrib
 
     def __init__(self):
+        global header, footer
         self.items = []
-
         self.header = "<?xml version=\"1.0\" ?>\n<metaTower>\n\t"
         self.footer = "\n</metaTower>\n"
 
@@ -66,9 +67,9 @@ class ConfigManager:
             tree = ElementTree.fromstring(data)
             self._loadTree(tree, "", filename)
         except Exception as inst:
-            print "Error loading cfg file: " + filename
+            mt.log.error("Could not load config file: " + filename + ", Reason: " + str(inst.args))
             if ( os.path.isfile(default) ):
-                print "  Using default version instead.."
+                mt.log.info("Using default cfg file: " + default)
                 self.load(default)
 
     def loadString(self, data, filename = ""):

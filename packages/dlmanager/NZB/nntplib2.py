@@ -95,7 +95,7 @@ CRLF = '\r\n'
 # The class itself
 class NNTP:
     def __init__(self, host, port=NNTP_PORT, user=None, password=None,
-                 readermode=None, usenetrc=True):
+                 readermode=None, usenetrc=True, timeout=None):
         """Initialize an instance.  Arguments:
         - host: hostname to connect to
         - port: port to connect to (default the standard NNTP port)
@@ -113,7 +113,7 @@ class NNTP:
         self.host = host
         self.port = port
         self.sock = socket.create_connection((host, port))
-        #self.sock.settimeout(5)
+        if ( timeout): self.sock.settimeout(timeout)
         self.file = self.sock.makefile('rb')
         self.debugging = 0
         self.welcome = self.getresp()
@@ -640,7 +640,7 @@ class NNTP_SSL(NNTP):
 
     def __init__(self, host, port = NNTP_SSL_PORT, user=None, password=None,
                  readermode=None, usenetrc=True,
-                 keyfile = None, certfile = None):
+                 keyfile = None, certfile = None, timeout=None):
         self.host = host
         self.port = port
         self.keyfile = keyfile
@@ -661,7 +661,7 @@ class NNTP_SSL(NNTP):
             break
         if not self.sock:
             raise socket.error, msg
-        #self.sock.settimeout(5)
+        if ( timeout ): self.sock.settimeout(timeout)
         self.file = self.sock.makefile('rb')
         self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
         self.debugging = 0

@@ -130,17 +130,36 @@ def httpGet(url):
 
 def _refreshSources():
     global package_list
-    
     package_list = []
-    source_list = httpGet("http://packages.metatower.com/packtest.php")
-    if ( source_list == None ): return
-    source_list = source_list.split("\n")
-
+    source_list = mt.config["package_manager/sources"].replace(" ", "").replace("\t", "").replace("\n", "").split(",")
     for source in source_list:
-        data = httpGet(source)
-        if ( data == None ): continue
+        package_list += _querySource(source)
 
-        tree = ElementTree.fromstring(data)
+def _querySource(source):
+    results = []
+    if ( not source.lower().startswith("http://") ): return results
+
+    source_args = source.split("/")
+    if ( source.endswith("/") ):
+        source_root = source
+    else:
+        if ( len(source_args) == 3 ):
+            source_root = source + "/"
+        else:
+            source_root = "/".join(source_args[:-1])
+        
+    data = httpGet(source)
+    if ( data == None ): return results
+
+    if ( data.lower().startswith("http://") ) or ( data[:2] == "./" ):
+        urls = data.split("\n")
+        for url in urls:
+            if ( url[:2] == "./" ):
+                results += _querySource(source_root + url)
+            if ( url.lower().startswith("http://") ):
+                results += _querySource(url)
+    else:
+        tree = ElementTree.fromstring(mt.config.header + data + mt.config.footer)
         for element in tree:
             pack = Package()
             pack.id = element.tag
@@ -152,7 +171,8 @@ def _refreshSources():
                 if ( attr.tag == "source_url" ): pack.source_url = attr.text
                 if ( attr.tag == "install_files" ): pack.install_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
                 if ( attr.tag == "update_files" ): pack.update_files = attr.text.replace(" ", "").replace("\t", "").replace("\n", "").split(",")
-            package_list.append(pack)
+            results.append(pack)
+    return results
 
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "Package Manager", 5)

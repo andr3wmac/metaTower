@@ -1,5 +1,5 @@
 """
- * metaTower v0.3.5
+ * metaTower v0.4.0
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew W. MacIntyre
@@ -11,9 +11,10 @@
 
 import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect, urllib
 import mtAuth, mtConfigManager, mtEventManager, mtPackageManager, mtMisc, mtLogManager
+import mtHTTPServer, mtAuth
 
-running = False
 restart = False
+running = False
 log = None
 config = None
 users = {}
@@ -21,14 +22,19 @@ events = None
 packages = None
 login_tickets = {}
 
-def start():
-    global running, config, log, users, packages, events
+def start(version):
+    global running, config, log, users, packages, events, http_running
+
+    # intro
+    print "metaTower v" + version + "\n"
 
     # logging system
     log = mtLogManager.LogManager()
+    log.alias("mtAuth", "auth")
+    log.alias("mtHTTPServer", "network")
+    log.alias("mtHTTPProcessor", "network")
 
     # load initial configurations
-    running = True
     config = mtConfigManager.ConfigManager()
     config.load("metaTower.cfg")
     config.load("users.cfg")
@@ -63,16 +69,19 @@ def start():
     config["local_ip"] = mtMisc.getLocalIP()
     if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
     print " http://" + config["local_ip"] + ":" + config["port"] + "/"
+    running = True
+
+    mtHTTPServer.start()
+    mtAuth.start()
         
 def stop():
-    global running, config, packages
-    running = False
+    global running, config, packages, http_running
     packages.unloadAll()
     config.save()
-    sys.exit(0)
+    mtHTTPServer.stop()
+    running = False
 
 def restart():
     global restart
     stop()
     restart = True
-    raise Exception

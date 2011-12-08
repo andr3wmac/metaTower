@@ -1,4 +1,4 @@
-import pexpect, re, threading, os
+import re, os, subprocess, fcntl, select, threading
 import mtCore as mt
 
 fThread = None
@@ -31,38 +31,74 @@ class ffmpegThread(threading.Thread):
         
         cmd = self.cmd + " -i " + self.input_file.replace(" ", "\\ ") + self.cmd_args + " " + self.output_file.replace(" ", "\\ ")
         mt.log.info("Executing Command: " + cmd)
+        cmd = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        fcntl.fcntl(
+            cmd.stderr.fileno(),
+            fcntl.F_SETFL,
+            fcntl.fcntl(
+                cmd.stderr.fileno(),
+                fcntl.F_GETFL
+            ) | os.O_NONBLOCK,
+        )
 
-        fThread = pexpect.spawn(cmd)
+        duration = None
+        header = ""
+        progress_regex = re.compile(
+            "frame=.*time=([0-9\:\.]+)",
+            flags=re.IGNORECASE
+        )
+        header_received = False
 
-        cpl = fThread.compile_pattern_list([
-            pexpect.EOF,
-            "  Duration: (.+), start:",
-            "time=(.+) bitrate="
-        ])
-
-        duration = 0
-        percent_complete = 0
         while True:
-            i = fThread.expect_list(cpl, timeout=None)
+            progressline = select.select([cmd.stderr.fileno()], [], [])[0]
+            if progressline:
+                line = cmd.stderr.read()
+                if line == "":
+                    if self.status_callback:
+                        self.status_callback(self.output_file, 101)
+                    break
 
-            # EOF
-            if i == 0: 
-                if ( self.status_callback ): self.status_callback(self.output_file, 101)
-                break
-    
-            # Duration
-            elif i == 1:
-                duration = self.hmsToSeconds(fThread.match.group(1)[11:-11])
-                fThread.close
+                progress_match = progress_regex.match(line)
+                if progress_match:
+                    if not header_received:
+                        header_received = True
 
-            # Progress Update
-            elif i == 2:
-                t = fThread.match.group(1)
-                percent = int((float(t) / duration) * 100)
-                if ( percent != percent_complete ):
-                    percent_complete = percent
-                    if ( self.status_callback ): self.status_callback(self.output_file, percent)
-                fThread.close
+                        if re.search(
+                            ".*command\snot\sfound",
+                            header,
+                            flags=re.IGNORECASE
+                        ):
+                            mt.log.error("ffmpeg: Command error")
+
+                        if re.search(
+                            "Unknown format",
+                            header,
+                            flags=re.IGNORECASE
+                        ):
+                            mt.log.error("ffmpeg: Unknown format")
+
+                        if re.search(
+                            "Duration: N\/A",
+                            header,
+                            flags=re.IGNORECASE | re.MULTILINE
+                        ):
+                            mt.log.error("ffmpeg: Unreadable file")
+
+                        raw_duration = re.search(
+                            "Duration:\s*([0-9\:\.]+),",
+                            header
+                        )
+                        if raw_duration:
+                            units = raw_duration.group(1).split(":")
+                            duration = (int(units[0]) * 60 * 60 * 1000) + \
+                                (int(units[1]) * 60 * 1000) + \
+                                int(float(units[2]) * 1000)
+
+                    if duration and self.status_callback:
+                        self.status_callback(self.output_file, int((float(progress_match.group(1))*1000)/float(duration)*100.0))
+
+                else:
+                    header += line
 
 def convertToFlash(input_file, status_callback, output_file = ""):
     if ( output_file == "" ):

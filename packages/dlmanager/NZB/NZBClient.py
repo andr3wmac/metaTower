@@ -245,9 +245,9 @@ class NNTPConnection(Thread):
                 try:
                     # Open either an SSL or regular NNTP connection.
                     if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True)
+                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout = 5)
                     else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True)
+                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout = 5)
 
                     while(self.running):
                         seg = self.nextSegFunc()
@@ -297,6 +297,7 @@ class NNTPConnection(Thread):
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
+            print "Thread Error: " + str(inst.args)
             mt.log.error("Thread Error: " + str(inst.args))
 
         finally:
