@@ -1,11 +1,5 @@
 var jmanlite = {
-    // Quick function to scroll to the top.
-    top: function()
-    {
-        window.scrollTo(0,0);
-    },
-
-	menu_items: [],
+    menu_items: [],
 	MenuItem: function()
 	{
 		this.caption = "";

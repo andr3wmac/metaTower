@@ -33,7 +33,7 @@ mt = function(url, target_override)
 mt.load = function()
 {
 	mt("pageLoaded()");
-    window.onerror = mt.error;
+    //window.onerror = mt.error;
 };
 
 mt.timed = function(url, time, target_override)
