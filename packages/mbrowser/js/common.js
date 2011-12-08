@@ -1,9 +1,9 @@
 var mbrowser = {
-	allAudio: function() { mt("mbrowser.query({'type': 'audio'})"); },
-	newAudio: function() { mt("mbrowser.query({'type': 'audio'}, True, 50)"); },
-	allVideo: function() { mt("mbrowser.query({'type': 'video'})"); },
-	newVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50)"); },
-    movies: function() { mt("mbrowser.query({'type': 'video', 'vidtype': 'movie'})"); },
+	//allAudio: function() { mt("mbrowser.query({'type': 'audio'})"); },
+	//newAudio: function() { mt("mbrowser.query({'type': 'audio'}, True, 50)"); },
+	//allVideo: function() { mt("mbrowser.query({'type': 'video'})"); },
+	//newVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50)"); },
+    //movies: function() { mt("mbrowser.query({'type': 'video', 'vidtype': 'movie'})"); },
 
     tv: function(show, season)
     {
