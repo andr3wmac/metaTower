@@ -1,117 +1,78 @@
-import re, os, subprocess, fcntl, select, threading
+import os, mtExecute
 import mtCore as mt
 
-fThread = None
-class ffmpegThread(threading.Thread):
-    def hmsToSeconds(self, string):
-        h, m, s = string.split(":")
-        #print string + " h: " + str(len(h)) + " s: " + str(len(s))
-        total = float(s) + (float(m)*60.0) + (float(h)*3600.0)
-        return total
-    
-    def __init__(self, input_file, output_file, status_callback):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.input_file = input_file
-        self.output_file = output_file
-        self.status_callback = status_callback
+converting = False
+statusCallback = None
+input_file = ""
+output_file = ""
+execute_thread = None
+duration = None
 
-        self.cmd = mt.config["mbrowser/ffmpeg/" + os.name]
-        self.cmd_args = " -ac " + mt.config["mbrowser/ffmpeg/audio/channels"]
-        self.cmd_args += " -ab " + mt.config["mbrowser/ffmpeg/audio/bitrate"]
-        self.cmd_args += " -ar " + mt.config["mbrowser/ffmpeg/audio/freq"]
-        self.cmd_args += " -b " + mt.config["mbrowser/ffmpeg/video/bitrate"]
-        self.cmd_args += " -s " + mt.config["mbrowser/ffmpeg/video/size"]
+def hmsToSeconds(h, m, s):
+    #h, m, s = string.split(":")
+    #print string + " h: " + str(len(h)) + " s: " + str(len(s))
+    total = float(s) + (float(m)*60.0) + (float(h)*3600.0)
+    return total
 
-        if ( os.path.isfile(output_file) ):
-            os.remove(output_file)
-        
-    def run(self):
-        global fThread
-        
-        cmd = self.cmd + " -i " + self.input_file.replace(" ", "\\ ") + self.cmd_args + " " + self.output_file.replace(" ", "\\ ")
-        mt.log.info("Executing Command: " + cmd)
-        cmd = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
-        fcntl.fcntl(
-            cmd.stderr.fileno(),
-            fcntl.F_SETFL,
-            fcntl.fcntl(
-                cmd.stderr.fileno(),
-                fcntl.F_GETFL
-            ) | os.O_NONBLOCK,
-        )
+def onEOF():
+    global statusCallback, output_file
+    if ( statusCallback ): statusCallback(output_file, 101)
 
-        duration = None
-        header = ""
-        progress_regex = re.compile(
-            "frame=.*time=([0-9\:\.]+)",
-            flags=re.IGNORECASE
-        )
-        header_received = False
+def onMatch(index, matches):
+    global statusCallback, output_file, duration
 
-        while True:
-            progressline = select.select([cmd.stderr.fileno()], [], [])[0]
-            if progressline:
-                line = cmd.stderr.read()
-                if line == "":
-                    if self.status_callback:
-                        self.status_callback(self.output_file, 101)
-                    break
+    # duration
+    if ( index == 0 ):
+        args = matches[0].split(":")
+        if ( len(args) == 1 ):
+            duration = float(args[0])
+        if ( len(args) == 3 ):
+            duration = hmsToSeconds(args[0], args[1], args[2])
 
-                progress_match = progress_regex.match(line)
-                if progress_match:
-                    if not header_received:
-                        header_received = True
+    # time        
+    if ( index == 1 ):
+        args = matches[0].split(":")
+        if ( len(args) == 1 ):
+            time = float(args[0])
+        if ( len(args) == 3 ):
+            time = hmsToSeconds(args[0], args[1], args[2])
 
-                        if re.search(
-                            ".*command\snot\sfound",
-                            header,
-                            flags=re.IGNORECASE
-                        ):
-                            mt.log.error("ffmpeg: Command error")
+        if ( duration != None ):
+            if ( statusCallback ): statusCallback(output_file, int((time/duration)*100.0))
 
-                        if re.search(
-                            "Unknown format",
-                            header,
-                            flags=re.IGNORECASE
-                        ):
-                            mt.log.error("ffmpeg: Unknown format")
+def convertToFlash(f_in, s_callback, f_out = ""):
+    global statusCallback, converting, output_file, input_file, execute_thread
+    if ( converting ): return
 
-                        if re.search(
-                            "Duration: N\/A",
-                            header,
-                            flags=re.IGNORECASE | re.MULTILINE
-                        ):
-                            mt.log.error("ffmpeg: Unreadable file")
+    # if no output file specified we assume its the same name.
+    if ( f_out == "" ):
+        output_file = f_in.replace(".avi", ".flv")
 
-                        raw_duration = re.search(
-                            "Duration:\s*([0-9\:\.]+),",
-                            header
-                        )
-                        if raw_duration:
-                            units = raw_duration.group(1).split(":")
-                            duration = (int(units[0]) * 60 * 60 * 1000) + \
-                                (int(units[1]) * 60 * 1000) + \
-                                int(float(units[2]) * 1000)
+    # clean up any spaces.
+    input_file = f_in.replace(" ", "\\ ")
+    output_file = output_file.replace(" ", "\\ ")
 
-                    if duration and self.status_callback:
-                        self.status_callback(self.output_file, int((float(progress_match.group(1))*1000)/float(duration)*100.0))
+    # set callback for flash conversion.
+    statusCallback = s_callback
 
-                else:
-                    header += line
+    # grab our config settings.
+    cmd_args = " -ac " + mt.config["mbrowser/ffmpeg/audio/channels"]
+    cmd_args += " -ab " + mt.config["mbrowser/ffmpeg/audio/bitrate"]
+    cmd_args += " -ar " + mt.config["mbrowser/ffmpeg/audio/freq"]
+    cmd_args += " -b " + mt.config["mbrowser/ffmpeg/video/bitrate"]
+    cmd_args += " -s " + mt.config["mbrowser/ffmpeg/video/size"]
 
-def convertToFlash(input_file, status_callback, output_file = ""):
-    if ( output_file == "" ):
-        output_file = input_file.replace(".avi", ".flv")
-    t = ffmpegThread(input_file, output_file, status_callback)
-    t.start()
+    # build the final command
+    cmd = mt.config["mbrowser/ffmpeg/" + os.name] + " -i " + input_file + cmd_args + " " + output_file
+    mt.log.info("Executing Command: " + cmd)
+
+    # execute command. this will work on windows or unix.
+    execute_thread = mtExecute.execute(cmd, 
+                        ["Duration:\s*([0-9\:\.]+),", "frame=.*time=([0-9\:\.]+)"], 
+                        eofCallback = onEOF, 
+                        matchCallback = onMatch)
 
 def stop():
-    global fThread
-    if ( fThread != None ): fThread.close(True)
-
-
-
-
-
-
+    global execute_thread
+    if ( execute_thread ):
+        execute_thread.stop()    
