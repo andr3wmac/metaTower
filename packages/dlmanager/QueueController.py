@@ -3,6 +3,13 @@ import mtCore as mt
 import threading, os, mtMisc, commands, shutil
 from NZB.NZBClient import NZBClient, time
 
+libtorrent_enabled = False
+try:
+    import libtorrent as lt
+    libtorrent_enabled = True
+except:
+    mt.log.error("libtorrent import failed. Torrents are disabled. If you're using linux install the package 'python-libtorrent'. If you're on windows ensure libtorrent.pyd is present in the dlmanager directory.")
+
 class QueueController(threading.Thread):
     class NZBQueueItem():
         removed = False
@@ -30,6 +37,8 @@ class QueueController(threading.Thread):
         lt_entry = None
 
     def __init__(self):
+        global libtorrent_enabled
+
         threading.Thread.__init__(self)
         self.daemon = True
 
@@ -50,7 +59,7 @@ class QueueController(threading.Thread):
         if ( not self.nzb_enabled ):
             mt.log.info("NZB disabled.")
         if ( lt ):
-            self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" )
+            self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" ) and ( libtorrent_enabled )
         else:
             mt.log.info("Torrents disabled.")
 
