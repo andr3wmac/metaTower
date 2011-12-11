@@ -65,7 +65,7 @@ def remove_selected(resp, selected):
 
     items = selected.split(",")
     QueueControl.removeItems(items)
-    update(session, resp)
+    update(resp)
 
 def jman_load(resp):
     packages.jman.menu(resp.session, "Download Manager", 0)
