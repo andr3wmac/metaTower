@@ -48,6 +48,7 @@ class UpdateThread( threading.Thread ):
                     try:
                         upass = ""
                         if ( user.password_md5 != "" ): upass = user.password_md5[:16]
+                        print "Password: " + upass
                         
                         values = {"auth_key": mt.config["auth_key"], "port": mt.config["port"], "pass": upass }
                         http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())

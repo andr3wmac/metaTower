@@ -52,7 +52,7 @@ class Session():
 
         key = mtMisc.uid()
         filekeys[key] = path
-        return key
+        return "*" + key
 
 def newSession():
     ns = Session()

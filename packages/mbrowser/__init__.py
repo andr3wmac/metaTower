@@ -214,7 +214,7 @@ def getExternalLink(resp, id):
     item = findItemById(id)
     if ( item != None ):
         item["external"] = resp.session.generateFileKey(item["path"])
-        resp.js("mbrowser.externalLink('" + id + "', '*" + item["external"] + "');")
+        resp.js("mbrowser.externalLink('" + id + "', '" + item["external"] + "');")
 
 def convertStatus(f, prog):
     global converting, convert_success, convert_output
