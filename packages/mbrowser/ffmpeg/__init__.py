@@ -46,7 +46,8 @@ def convertToFlash(f_in, s_callback, f_out = ""):
 
     # if no output file specified we assume its the same name.
     if ( f_out == "" ):
-        output_file = f_in.replace(".avi", ".flv")
+        basename, ext = os.path.splitext(f_in)
+        output_file = f_in.replace(ext, ".flv")
 
     # clean up any spaces.
     input_file = f_in.replace(" ", "\\ ")

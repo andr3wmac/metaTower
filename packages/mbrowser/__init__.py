@@ -67,7 +67,13 @@ def scan():
 def processFile(f):
     idata = None
     basename, ext = os.path.splitext(os.path.split(f)[1])
-    if ( ext == ".avi" ) and ( f.lower().find("sample") == -1 ):
+    ext = ext[1:] # drop the .
+
+    video_extensions = mt.config["mbrowser/library/video_extensions"]
+    audio_extensions = mt.config["mbrowser/library/audio_extensions"]
+    hide_samples = mt.config["mbrowser/library/hide_samples"].isTrue()
+
+    if ( ext in video_extensions ) and ( hide_samples and not "sample" in f.lower() ):
         idata = {}
         idata["id"] = mtMisc.uid()
         idata["path"] = f
@@ -99,10 +105,10 @@ def processFile(f):
             if ( idata.has_key("movie_year") ): idata["name"] += " (" + idata["movie_year"] + ")"
 
         # check to see if webvideo is available
-        webf = f.replace(ext, ".flv")
+        webf = f.replace("." + ext, ".flv")
         if ( os.path.isfile(webf) ): idata["web"] = webf
 
-    if ( ext == ".mp3" ):
+    if ( ext in audio_extensions ):
         idata = {}
         idata["id"] = mtMisc.uid()
         idata["path"] = f

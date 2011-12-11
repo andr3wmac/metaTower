@@ -142,7 +142,7 @@ class QueueController(threading.Thread):
                     queue_item.downloading = True
     
                     ssl = mt.config["dlmanager/nzb/ssl"]
-                    ssl_enabled = ((ssl.lower()=="enabled")or(ssl.lower()=="true")or(ssl=="1")or(ssl.lower()=="yes"))
+                    ssl_enabled = ssl.isTrue()
 
                     self.nzb_engine = NZBClient(
                         nzbFile=queue_item.filename, 

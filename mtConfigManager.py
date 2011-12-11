@@ -36,6 +36,10 @@ class ConfigManager:
             self.source_file = target.source_file
             self.attrib = target.attrib
 
+        def isTrue(self):
+            l_value = self.lower()
+            return ((l_value=="enabled")or(l_value=="true")or(l_value=="1")or(l_value=="yes"))
+
     def __init__(self):
         global header, footer
         self.items = []

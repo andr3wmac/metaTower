@@ -31,7 +31,7 @@ def processRequest(session, request_type, request_path, post_data):
                 request_path = "/"
 
             # Change user.
-            if ( request_path[1] == "@" ):
+            elif ( request_path[1] == "@" ):
                 login_info = request_path[2:].split(":")
 
                 new_user = None
