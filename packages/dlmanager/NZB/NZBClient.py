@@ -246,9 +246,9 @@ class NNTPConnection(Thread):
                 try:
                     # Open either an SSL or regular NNTP connection.
                     if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True)
+                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, Timeout = 10)
                     else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True)
+                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, Timeout = 10)
 
                     while(self.running):
                         seg = self.nextSegFunc()
