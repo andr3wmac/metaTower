@@ -14,9 +14,10 @@
 # Description:    Starts the metaTower server
 ### END INIT INFO
 
-#Settings
+
+# SETTINGS
+PATH='/home/andrew/dev/metaTower/' # <---- CHANGE TO YOUR PATH
 SERVICE='metaTower.py'
-PATH='/home/andrew/dev/metaTower/'
 
 mt_start() {
     if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null

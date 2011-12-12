@@ -1,3 +1,8 @@
-metaTower v0.3.5
+metaTower v0.4.0
 ----------------
-Compile and run metaTower.py, connect through your browser.
+
+Window Binary:
+    Simply run metaTower.exe and connect using one of the IP address it lists.
+
+From Source:
+    Use python2.7 and run metaTower.py. On linux if you're going to use the download manager install python-libtorrent package for torrent support. Also, ffmpeg for conversion to web video through the media browser package.
