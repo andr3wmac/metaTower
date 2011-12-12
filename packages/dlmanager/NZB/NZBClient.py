@@ -245,10 +245,13 @@ class NNTPConnection(Thread):
 
                 try:
                     # Open either an SSL or regular NNTP connection.
+                    if ( connection ):
+                        connection.quit()
+                        connection = None
                     if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout = 10)
+                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=120)
                     else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout = 10)
+                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=120)
 
                     while(self.running):
                         seg = self.nextSegFunc()
@@ -285,13 +288,12 @@ class NNTPConnection(Thread):
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
                     self.onSegFailed(seg)
-                    mt.log.error("Connection error: " + str(inst.args))
+                    mt.log.error("Connection error: " + str(inst))
 
                 finally:
-                    try: 
-                        if ( connection ): connection.quit()
-                    except: 
-                        pass
+                    if ( connection ): 
+                        connection.quit()
+                        connection = None
 
             end_time = time.time()
             mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
@@ -299,12 +301,14 @@ class NNTPConnection(Thread):
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
             print "Thread Error: " + str(inst.args)
-            mt.log.error("Thread Error: " + str(inst.args))
+            mt.log.error("Thread Error: " + str(inst))
 
         finally:
             try: 
                 if ( self.onThreadStop ): self.onThreadStop(self.connection_number)
-                if ( connection ): connection.quit()
+                if ( connection ): 
+                    connection.quit()
+                    connection = None
             except: 
                 pass
             del connection

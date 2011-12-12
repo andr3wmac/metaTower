@@ -1,5 +1,6 @@
-import threading, os, commands, shutil, mt
-from NZB.NZBClient import NZBClient, time
+import threading, os, commands, shutil, mt, time
+from NZB.NZBClient import NZBClient
+from NZB import Extractor
 
 libtorrent_enabled = False
 try:
@@ -179,60 +180,15 @@ class QueueController(threading.Thread):
 
     def nzbComplete(self, queue_item):
         # attempt to par2.
-        par2_result = self.par2Folder(queue_item.save_to)
+        par2_result = Extractor.par2Folder(queue_item.save_to)
         if ( par2_result == False ): queue_item.par2_results = "No par2 files found."
         else: queue_item.par2_results = par2_result
 
         # attempt to unrar.
         queue_item.unrar_results = "Decompressing files.."
-        unrar_result = self.unrarFolder(queue_item.save_to)
+        unrar_result = Extractor.unrarFolder(queue_item.save_to)
         if ( unrar_result == False ): queue_item.unrar_results = "No rar files found."
         else: queue_item.unrar_results = unrar_result
-
-    def unrarFolder(self, path):
-        result = False
-        folders = []
-        if ( not os.path.isdir(path) ): return False
-
-        for f in os.listdir(path):
-            #if ( result != False ): break
-
-            ff = os.path.join(path, f)
-            if ( f.endswith(".rar") and os.path.isfile(ff) ):
-                rar_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-                try:
-                    output = commands.getoutput('/usr/bin/unrar e -o+ -ts0 ' + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
-                    output_args = output.splitlines()
-                    result = output_args[len(output_args)-1]
-                except:
-                    mt.log.error("Unrar error.")
-            if ( os.path.isdir(ff) ): folders.append(ff)
-        if ( result == False ):
-            for f in folders: result = self.unrarFolder(f)
-        return result
-        
-    def par2Folder(self, path):
-        result = False
-        folders = []
-        if ( not os.path.isdir(path) ): return False
-
-        for f in os.listdir(path):
-            #if ( result != False ): break
-
-            ff = os.path.join(path, f)
-            if ( f.endswith(".rar") and os.path.isfile(ff) ): 
-                par2_file = ff.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")[:-3] + "par2"
-                try:
-                    output = commands.getoutput('/usr/bin/par2 r ' + par2_file)
-                    output_args = output.splitlines()
-                    result = output_args[len(output_args)-1]
-                except:
-                    mt.log.error("Par2 error.")
-                par2_file = ""
-            if ( os.path.isdir(ff) ): folders.append(ff)
-        if ( result == False ):
-            for f in folders: result = self.par2Folder(f)
-        return result
 
     def run(self):
         try:
