@@ -1,4 +1,4 @@
-import mtCore as mt
+import mt
 
 def onLoad():
     mt.events.register("jman.load", jman_load)

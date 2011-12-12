@@ -10,25 +10,19 @@
 """
 version = "0.4.0"
 
-import mtCore
-import sys, os, time
-
-# These exist only to have the librarys included when
-# using py-installer.
-if False:
-    import nntplib, shutil, commands
-    import serial.win32, Queue
+import mt, sys, os, time
 
 def main():
     try:
-        mtCore.start(version)
+        mt.start(version)
 
-        while ( mtCore.running ):
+        while ( mt.running ):
             time.sleep(0.1)
 
-        return mtCore.restart
+        return mt.restart
+
     except KeyboardInterrupt:
-        mtCore.stop()
+        mt.stop()
 
 if __name__ == '__main__':
     restart = main()

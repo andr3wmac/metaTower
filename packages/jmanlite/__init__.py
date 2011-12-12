@@ -1,6 +1,4 @@
-import time
-import mtCore as mt
-import mtMisc as misc
+import time, mt
 
 def onLoad():
     mt.events.register("jmanlite.onIndex", onIndex)

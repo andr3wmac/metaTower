@@ -1,5 +1,4 @@
-import os, mtExecute
-import mtCore as mt
+import os, mt
 
 converting = False
 statusCallback = None
@@ -68,7 +67,7 @@ def convertToFlash(f_in, s_callback, f_out = ""):
     mt.log.info("Executing Command: " + cmd)
 
     # execute command. this will work on windows or unix.
-    execute_thread = mtExecute.execute(cmd, 
+    execute_thread = mt.utils.execute(cmd, 
                         ["Duration:\s*([0-9\:\.]+),", "frame=.*time=([0-9\:\.]+)"], 
                         eofCallback = onEOF, 
                         matchCallback = onMatch)

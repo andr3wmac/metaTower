@@ -1,6 +1,4 @@
-import sys, os, urllib, time, socket
-import mtCore as mt
-import mtMisc
+import sys, os, urllib, time, socket, mt
 from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
@@ -29,6 +27,7 @@ class NZBClient():
         self.nntpPassword = nntpPassword
         self.nntpSSL = nntpSSL
         self.nntpConnections = nntpConnections
+        self.threads = []
 
         # setup our cache folder.
         self.cache_path = cache_path
@@ -36,8 +35,8 @@ class NZBClient():
         self.clearCache()
 
         # ensure both directorys exist
-        mtMisc.mkdir(self.save_to)
-        mtMisc.mkdir(self.cache_path)
+        mt.utils.mkdir(self.save_to)
+        mt.utils.mkdir(self.cache_path)
 
         # Open the NZB, get this show started.
         realFile = urllib.urlopen(nzbFile)
@@ -87,8 +86,9 @@ class NZBClient():
                 self.segComplete, 
                 self.segFailed, 
                 self.threadStopped)
-            thread.start()
+            self.threads.append(thread)
             self.connection_count += 1
+            thread.start()
 
         # start the article decoder.
         self.articleDecoder = ArticleDecoder(self.decodeNextSeg, 
@@ -202,13 +202,14 @@ class NZBClient():
 
     # empty the cache of any files.
     def clearCache(self):
-        for f in os.listdir(self.cache_path):
-            ff = os.path.join(self.cache_path, f)
-            if os.path.isfile(ff):
-                os.remove(ff)
+        mt.utils.rmdir(self.cache_path)
             
     def stopDownload(self):
+        mt.log.info("Stop download called.")
         self.running = False
+        self.articleDecoder.stop()
+        for thread in self.threads:
+            thread.stop()
         self.clearCache()
 
 class NNTPConnection(Thread):
@@ -245,9 +246,9 @@ class NNTPConnection(Thread):
                 try:
                     # Open either an SSL or regular NNTP connection.
                     if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout = 5)
+                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True)
                     else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout = 5)
+                        connection = NNTP(self.server, self.port, self.username, self.password, False, True)
 
                     while(self.running):
                         seg = self.nextSegFunc()
@@ -307,3 +308,6 @@ class NNTPConnection(Thread):
             except: 
                 pass
             del connection
+
+    def stop(self):
+        self.running = False

@@ -16,7 +16,7 @@
 
 #Settings
 SERVICE='metaTower.py'
-PATH='/home/server/Code/metaTower/'
+PATH='/home/andrew/dev/metaTower/'
 
 mt_start() {
     if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
@@ -40,7 +40,7 @@ mt_stop() {
     if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
     then
         echo "Stopping metaTower..."
-        /usr/bin/screen -p 0 -S metaTower -X eval 'stuff stop\015'
+        /usr/bin/screen -p 0 -S metaTower -X quit
         /bin/sleep 3
     else
         echo "metaTower was not running."

@@ -1,8 +1,4 @@
-import os, threading, commands, mtMisc, time
-import mtCore as mt
-from mtCore import config
-from mtCore import events
-from mtCore import packages
+import os, threading, commands, mt, time
 from xml.etree.ElementTree import Element
 from QueueController import QueueController
 
@@ -13,17 +9,17 @@ def onLoad():
     global QueueControl
 
     # load configuration
-    config.load("packages/dlmanager/dlmanager.cfg")
+    mt.config.load("packages/dlmanager/dlmanager.cfg")
     
     # start up our queue monitor.
     QueueControl = QueueController()
     QueueControl.start()
     
     # register events.
-    events.register("jman.load", jman_load)
-    events.register("jman.menu.dlmanager", jman_menu)
-    events.register("jmanlite.load", jmanlite_load)
-    events.register("jmanlite.menu.dlmanager", jmanlite_menu)
+    mt.events.register("jman.load", jman_load)
+    mt.events.register("jman.menu.dlmanager", jman_menu)
+    mt.events.register("jmanlite.load", jmanlite_load)
+    mt.events.register("jmanlite.menu.dlmanager", jmanlite_menu)
     
 def onUnload():
     global QueueControl
@@ -32,12 +28,10 @@ def onUnload():
         torrent_queue = QueueControl.torrent_queue
         nzb_queue = QueueControl.nzb_queue
 
-        config = mt.config
-        config.clear("dlmanager/queue")
-
+        mt.config.clear("dlmanager/queue")
         for item in nzb_queue:
             if ( item.removed ): continue
-            element = config.ConfigItem("")
+            element = mt.config.ConfigItem("")
             element["uid"] = item.uid
             element["filename"] = item.filename
             element["completed"] = str(int(item.completed))
@@ -45,19 +39,19 @@ def onUnload():
             element["par2_results"] = item.par2_results
             element["unrar_results"] = item.unrar_results
             element["save_to"] = item.save_to
-            config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.xml")
+            mt.config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.xml")
 
         for item in torrent_queue:
             if ( item.removed ): continue
-            element = config.ConfigItem("")
+            element = mt.config.ConfigItem("")
             element["uid"] = item.uid
             element["filename"] = item.filename
             element["completed"] = str(int(item.completed))
             element["error"] = str(int(item.error))
             element["save_to"] = item.save_to
-            config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.xml")
+            mt.config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.xml")
 
-        config.save("packages/dlmanager/dlmanager.xml")
+        mt.config.save("packages/dlmanager/dlmanager.xml")
         QueueControl.shutdown()
     
 def remove_selected(resp, selected):
@@ -68,8 +62,8 @@ def remove_selected(resp, selected):
     update(resp)
 
 def jman_load(resp):
-    packages.jman.menu(resp.session, "Download Manager", 0)
-    packages.jman.taskbar(resp.session, "Download Manager", ['dlmanager_main'])
+    mt.packages.jman.menu(resp.session, "Download Manager", 0)
+    mt.packages.jman.taskbar(resp.session, "Download Manager", ['dlmanager_main'])
     resp.htmlFile("dlmanager/html/jman.html", "body", True)
     resp.jsFile("dlmanager/js/common.js")
     resp.jsFile("dlmanager/js/jman.js")
@@ -80,7 +74,7 @@ def jman_menu(resp):
     update(resp)
 
 def jmanlite_load(resp):
-    packages.jmanlite.menu(resp.session, "Download Manager", "dlmanager")
+    mt.packages.jmanlite.menu(resp.session, "Download Manager", "dlmanager")
     
 def jmanlite_menu(resp):
     resp.htmlFile("dlmanager/html/jmanlite.html", "jmanlite_content", False)

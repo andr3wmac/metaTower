@@ -1,6 +1,4 @@
-import time
-import mtCore as mt
-import mtMisc as misc
+import time, mt
 
 def onLoad():
     mt.events.register("jman.onIndex", onIndex)
@@ -49,7 +47,7 @@ class MenuEntry:
 
 def menu(session, caption, priority = 0, onClick = ""):
     entry = MenuEntry()
-    entry.package_name = misc.getSource()
+    entry.package_name = mt.utils.getSource()
     entry.caption = caption
     entry.priority = priority
     entry.onClick = onClick    
@@ -57,7 +55,7 @@ def menu(session, caption, priority = 0, onClick = ""):
 
 def taskbar(session, caption, dialogs = [], context_menu = {}):
     entry = TaskbarEntry()
-    entry.package_name = misc.getSource()
+    entry.package_name = mt.utils.getSource()
     entry.caption = caption
     entry.dialogs = dialogs
     entry.context_menu = context_menu

@@ -1,5 +1,4 @@
-import os, re, time, string, mtMisc, ffmpeg
-import mtCore as mt
+import os, re, time, string, ffmpeg, mt
 
 items = {}
 status_msg = "Idle."
@@ -75,7 +74,7 @@ def processFile(f):
 
     if ( ext in video_extensions ) and ( hide_samples and not "sample" in f.lower() ):
         idata = {}
-        idata["id"] = mtMisc.uid()
+        idata["id"] = mt.utils.uid()
         idata["path"] = f
         idata["name"] = basename.replace(".", " ").strip()
         idata["type"] = "video"
@@ -110,7 +109,7 @@ def processFile(f):
 
     if ( ext in audio_extensions ):
         idata = {}
-        idata["id"] = mtMisc.uid()
+        idata["id"] = mt.utils.uid()
         idata["path"] = f
         idata["name"] = os.path.split(basename)[1]
         idata["type"] = "audio"
@@ -134,7 +133,7 @@ def tvQuery(resp, name = "", season = ""):
 
         shows = []
         for item in lib_results: shows.append(item["tv_name"])
-        shows = mtMisc.removeDuplicates(shows)
+        shows = mt.utils.removeDuplicates(shows)
         shows.sort()
 
         resp.js("mbrowser.tvShows(" + str(shows) + ");")
@@ -145,7 +144,7 @@ def tvQuery(resp, name = "", season = ""):
 
         seasons = []
         for item in lib_results: seasons.append(item["tv_season"])
-        seasons = mtMisc.removeDuplicates(seasons)
+        seasons = mt.utils.removeDuplicates(seasons)
         seasons.sort()
 
         resp.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")

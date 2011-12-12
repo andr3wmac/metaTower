@@ -1,5 +1,4 @@
-import os, mtMisc
-import mtCore as mt
+import os, mt
 
 class fmanEntry:
     def __init__(self):
@@ -87,7 +86,7 @@ def delete(resp, path, items):
     path = replaceHomeDir(resp.session, path)
     for f in items:
         fpath = os.path.join(path, f)
-        mtMisc.rmdir(fpath)
+        mt.utils.rmdir(fpath)
     listContents(resp, path)
     
 

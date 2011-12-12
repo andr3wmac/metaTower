@@ -1,4 +1,4 @@
-import urllib2, sys, threading, time, os, mtMisc
+import urllib2, sys, threading, time, os, mt
 
 class PackageDownloader(threading.Thread):
     class fileDownload():
@@ -67,7 +67,7 @@ class PackageDownloader(threading.Thread):
         for f in self.file_queue:
             bytes_so_far = 0
             path = f.save_to.replace(os.path.basename(f.save_to), "")
-            mtMisc.mkdir(path)
+            mt.utils.mkdir(path)
             fout = open(f.save_to, "wb")
             while 1:
                 chunk = f.response.read(chunk_size)

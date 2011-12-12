@@ -1,7 +1,5 @@
-import os, re, time, string, urllib2
+import os, re, time, string, urllib2, mt
 import xml.etree.ElementTree as ElementTree
-import mtConfigManager, mtMisc
-import mtCore as mt
 from downloader import PackageDownloader
 
 package_list = []
@@ -105,7 +103,7 @@ def install(resp, package_id):
 def delete(resp, package_id):
     path = os.path.join("packages", package_id)
     if ( os.path.isdir(path) ):
-        mtMisc.rmdir(path)
+        mt.utils.rmdir(path)
         mt.packages.unload(package_id)
         resp.js("package_manager.status('Package deleted. Refreshing...');")
         resp.js("mt.refresh();")

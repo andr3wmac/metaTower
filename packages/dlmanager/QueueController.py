@@ -1,5 +1,4 @@
-import mtCore as mt
-import threading, os, mtMisc, commands, shutil
+import threading, os, commands, shutil, mt
 from NZB.NZBClient import NZBClient, time
 
 libtorrent_enabled = False
@@ -42,7 +41,7 @@ class QueueController(threading.Thread):
         self.daemon = True
 
         self.queue_folder = "packages/dlmanager/queue"
-        mtMisc.mkdir(self.queue_folder)
+        mt.utils.mkdir(self.queue_folder)
 
         self.torrent_queue = []
         self.torrent_engine = None
@@ -102,7 +101,7 @@ class QueueController(threading.Thread):
                         self.nzb_engine.stopDownload()
                         self.nzb_engine = None
                 os.remove(nzb.filename)
-                mtMisc.rmdir(nzb.save_to)
+                mt.utils.rmdir(nzb.save_to)
                 nzb.removed = True
 
         for torrent in self.torrent_queue:
@@ -247,7 +246,7 @@ class QueueController(threading.Thread):
                             if ( not already_queued ):
                                 new_item = self.NZBQueueItem()
                                 new_item.filename = nzb
-                                new_item.uid = mtMisc.uid()
+                                new_item.uid = mt.utils.uid()
                                 new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
                                 self.nzb_queue.append(new_item)
                         self.nzbUpdate()
@@ -260,7 +259,7 @@ class QueueController(threading.Thread):
                             if ( not already_queued ):
                                 new_item = self.TorrentQueueItem()
                                 new_item.filename = torrent
-                                new_item.uid = mtMisc.uid()
+                                new_item.uid = mt.utils.uid()
                                 new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], os.path.basename(torrent)) + "/"
                                 self.torrent_queue.append(new_item)
                         self.torrentUpdate()

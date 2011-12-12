@@ -1,5 +1,4 @@
-import re, string, os, time
-import mtCore as mt
+import re, string, os, time, mt
 from threading import Thread
 from zlib import crc32
 
@@ -49,7 +48,12 @@ class ArticleDecoder(Thread):
 
         if ( self.onFinish ): self.onFinish()
 
+    def stop(self):
+        self.running = False
+
     def assembleSegments(self):
+        if ( not self.running ): return
+
         mt.log.debug("Assembling..")
 
         # generate list of files.
@@ -178,7 +182,6 @@ class SegmentDecoder(object):
             # check partnum
             if ( seg.decoded_number != seg.number ):
                 mt.log.debug("Part number does not match: " + seg.msgid)
-                if ( self.onFail ): self.onFail(seg)
                 return False
 
             # ensure we decoded a filename.

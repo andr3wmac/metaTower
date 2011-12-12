@@ -1,9 +1,7 @@
 from xml.sax import parse as saxParse
 from xml.sax import parseString as saxParseString
 from xml.sax import handler,SAXException
-import logging
 
-log = logging.getLogger("NZBParser")
 MAX_RETRIES = 3                   # maximum retries of a segment before giving up.
 
 class NZB(object):
@@ -102,7 +100,6 @@ def _parse( f ):
     try:
         f( handler )
     except (SAXException):
-        log.error( "Failed to parse XML." )
         return None
     
     nzb = handler.getNzb()
