@@ -1,4 +1,4 @@
-import sys, os, urllib, time, socket, mt
+import sys, os, urllib, time, socket, mt, ssl
 from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
@@ -249,9 +249,9 @@ class NNTPConnection(Thread):
                         connection.quit()
                         connection = None
                     if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=120)
+                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
                     else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=120)
+                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=15)
 
                     while(self.running):
                         seg = self.nextSegFunc()
@@ -281,9 +281,18 @@ class NNTPConnection(Thread):
                             mt.log.error("NNTP reply error.")
                             if ( self.onSegFailed ): self.onSegFailed(seg)
 
+                        except ssl.SSLError:
+                            raise
+
                         except Exception as inst:
                             if ( self.onSegFailed ): self.onSegFailed(seg)
-                            mt.log.error("Error getting segment: " + str(inst))
+                            mt.log.error("Error getting segment: " + str(args))
+
+                # timeout, just restart the connection.
+                except ssl.SSLError:
+                    mt.log.error("Segment timeout: " + seg.msgid)
+                    if ( self.onSegFailed ): self.onSegFailed(seg)
+                    pass
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
