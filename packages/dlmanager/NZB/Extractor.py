@@ -23,11 +23,9 @@ def getRARFiles(path):
 
 def unrarFolder(path):
     unrar = mt.config["dlmanager/nzb/unrar"]
-    result = False
-    result_count = 0
+    results = {}
     extract_files = {}
     rar_files = getRARFiles(path)
-
 
     # Generate a list of files to be extracted.
     for rar_file in rar_files:
@@ -47,13 +45,18 @@ def unrarFolder(path):
         #f = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
         output = mt.utils.execute(unrar + " e -o+ -ts0 " + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
         last_line = getLastLine(output)
-        if ( last_line == result ):
-            result_count += 1
+        if ( results.has_key(last_line ):
+            results[last_line] += 1
         else:
-            result = last_line
-            result_count = 0
+            results[last_line] = 1
 
-    if ( result_count > 0 ):
+    result = ""
+    result_count = 0
+    for r in results:
+        if ( results[r] > result_count ):
+            result = r
+            result_count = results[s]
+    if ( result_count > 1 ):
         result = result + " (" + str(result_count+1) + "/" + str(len(rar_files)) + ")"
     return result
 
@@ -84,8 +87,7 @@ def getPAR2Files(path):
     
 def par2Folder(path):
     par2 = mt.config["dlmanager/nzb/par2"]
-    result = False
-    result_count = 0
+    results = {}
 
     # Generate a list of rar_file
     par2_files = getPAR2Files(path)
@@ -96,13 +98,17 @@ def par2Folder(path):
         f = par2_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
         output = mt.utils.execute(par2 + " r " + f)
         last_line = getLastLine(output)
-        if ( last_line == result ):
-            result_count += 1
+        if ( results.has_key(last_line ):
+            results[last_line] += 1
         else:
-            result = last_line
-            result_count = 0
+            results[last_line] = 1
 
-    if ( result_count > 0 ):
+    result = ""
+    result_count = 0
+    for r in results:
+        if ( results[r] > result_count ):
+            result = r
+            result_count = results[s]
+    if ( result_count > 1 ):
         result = result + " (" + str(result_count+1) + "/" + str(len(par2_files)) + ")"
-
     return result
