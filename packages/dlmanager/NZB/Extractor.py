@@ -22,17 +22,19 @@ def getRARFiles(path):
     return result
 
 def unrarFolder(path):
+    unrar = mt.config["dlmanager/nzb/unrar"]
     result = False
+    result_count = 0
     extract_files = {}
     rar_files = getRARFiles(path)
+
 
     # Generate a list of files to be extracted.
     for rar_file in rar_files:
         rar_file = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
 
-        rar_flist = mt.utils.execute("/usr/bin/unrar lb " + rar_file).splitlines()
+        rar_flist = mt.utils.execute(unrar + " lb " + rar_file).splitlines()
         for f in rar_flist:
-            mt.log.debug("FROM:" + rar_file + " : " + f)
             if ( f != "" ) and ( not extract_files.has_key(f) ):
                 extract_files[f] = rar_file
 
@@ -43,9 +45,16 @@ def unrarFolder(path):
     for rar_file in rar_files:
         mt.log.info("Extracting RAR file: " + rar_file)
         #f = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-        output = mt.utils.execute("/usr/bin/unrar e -o+ -ts0 " + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
-        result = getLastLine(output)
+        output = mt.utils.execute(unrar + " e -o+ -ts0 " + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
+        last_line = getLastLine(output)
+        if ( last_line == result ):
+            result_count += 1
+        else:
+            result = last_line
+            result_count = 0
 
+    if ( result_count > 0 ):
+        result = result + " (" + str(result_count+1) + "/" + str(len(rar_files)) + ")"
     return result
 
 def getPAR2Files(path):
@@ -74,7 +83,9 @@ def getPAR2Files(path):
     return result
     
 def par2Folder(path):
+    par2 = mt.config["dlmanager/nzb/par2"]
     result = False
+    result_count = 0
 
     # Generate a list of rar_file
     par2_files = getPAR2Files(path)
@@ -83,7 +94,15 @@ def par2Folder(path):
 
         # run par2 command and report results.
         f = par2_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-        output = mt.utils.execute("/usr/bin/par2 r " + f)
-        result = getLastLine(output)
+        output = mt.utils.execute(par2 + " r " + f)
+        last_line = getLastLine(output)
+        if ( last_line == result ):
+            result_count += 1
+        else:
+            result = last_line
+            result_count = 0
+
+    if ( result_count > 0 ):
+        result = result + " (" + str(result_count+1) + "/" + str(len(rar_files)) + ")"
 
     return result
