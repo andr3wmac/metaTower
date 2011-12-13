@@ -103,6 +103,6 @@ def par2Folder(path):
             result_count = 0
 
     if ( result_count > 0 ):
-        result = result + " (" + str(result_count+1) + "/" + str(len(rar_files)) + ")"
+        result = result + " (" + str(result_count+1) + "/" + str(len(par2_files)) + ")"
 
     return result
