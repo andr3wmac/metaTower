@@ -78,7 +78,12 @@ def copy(src, dst):
 def move(src, dst):
     shutil.move(src, dst)
 
-def execute(cmd, matches = [], include_err = True, eofCallback = None, lineCallback = None, matchCallback = None):
+def execute(cmd, include_err = True):
+    e = ExecuteThread.ExecuteThread(cmd)
+    e.include_err = include_err
+    return e.get_output()
+
+def execute_async(cmd, matches = [], include_err = True, eofCallback = None, lineCallback = None, matchCallback = None):
     e = ExecuteThread.ExecuteThread(cmd)
     e.matches = matches
     e.include_err = include_err

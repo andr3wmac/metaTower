@@ -24,6 +24,16 @@ class ExecuteThread(threading.Thread):
         self.matchCallback = None
         self.running = True
         
+    # used for a blocking read operation.
+    def get_output(self):
+        p = subprocess.Popen([self.cmd],
+            shell = True,             
+            stderr=subprocess.STDOUT if self.include_err else None,
+            stdout=subprocess.PIPE)
+        stdout = p.stdout
+        return stdout.read()
+
+    # used for non-blocking read operation.
     def run(self):
         p = subprocess.Popen([self.cmd],
             shell = True,             
