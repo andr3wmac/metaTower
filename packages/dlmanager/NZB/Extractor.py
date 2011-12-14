@@ -57,7 +57,7 @@ def unrarFolder(path):
             result = r
             result_count = results[r]
     if ( result_count > 1 ):
-        result = result + " (" + str(result_count+1) + "/" + str(len(rar_files)) + ")"
+        result = result + " (" + str(result_count) + "/" + str(len(rar_files)) + ")"
     return result
 
 def getPAR2Files(path):
@@ -110,5 +110,5 @@ def par2Folder(path):
             result = r
             result_count = results[r]
     if ( result_count > 1 ):
-        result = result + " (" + str(result_count+1) + "/" + str(len(par2_files)) + ")"
+        result = result + " (" + str(result_count) + "/" + str(len(par2_files)) + ")"
     return result
