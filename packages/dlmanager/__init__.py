@@ -39,7 +39,7 @@ def onUnload():
             element["par2_results"] = item.par2_results
             element["unrar_results"] = item.unrar_results
             element["save_to"] = item.save_to
-            mt.config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.xml")
+            mt.config.add(element, "dlmanager/queue/nzb", "packages/dlmanager/dlmanager.cfg")
 
         for item in torrent_queue:
             if ( item.removed ): continue
@@ -49,9 +49,9 @@ def onUnload():
             element["completed"] = str(int(item.completed))
             element["error"] = str(int(item.error))
             element["save_to"] = item.save_to
-            mt.config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.xml")
+            mt.config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.cfg")
 
-        mt.config.save("packages/dlmanager/dlmanager.xml")
+        mt.config.save("packages/dlmanager/dlmanager.cfg")
         QueueControl.shutdown()
     
 def remove_selected(resp, selected):
