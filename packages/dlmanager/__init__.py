@@ -103,8 +103,8 @@ def update(resp):
 
             # State 1: currently downloading
             if ( not status.assembly ):
-                args = {"total": status.total_bytes/1048576, 
-                        "completed": status.current_bytes/1048576,
+                args = {"total": int(status.total_bytes/1048576), 
+                        "completed": int(status.current_bytes/1048576),
                         "percent": round(status.current_bytes/float(status.total_bytes)*100),
                         "dl_rate": status.kbps}
                 resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 1, " + str(args) + ");")
