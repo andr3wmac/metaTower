@@ -29,9 +29,7 @@ def unrarFolder(path):
 
     # Generate a list of files to be extracted.
     for rar_file in rar_files:
-        rar_file = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-
-        rar_flist = mt.utils.execute(unrar + " lb " + rar_file).splitlines()
+        rar_flist = mt.utils.execute([unrar, "lb", rar_file]).splitlines()
         for f in rar_flist:
             if ( f != "" ) and ( not extract_files.has_key(f) ):
                 extract_files[f] = rar_file
@@ -42,9 +40,9 @@ def unrarFolder(path):
     # Now we actually extract them, only the last result will be shown.
     for rar_file in rar_files:
         mt.log.info("Extracting RAR file: " + rar_file)
-        #f = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-        output = mt.utils.execute(unrar + " e -o+ -ts0 " + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
+        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file, mt.config["dlmanager/nzb/save_to"]])
         last_line = getLastLine(output)
+
         if ( results.has_key(last_line) ):
             results[last_line] += 1
         else:
@@ -93,10 +91,8 @@ def par2Folder(path):
     par2_files = getPAR2Files(path)
     for par2_file in par2_files:
         mt.log.info("Checking PAR2 file: " + par2_file)
+        output = mt.utils.execute([par2, "r", par2_file])
 
-        # run par2 command and report results.
-        f = par2_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
-        output = mt.utils.execute(par2 + " r " + f)
         last_line = getLastLine(output)
         if ( results.has_key(last_line) ):
             results[last_line] += 1

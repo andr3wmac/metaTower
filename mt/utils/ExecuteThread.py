@@ -9,14 +9,38 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import subprocess, threading, re
+import subprocess, threading, re, os, mt
 
 class ExecuteThread(threading.Thread):
 
     def __init__(self, cmd):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.cmd = cmd
+
+        # process cmd.
+        if ( isinstance(cmd, list) ):
+            # windows needs a list of each piece.
+            if ( os.name == "nt" ):
+                self.cmd = cmd
+
+            # unix seems to prefer otherwise.
+            if ( os.name == "posix" ):
+                new_list = []
+                for item in cmd:
+                    args = item.split(" ")
+
+                    if ( len(args) == 1 ):
+                        new_list.append(item)
+
+                    if ( len(args) > 1 ):
+                        new_list.append("\\ ".join(args).replace("(", "\\(").replace(")", "\\)"))
+
+                self.cmd = [" ".join(new_list)]
+        else:
+            self.cmd = [cmd]
+
+        mt.log.info("Command to execute: " + str(self.cmd))
+
         self.matchs = []
         self.include_err = True
         self.eofCallback = None
@@ -26,7 +50,7 @@ class ExecuteThread(threading.Thread):
         
     # used for a blocking read operation.
     def get_output(self):
-        p = subprocess.Popen([self.cmd],
+        p = subprocess.Popen(self.cmd,
             shell = True,             
             stderr=subprocess.STDOUT if self.include_err else None,
             stdout=subprocess.PIPE)
@@ -35,7 +59,7 @@ class ExecuteThread(threading.Thread):
 
     # used for non-blocking read operation.
     def run(self):
-        p = subprocess.Popen([self.cmd],
+        p = subprocess.Popen(self.cmd,
             shell = True,             
             stderr=subprocess.STDOUT if self.include_err else None,
             stdout=subprocess.PIPE)
@@ -55,6 +79,7 @@ class ExecuteThread(threading.Thread):
                         if ( len(results) > 0 ): self.matchCallback(index, results)
 
                 # clear line.
+                mt.log.info("shell: " + line)
                 line = ""
             else:
                 line += char

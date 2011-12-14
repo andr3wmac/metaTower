@@ -11,6 +11,9 @@
 
 import logging, threading, time, os, mt
 
+ENABLE_PROFILE = True
+LOG_LEVEL = 0
+
 class LogThread(threading.Thread):
     class LogItem:
         def __init__(self, source, level, data):
@@ -35,7 +38,7 @@ class LogThread(threading.Thread):
                     file_handles[item.source].write(item.level + ": " + item.data + "\n")
                     file_handles[item.source].flush()
                 except:
-                    time.sleep(0.5)
+                    time.sleep(1)
         finally:
             for f in file_handles: 
                 file_handles[f].close()
@@ -70,6 +73,11 @@ def error(text):
 def info(text):
     global log_thread
     log_thread.addItem(getName(), "INFO", text)
+
+def profile(text):
+    global log_thread, ENABLE_PROFILE
+    if ( not ENABLE_PROFILE ): return
+    log_thread.addItem("profile", "PROFILE", text)
 
 def alias(source, name):
     global names

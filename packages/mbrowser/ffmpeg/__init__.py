@@ -46,25 +46,21 @@ def convertToFlash(f_in, s_callback, f_out = ""):
     # if no output file specified we assume its the same name.
     if ( f_out == "" ):
         basename, ext = os.path.splitext(f_in)
-        output_file = f_in.replace(ext, ".flv")
+        f_out = f_in.replace(ext, ".flv")
 
-    # clean up any spaces.
-    input_file = f_in.replace(" ", "\\ ")
-    output_file = output_file.replace(" ", "\\ ")
-
-    # set callback for flash conversion.
+    # store these for later
+    input_file = f_in
+    output_file = f_out
     statusCallback = s_callback
 
     # grab our config settings.
-    cmd_args = " -ac " + mt.config["mbrowser/ffmpeg/audio/channels"]
-    cmd_args += " -ab " + mt.config["mbrowser/ffmpeg/audio/bitrate"]
-    cmd_args += " -ar " + mt.config["mbrowser/ffmpeg/audio/freq"]
-    cmd_args += " -b " + mt.config["mbrowser/ffmpeg/video/bitrate"]
-    cmd_args += " -s " + mt.config["mbrowser/ffmpeg/video/size"]
-
-    # build the final command
-    cmd = mt.config["mbrowser/ffmpeg/" + os.name] + " -i " + input_file + cmd_args + " " + output_file
-    mt.log.info("Executing Command: " + cmd)
+    cmd = [mt.config["mbrowser/ffmpeg/" + os.name], "-i", input_file]
+    cmd += ["-ac", mt.config["mbrowser/ffmpeg/audio/channels"]]
+    cmd += ["-ab", mt.config["mbrowser/ffmpeg/audio/bitrate"]]
+    cmd += ["-ar", mt.config["mbrowser/ffmpeg/audio/freq"]]
+    cmd += ["-b", mt.config["mbrowser/ffmpeg/video/bitrate"]]
+    cmd += ["-s", mt.config["mbrowser/ffmpeg/video/size"]]
+    cmd += [output_file]
 
     # execute command. this will work on windows or unix.
     execute_thread = mt.utils.execute_async(cmd, 
