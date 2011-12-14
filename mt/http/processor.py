@@ -103,7 +103,6 @@ def processRequest(session, request_type, request_path, post_data):
             output = session.out()
             output.text("Upload successful.")
             mt.events.trigger("upload_success_" + form_name, output)
-            print "Upload successful."
     return output
 
 # Processes a command, often from a package.
