@@ -7,10 +7,10 @@ $('#dlmanager_main').dialog({
 $('#dlmanager_content').selectable();
 
 dlmanager.sendUpdate = function() {
+    this.updateTimer = null;
+
 	if ( $("#dlmanager_main").parents(".ui-dialog").is(":visible") )
-	{
 		mt("dlmanager.update()");
-	}
 };
 
 dlmanager.jman = {

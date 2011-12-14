@@ -45,7 +45,7 @@ def unrarFolder(path):
         #f = rar_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
         output = mt.utils.execute(unrar + " e -o+ -ts0 " + rar_file + " " + mt.config["dlmanager/nzb/save_to"])
         last_line = getLastLine(output)
-        if ( results.has_key(last_line ):
+        if ( results.has_key(last_line) ):
             results[last_line] += 1
         else:
             results[last_line] = 1
@@ -98,7 +98,7 @@ def par2Folder(path):
         f = par2_file.replace(" ", "\ ").replace("(", "\(").replace(")", "\)")
         output = mt.utils.execute(par2 + " r " + f)
         last_line = getLastLine(output)
-        if ( results.has_key(last_line ):
+        if ( results.has_key(last_line) ):
             results[last_line] += 1
         else:
             results[last_line] = 1

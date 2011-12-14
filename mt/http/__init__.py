@@ -129,6 +129,8 @@ class HTTPOut():
             self.headers["Content-Length"] = len(content)
         
         elif ( self.text_entry != "" ):
+            print "Sending text:" + self.text_entry
+
             if ( not self.headers.has_key("Content-Type") ): 
                 self.headers["Content-Type"] = "text/plain"
             if ( not self.headers.has_key("Content-Type") ): 
@@ -184,10 +186,14 @@ class HTTPHandler(threading.Thread):
 
             keep_alive = True
             while keep_alive:
+
                 # receive and split the data.
                 data = self.client_socket.recv(1024)
                 if not data: break
                 lines = data.rstrip().splitlines(False)
+
+                # create a profile object to track execution time.
+                p = mt.utils.profile()
 
                 # process the data into a managable form.
                 output = HTTPOut()
@@ -301,6 +307,8 @@ class HTTPHandler(threading.Thread):
                 except Exception as inst:
                     mt.log.error("Sending packet: " + str(inst.args))
                     keep_alive = False
+
+                p.end([request_path])
 
         except Exception as inst:
             mt.log.error("Socket error: " + str(inst.args))

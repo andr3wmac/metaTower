@@ -10,7 +10,7 @@
 """
 version = "0.4.0"
 
-import mt, sys, os, time
+import mt, sys, os, time, cProfile
 
 def main():
     try:
@@ -25,7 +25,7 @@ def main():
         mt.stop()
 
 if __name__ == '__main__':
-    restart = main()
+    cProfile.run("restart = main()", "mtProfile")
     if ( restart ):
         print "Restarting.."
         python = sys.executable

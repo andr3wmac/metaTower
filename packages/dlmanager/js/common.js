@@ -115,8 +115,10 @@ var dlmanager = {
 		}
 	},
 
+    updateTimer: null,
 	update: function()
 	{
-		setTimeout("dlmanager.sendUpdate();", 1000);
+        if ( this.updateTimer == null )
+		    this.updateTimer = setTimeout("dlmanager.sendUpdate();", 1000);
 	}
 };

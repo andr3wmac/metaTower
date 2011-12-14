@@ -149,15 +149,16 @@ class NZBClient():
         if ( seg.data ): 
             data_size = len("".join(seg.data))
 
-            if ( (time.time() - self.speedTime) > 1 ):
+            current_time = time.time()
+            if ( (current_time - self.speedTime) > 1 ):
                 self.status.kbps = self.speedCounter
                 self.speedCounter = 0
-                self.speedTime = time.time()
+                self.speedTime = current_time
             else:
                 self.speedCounter += (data_size/1024)
 
             self.cache.append(seg)
-        mt.log.debug("Segment Complete: " + seg.msgid)
+        #mt.log.debug("Segment Complete: " + seg.msgid)
 
     # NNTP Connection - Download of segment failed.
     def segFailed(self, seg):
@@ -245,9 +246,6 @@ class NNTPConnection(Thread):
 
                 try:
                     # Open either an SSL or regular NNTP connection.
-                    if ( connection ):
-                        connection.quit()
-                        connection = None
                     if ( self.ssl ):
                         connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
                     else:
@@ -268,11 +266,9 @@ class NNTPConnection(Thread):
 
                         # Attempt to grab a segment.
                         try:
-                            #seg.data = connection.getrawresp( "BODY <%s>" % seg.msgid, seg.lastTry() )
-                            #if ( self.onSegComplete ): self.onSegComplete(seg)
-                            resp, nr, id, list = connection.body("<%s>" % seg.msgid)
-                            if resp.startswith("2"):
-                                seg.data = list
+                            resp, nr, id, data = connection.body("<%s>" % seg.msgid)
+                            if resp[0] == "2":
+                                seg.data = data
                                 if ( self.onSegComplete ): self.onSegComplete(seg)
                             else:
                                 self.onSegFailed(seg)

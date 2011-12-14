@@ -10,7 +10,11 @@
 """
 
 import inspect, uuid, commands, socket, os, errno, shutil
-import ExecuteThread
+import ExecuteThread, ProfileTicket
+
+def profile(args = []):
+    p = ProfileTicket.ProfileTicket(args)
+    return p
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")

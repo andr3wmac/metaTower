@@ -103,6 +103,7 @@ def processRequest(session, request_type, request_path, post_data):
             output = session.out()
             output.text("Upload successful.")
             mt.events.trigger("upload_success_" + form_name, output)
+            print "Upload successful."
     return output
 
 # Processes a command, often from a package.
@@ -131,7 +132,6 @@ def processCommand(path, session):
 
 # Process login from a client.
 def processLogin(client_socket, path, auth_line):
-    # Default values for seom variables.
     config = mt.config
     user = None
     resp = None
