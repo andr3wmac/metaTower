@@ -1,8 +1,11 @@
 metaTower v0.4.0
 ----------------
 
-Window Binary:
+Windows Binary:
     Simply run metaTower.exe and connect using one of the IP address it lists.
 
 From Source:
-    Use python2.7 and run metaTower.py. On linux if you're going to use the download manager install python-libtorrent package for torrent support. Also, ffmpeg for conversion to web video through the media browser package.
+    On linux you can use python 2.6 or 2.7. Just run metaTower.py and connect in your browser.
+        Note: mbrowser uses ffmpeg to convert and dlmanager uses python-libtorrent.
+
+    On windows use python2.6. Everything should work pretty easily.
