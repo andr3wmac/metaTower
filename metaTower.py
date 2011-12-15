@@ -8,27 +8,19 @@
  * See license.txt 
  *  or http://www.metatower.com/license.txt
 """
-version = "0.4.0"
+import mt, sys, os, time
 
-import mt, sys, os, time, cProfile
+VERSION = "0.4.0"
+LOG_LEVEL = 10
+PROFILING = False
 
-def main():
-    try:
-        mt.start(version)
+try:
+    mt.start(VERSION, LOG_LEVEL, PROFILING)
 
-        while ( mt.running ):
-            time.sleep(0.1)
+    while ( mt.running ):
+        time.sleep(0.1)
 
-        return mt.restart
-
-    except KeyboardInterrupt:
-        mt.stop()
-
-if __name__ == '__main__':
-    cProfile.run("restart = main()", "mtProfile")
-    if ( restart ):
-        print "Restarting.."
-        python = sys.executable
-        os.execl(python, python, * sys.argv)
-    else:
-        print "Exiting.."
+except KeyboardInterrupt:
+    mt.stop()
+    print "Exiting.."
+        

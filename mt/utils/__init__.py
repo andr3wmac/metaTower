@@ -12,9 +12,14 @@
 import inspect, uuid, commands, socket, os, errno, shutil
 import ExecuteThread, ProfileTicket
 
+profile_enabled = False
+def setProfiling(value):
+    global profile_enabled
+    profile_enabled = value
+
 def profile(args = []):
-    p = ProfileTicket.ProfileTicket(args)
-    return p
+    global profile_enabled
+    return ProfileTicket.ProfileTicket(args, profile_enabled)
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")

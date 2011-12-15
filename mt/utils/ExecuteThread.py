@@ -19,28 +19,30 @@ class ExecuteThread(threading.Thread):
 
         # process cmd.
         if ( isinstance(cmd, list) ):
-            # windows needs a list of each piece.
-            if ( os.name == "nt" ):
-                self.cmd = cmd
+            new_list = []
+            for item in cmd:
+                args = item.split(" ")
 
-            # unix seems to prefer otherwise.
-            if ( os.name == "posix" ):
-                new_list = []
-                for item in cmd:
-                    args = item.split(" ")
+                if ( len(args) == 1 ):
+                    new_list.append(item)
 
-                    if ( len(args) == 1 ):
-                        new_list.append(item)
-
-                    if ( len(args) > 1 ):
+                if ( len(args) > 1 ):
+                    if ( os.name == "posix" ):
                         new_list.append("\\ ".join(args).replace("(", "\\(").replace(")", "\\)"))
+                    if ( os.name == "nt" ):
+                        new_list.append("\"" + item + "\"")
 
-                self.cmd = [" ".join(new_list)]
+            self.cmd = " ".join(new_list)
         else:
-            self.cmd = [cmd]
+            self.cmd = cmd
 
-        mt.log.info("Command to execute: " + str(self.cmd))
+        # on posix we need it in an array, on nt we need just a string.
+        if ( os.name == "posix" ): self.cmd = [self.cmd]
 
+        # log the output command.
+        mt.log.debug("Command to execute: " + str(self.cmd))
+
+        # defaults.
         self.matchs = []
         self.include_err = True
         self.eofCallback = None
@@ -55,7 +57,9 @@ class ExecuteThread(threading.Thread):
             stderr=subprocess.STDOUT if self.include_err else None,
             stdout=subprocess.PIPE)
         stdout = p.stdout
-        return stdout.read()
+        output = stdout.read()
+        mt.log.debug("stdout:\n" + output)
+        return 
 
     # used for non-blocking read operation.
     def run(self):
@@ -79,7 +83,7 @@ class ExecuteThread(threading.Thread):
                         if ( len(results) > 0 ): self.matchCallback(index, results)
 
                 # clear line.
-                mt.log.info("shell: " + line)
+                mt.log.debug("stdout: " + line)
                 line = ""
             else:
                 line += char

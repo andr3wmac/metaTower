@@ -22,13 +22,17 @@ users = {}
 
 login_tickets = {}
 
-def start(version):
+def start(version, log_level, profiling):
     global running, config, users, packages, events, http_running
 
     # intro
     print "metaTower v" + version + "\n"
 
+    # profiling
+    utils.setProfiling(profiling)
+
     # logging system
+    log.setLevel(log_level)
     log.alias("mtAuth", "auth")
     log.alias("mtHTTPServer", "network")
     log.alias("mtHTTPProcessor", "network")

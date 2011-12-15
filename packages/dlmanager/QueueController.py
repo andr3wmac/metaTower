@@ -56,12 +56,14 @@ class QueueController(threading.Thread):
         config = mt.config
         self.nzb_enabled = ( config["dlmanager/nzb/server"] != "" )
         if ( not self.nzb_enabled ):
-            mt.log.info("NZB disabled.")
+            mt.log.info("NZB downloader disabled, no configuration found.")
+
         if ( libtorrent_enabled ):
             self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" )
+            if ( not self.torrent_enabled ):
+                mt.log.info("Torrent downloader disabled, no configuration found.")
         else:
             self.torrent_enabled = False
-            mt.log.info("Torrents disabled.")
 
         if ( self.nzb_enabled ):
             for item in config.get("dlmanager/queue/nzb"):
@@ -75,9 +77,7 @@ class QueueController(threading.Thread):
                 nzb.unrar_results = item["unrar_results"]
                 nzb.save_to = item["save_to"]
                 self.nzb_queue.append(nzb)
-        else:
-            mt.log.info("NZB downloader disabled, no configuration found.")
-
+            
         if ( self.torrent_enabled ):
             for item in config.get("dlmanager/queue/torrent"):
                 if ( not os.path.isfile(item["filename"]) ): continue 
@@ -90,9 +90,6 @@ class QueueController(threading.Thread):
                 self.torrent_queue.append(torrent)
             self.torrent_engine = lt.session()
             self.torrent_engine.listen_on(6881, 6891)
-        else:
-            mt.log.info("Torrent downloader disabled, no configuration found.")
-
 
     def removeItems(self, items):
         for nzb in self.nzb_queue:

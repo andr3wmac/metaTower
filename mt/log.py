@@ -11,9 +11,6 @@
 
 import logging, threading, time, os, mt
 
-ENABLE_PROFILE = True
-LOG_LEVEL = 0
-
 class LogThread(threading.Thread):
     class LogItem:
         def __init__(self, source, level, data):
@@ -52,8 +49,19 @@ names = {};
 mt.utils.rmdir(log_dir)
 mt.utils.mkdir(log_dir)
 
+# DEBUG       10
+# INFO        20
+# WARNING     30
+# ERROR       40
+# CRITICAL    50
+# FATAL       50
+log_level = 0
 log_thread = LogThread(log_dir)
 log_thread.start()
+
+def setLevel(value):
+    global log_level
+    log_level = value
 
 def getName():
     global log_thread
@@ -63,20 +71,35 @@ def getName():
     return source
 
 def debug(text):
-    global log_thread
+    global log_thread, log_level
+    if ( log_level > 10 ): return
     log_thread.addItem(getName(), "DEBUG", text)
-
-def error(text):
-    global log_thread
-    log_thread.addItem(getName(), "ERROR", text)
 
 def info(text):
     global log_thread
+    if ( log_level > 20 ): return
     log_thread.addItem(getName(), "INFO", text)
 
+def warning(text):
+    global log_thread
+    if ( log_level > 30 ): return
+    log_thread.addItem(getName(), "WARNING", text)
+
+def error(text):
+    global log_thread
+    if ( log_level > 40 ): return
+    log_thread.addItem(getName(), "ERROR", text)
+
+def critical(text):
+    global log_thread
+    log_thread.addItem(getName(), "CRITICAL", text)
+
+def fatal(text):
+    global log_thread
+    log_thread.addItem(getName(), "FATAL", text)
+
 def profile(text):
-    global log_thread, ENABLE_PROFILE
-    if ( not ENABLE_PROFILE ): return
+    global log_thread
     log_thread.addItem("profile", "PROFILE", text)
 
 def alias(source, name):
