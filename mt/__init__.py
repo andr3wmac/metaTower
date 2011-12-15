@@ -66,7 +66,8 @@ def start(version, log_level, profiling):
     packages.loadDirectory("packages")
 
     # determine ip addresses.
-    print "\nYou can connect to your tower at:"
+    print "\nHit Enter at anytime to shutdown."
+    print "You can connect to your tower at:"
 
     #  - local
     config["local_ip"] = utils.getLocalIP()
@@ -79,6 +80,7 @@ def start(version, log_level, profiling):
         
 def stop():
     global running, config, packages, http_running
+    print "Shutting down.."
     packages.unloadAll()
     config.save()
     http.stop()

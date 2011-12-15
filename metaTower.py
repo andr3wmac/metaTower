@@ -16,11 +16,9 @@ PROFILING = False
 
 try:
     mt.start(VERSION, LOG_LEVEL, PROFILING)
-
-    while ( mt.running ):
-        time.sleep(0.1)
+    raw_input()
+    mt.stop()
 
 except KeyboardInterrupt:
     mt.stop()
-    print "Exiting.."
         
