@@ -1,0 +1,17 @@
+dlmanager is pretty straight forward. Open it in metaTower, add a torrent or nzb file to the queue, watch it download.
+Usenet will be disabled unless you configure it, here's the template:
+
+	<nzb>
+		<server> SERVER_ADDRESS </server>
+		<port> SERVER_PORT </port>
+		<username> YOURUSERNAME </username>
+		<ssl> true/false </ssl>
+		<password> SERVER_PASS </password>
+		<connections> 20 </connections>
+		<save_to> files/downloads/nzb/ </save_to>
+        <timeout> 15 </timeout>
+        <unrar> /usr/bin/unrar </unrar>
+        <par2> /usr/bin/par2 </par2>
+	</nzb>
+
+Make a copy of dlmanager.default.cfg, rename it to dlmanager.cfg and paste that into it within the <dlmanager> and </dlmanager> tags after you change the values to your own.
