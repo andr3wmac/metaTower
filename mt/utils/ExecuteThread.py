@@ -59,7 +59,7 @@ class ExecuteThread(threading.Thread):
         stdout = p.stdout
         output = stdout.read()
         mt.log.debug("stdout:\n" + output)
-        return 
+        return output
 
     # used for non-blocking read operation.
     def run(self):
