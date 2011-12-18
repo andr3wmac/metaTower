@@ -9,9 +9,9 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import logging, threading, time, os, mt
+import logging, threads, time, os, mt
 
-class LogThread(threading.Thread):
+class LogThread(threads.Thread):
     class LogItem:
         def __init__(self, source, level, data):
             self.source = source
@@ -19,15 +19,14 @@ class LogThread(threading.Thread):
             self.data = data
 
     def __init__(self, log_dir):
-        threading.Thread.__init__(self)
-        self.daemon = True
+        threads.Thread.__init__(self)
         self.queue = []
         self.log_dir = log_dir
 
     def run(self):
         file_handles = {}
         try:
-            while True:
+            while self.running:
                 try:
                     item = self.queue.pop()
                     if ( not file_handles.has_key(item.source) ):
@@ -35,7 +34,7 @@ class LogThread(threading.Thread):
                     file_handles[item.source].write(item.level + ": " + item.data + "\n")
                     file_handles[item.source].flush()
                 except:
-                    time.sleep(1)
+                    self.sleep(1)
         finally:
             for f in file_handles: 
                 file_handles[f].close()

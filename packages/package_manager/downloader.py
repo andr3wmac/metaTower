@@ -1,6 +1,7 @@
 import urllib2, sys, threading, time, os, mt
+from mt import threads
 
-class PackageDownloader(threading.Thread):
+class PackageDownloader(threads.Thread):
     class fileDownload():
         def __init__(self, url, save_to):
             self.url = url
@@ -10,8 +11,7 @@ class PackageDownloader(threading.Thread):
             self.completed = 0
           
     def __init__(self, status_hook, install_done_hook, update_done_hook):
-        threading.Thread.__init__(self)
-        self.daemon = True
+        threads.Thread.__init__(self)
         self.file_queue = []
         self.status_hook = status_hook
         self.install_done_hook = install_done_hook
@@ -65,11 +65,14 @@ class PackageDownloader(threading.Thread):
     def run(self):
         chunk_size = 8192
         for f in self.file_queue:
+            if ( not self.running ): return
+
             bytes_so_far = 0
             path = f.save_to.replace(os.path.basename(f.save_to), "")
             mt.utils.mkdir(path)
             fout = open(f.save_to, "wb")
-            while 1:
+
+            while self.running:
                 chunk = f.response.read(chunk_size)
                 f.completed += len(chunk)
                 fout.write(chunk)

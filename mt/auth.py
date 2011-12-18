@@ -9,8 +9,8 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import httplib, hashlib, uuid, time, threading, time, socket, urllib, urllib2
-import mt
+import httplib, hashlib, uuid, time, time, socket, urllib, urllib2
+import mt, threads
 
 class User():
     def __init__(self):
@@ -22,49 +22,47 @@ class User():
         self.auth_url = ""
         self.local_only = False
 
-class UpdateThread( threading.Thread ):
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.daemon = True
+class UpdateThread( threads.Thread ):
+    def init(self):
+        self.tick_interval = 300
         self.last_update = 0
 
-    def run ( self ):
-        # Fetch the remote_ip
-        remote_url = "http://whatismyip.org"
-        try:
-            mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
-            print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
-        except:
-            mt.log.error("Could not fetch remote_ip from: " + remote_url)
+    def tick(self):
+        # check if we have a remote_ip
+        if ( mt.config["remote_ip"] == "" ):
+            # Fetch the remote_ip
+            remote_url = "http://whatismyip.org"
+            try:
+                mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
+                print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
+            except:
+                mt.log.error("Could not fetch remote_ip from: " + remote_url)
 
-        while True:
-            #auth_url = mt.config["auth_url"]
-            mt.config["auth_key"] = mt.utils.uid()
-            for username in mt.users:
-                user = mt.users[username]
+        # update the authentication.
+        mt.config["auth_key"] = mt.utils.uid()
+        for username in mt.users:
+            user = mt.users[username]
+            if ( user.auth_url != "" ):
+                try:
+                    upass = ""
+                    if ( user.password_md5 != "" ):
+                        upass = user.password_md5[:16]
 
-                if ( user.auth_url != "" ):
-                    try:
-                        upass = ""
-                        if ( user.password_md5 != "" ): upass = user.password_md5[:16]
-                        
-                        values = {"auth_key": mt.config["auth_key"], "port": mt.config["port"], "pass": upass }
-                        http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())
-                        data_out = urllib.urlencode(values)
-                        response = http.open(user.auth_url, data_out)
+                    values = {"auth_key": mt.config["auth_key"], "port": mt.config["port"], "pass": upass }
+                    http = urllib2.build_opener(urllib2.HTTPRedirectHandler(), urllib2.HTTPCookieProcessor())
+                    data_out = urllib.urlencode(values)
+                    response = http.open(user.auth_url, data_out)
 
-                        data = response.read()
-                        resp_args = data.split(":")
-                        if ( resp_args[0] == "OK" ):
-                            mt.config["remote_ip"] = resp_args[1]    
-                            mt.log.debug("Authentication for user " + user.name + " success.")
-                        else:
-                            mt.log.debug("Authentication for user " + user.name + " failed.")
+                    data = response.read()
+                    resp_args = data.split(":")
+                    if ( resp_args[0] == "OK" ):
+                        mt.config["remote_ip"] = resp_args[1]
+                        mt.log.debug("Authentication for user " + user.name + " success.")
+                    else:
+                        mt.log.debug("Authentication for user " + user.name + " failed.")
 
-                    except Exception as inst:
-                        mt.log.error("Error updating authentication for " + user.name + ": " + str(inst.args))
-
-            time.sleep(300)
+                except Exception as inst:
+                    mt.log.error("Error updating authentication for " + user.name + ": " + str(inst.args))
 
 def start():
     try:

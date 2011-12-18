@@ -1,8 +1,8 @@
 import sys, os, urllib, time, socket, mt, ssl
-from threading import Thread, Lock
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
 from dlmanager.NZB.Decoder import ArticleDecoder
+from mt import threads
 
 class StatusReport(object):
     def __init__(self):
@@ -28,6 +28,7 @@ class NZBClient():
         self.nntpSSL = nntpSSL
         self.nntpConnections = nntpConnections
         self.threads = []
+        self.running = False
 
         # setup our cache folder.
         self.cache_path = cache_path
@@ -41,7 +42,6 @@ class NZBClient():
         # Open the NZB, get this show started.
         realFile = urllib.urlopen(nzbFile)
         self.nzb = NZBParser.parse(realFile)
-        self.running = True
         self.all_decoded = False
         self.connection_count = 0
 
@@ -67,6 +67,7 @@ class NZBClient():
     def start(self):
         # keep track of running time.
         self.status.start_time = time.time()
+        self.running = True
 
         # Generate a list of segments and build our queue.
         for file in self.nzb.files:
@@ -205,18 +206,16 @@ class NZBClient():
     def clearCache(self):
         mt.utils.rmdir(self.cache_path)
             
-    def stopDownload(self):
-        mt.log.info("Stop download called.")
+    def stop(self):
         self.running = False
         self.articleDecoder.stop()
         for thread in self.threads:
             thread.stop()
         self.clearCache()
 
-class NNTPConnection(Thread):
-    def __init__(self, connection_number, server, port, username, password, ssl, nextSegFunc, onSegComplete = None, onSegFailed = None, onThreadStop = None, **kwds):
-        Thread.__init__(self, **kwds)
-        self.daemon = True
+class NNTPConnection(threads.Thread):
+    def __init__(self, connection_number, server, port, username, password, ssl, nextSegFunc, onSegComplete = None, onSegFailed = None, onThreadStop = None):
+        threads.Thread.__init__(self)
 
         # Settings
         self.connection_number = connection_number
@@ -231,9 +230,6 @@ class NNTPConnection(Thread):
         self.onSegComplete = onSegComplete
         self.onSegFailed = onSegFailed
         self.onThreadStop = onThreadStop
-
-        # running flag.
-        self.running = True
 
     def run(self):
         connection = None
@@ -256,7 +252,7 @@ class NNTPConnection(Thread):
                         
                         # Out of segments, sleep for a second see if we get anymore.
                         if ( seg == None ):
-                            time.sleep(1)
+                            self.sleep(1)
                             continue
 
                         # Download complete, bail.
@@ -317,6 +313,3 @@ class NNTPConnection(Thread):
             except: 
                 pass
             del connection
-
-    def stop(self):
-        self.running = False

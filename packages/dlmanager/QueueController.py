@@ -1,6 +1,7 @@
-import threading, os, commands, shutil, mt, time
+import os, commands, shutil, mt, time
 from NZB.NZBClient import NZBClient
 from NZB import Extractor
+from mt import threads
 
 libtorrent_enabled = False
 try:
@@ -9,7 +10,7 @@ try:
 except:
     mt.log.error("libtorrent import failed. If you're using linux install the package 'python-libtorrent'. If you're on windows ensure libtorrent.pyd is present in the dlmanager directory.")
 
-class QueueController(threading.Thread):
+class QueueController(threads.Thread):
     class NZBQueueItem():
         removed = False
         filename = ""
@@ -38,8 +39,8 @@ class QueueController(threading.Thread):
     def __init__(self):
         global libtorrent_enabled
 
-        threading.Thread.__init__(self)
-        self.daemon = True
+        # init thread with a 5 second tick interval.
+        threads.Thread.__init__(self, 5)
 
         self.queue_folder = "packages/dlmanager/queue"
         mt.utils.mkdir(self.queue_folder)
@@ -48,8 +49,6 @@ class QueueController(threading.Thread):
         self.torrent_engine = None
         self.nzb_queue = []
         self.nzb_engine = None
-
-        self.running = True
         self.last_update = 0
 
         # load any queue data that could be left from the last run.
@@ -96,7 +95,7 @@ class QueueController(threading.Thread):
             if ( nzb.uid in items ):
                 if ( nzb.downloading ):
                     if ( self.nzb_engine != None ):
-                        self.nzb_engine.stopDownload()
+                        self.nzb_engine.stop()
                         self.nzb_engine = None
                 os.remove(nzb.filename)
                 mt.utils.rmdir(nzb.save_to)
@@ -145,28 +144,28 @@ class QueueController(threading.Thread):
         if ( self.nzb_engine == None ):
             for queue_item in self.nzb_queue:
                 if ( not queue_item.downloading ) and ( not queue_item.completed ) and ( not queue_item.error ):
-                    try:
-                        queue_item.downloading = True
+                    #try:
+                    queue_item.downloading = True
 
-                        ssl = mt.config["dlmanager/nzb/ssl"]
-                        ssl_enabled = ssl.isTrue()
+                    ssl = mt.config["dlmanager/nzb/ssl"]
+                    ssl_enabled = ssl.isTrue()
 
-                        self.nzb_engine = NZBClient(
-                            nzbFile=queue_item.filename, 
-                            save_to=queue_item.save_to, 
-                            nntpServer=mt.config["dlmanager/nzb/server"], 
-                            nntpPort=int(mt.config["dlmanager/nzb/port"]), 
-                            nntpConnections=int(mt.config["dlmanager/nzb/connections"]), 
-                            nntpUser=mt.config["dlmanager/nzb/username"], 
-                            nntpPassword=mt.config["dlmanager/nzb/password"], 
-                            nntpSSL=ssl_enabled,
-                            cache_path=mt.config["dlmanager/nzb/cache_path"])
-                        self.nzb_engine.start()
-                        break
-                    except:
-                        queue_item.downloading = False
-                        queue_item.error = True
-                        self.nzb_engine = None
+                    self.nzb_engine = NZBClient(
+                        nzbFile=queue_item.filename, 
+                        save_to=queue_item.save_to, 
+                        nntpServer=mt.config["dlmanager/nzb/server"], 
+                        nntpPort=int(mt.config["dlmanager/nzb/port"]), 
+                        nntpConnections=int(mt.config["dlmanager/nzb/connections"]), 
+                        nntpUser=mt.config["dlmanager/nzb/username"], 
+                        nntpPassword=mt.config["dlmanager/nzb/password"], 
+                        nntpSSL=ssl_enabled,
+                        cache_path=mt.config["dlmanager/nzb/cache_path"])
+                    self.nzb_engine.start()
+                    #break
+                    #except:
+                    #    queue_item.downloading = False
+                    #    queue_item.error = True
+                    #    self.nzb_engine = None
                         
         else:
             status = self.nzb_engine.status
@@ -177,7 +176,7 @@ class QueueController(threading.Thread):
                         queue_item.error = status.error_occured
                         queue_item.downloading = False
                         if ( self.nzb_engine != None ):                        
-                            self.nzb_engine.stopDownload()
+                            self.nzb_engine.stop()
                             self.nzb_engine = None
                         if ( queue_item.completed ) and ( not queue_item.error ): self.nzbComplete(queue_item)
 
@@ -193,47 +192,42 @@ class QueueController(threading.Thread):
         if ( unrar_result == False ): queue_item.unrar_results = "No rar files found."
         else: queue_item.unrar_results = unrar_result
 
-    def run(self):
+    def tick(self):
         try:
-            while ( self.running ):
-                if ( time.time() - self.last_update > 5 ):
-                    if ( self.nzb_enabled ):
-                        for nzb in self.nzbFiles():
-                            already_queued = False
-                            for queue_item in self.nzb_queue:
-                                if (( queue_item.filename.endswith(nzb) ) and ( queue_item.removed == False )): already_queued = True
-                            if ( not already_queued ):
-                                new_item = self.NZBQueueItem()
-                                new_item.filename = nzb
-                                new_item.uid = mt.utils.uid()
-                                new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
-                                self.nzb_queue.append(new_item)
-                        self.nzbUpdate()
-                    
-                    if ( self.torrent_enabled ):
-                        for torrent in self.torrentFiles():
-                            already_queued = False
-                            for queue_item in self.torrent_queue:
-                                if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
-                            if ( not already_queued ):
-                                new_item = self.TorrentQueueItem()
-                                new_item.filename = torrent
-                                new_item.uid = mt.utils.uid()
-                                new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], os.path.basename(torrent)) + "/"
-                                self.torrent_queue.append(new_item)
-                        self.torrentUpdate()
-                    
-                    self.last_update = time.time()
-                time.sleep(1)  
-        finally:
-            self.shutdown() 
+            if ( self.nzb_enabled ):
+                for nzb in self.nzbFiles():
+                    already_queued = False
+                    for queue_item in self.nzb_queue:
+                        if (( queue_item.filename.endswith(nzb) ) and ( queue_item.removed == False )): already_queued = True
+                    if ( not already_queued ):
+                        new_item = self.NZBQueueItem()
+                        new_item.filename = nzb
+                        new_item.uid = mt.utils.uid()
+                        new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
+                        self.nzb_queue.append(new_item)
+                self.nzbUpdate()
+            
+            if ( self.torrent_enabled ):
+                for torrent in self.torrentFiles():
+                    already_queued = False
+                    for queue_item in self.torrent_queue:
+                        if (( queue_item.filename.endswith(torrent) ) and ( queue_item.removed == False )): already_queued = True
+                    if ( not already_queued ):
+                        new_item = self.TorrentQueueItem()
+                        new_item.filename = torrent
+                        new_item.uid = mt.utils.uid()
+                        new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], os.path.basename(torrent)) + "/"
+                        self.torrent_queue.append(new_item)
+                self.torrentUpdate()
+        except Exception as inst:
+            mt.log.error("Queue Error: " + str(inst.args))
 
-    def shutdown(self):
+    def stop(self):
+        threads.Thread.stop(self)
+
         if ( hasattr(self, "nzb_engine") ):
-            if ( self.nzb_engine ): self.nzb_engine.stopDownload()
+            if ( self.nzb_engine ): self.nzb_engine.stop()
             del self.nzb_engine
         
         if ( hasattr(self, "torrent_engine") ):
             del self.torrent_engine
-
-        self.running = False

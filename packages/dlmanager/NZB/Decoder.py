@@ -1,5 +1,5 @@
 import re, string, os, time, mt
-from threading import Thread
+from mt import threads
 from zlib import crc32
 
 yenc_found = False
@@ -9,10 +9,9 @@ try:
 except:
     pass
 
-class ArticleDecoder(Thread):
+class ArticleDecoder(threads.Thread):
     def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None, onAssemblyPercent = None):
-        Thread.__init__(self)
-        self.daemon = True
+        threads.Thread.__init__(self)
         self.decoder = SegmentDecoder()
 
         self.nextSeg = nextSeg
@@ -21,7 +20,6 @@ class ArticleDecoder(Thread):
         self.onSuccess = onSuccess
         self.onAssemblyPercent = onAssemblyPercent
         self.onFail = onFail
-        self.running = True
         self.path = path
 
     def run(self):
@@ -29,7 +27,7 @@ class ArticleDecoder(Thread):
             try:
                 seg = self.nextSeg()
                 if ( seg == None ): 
-                    time.sleep(1)                
+                    self.sleep(1)                
                     continue
 
                 if ( seg == -1 ):
@@ -47,9 +45,6 @@ class ArticleDecoder(Thread):
                 self.running = False
 
         if ( self.onFinish ): self.onFinish()
-
-    def stop(self):
-        self.running = False
 
     def assembleSegments(self):
         if ( not self.running ): return

@@ -11,6 +11,7 @@
 
 import socket, thread, os, time, sys, Cookie, uuid, hashlib, mimetypes, threading, base64
 import mt, processor
+from mt import threads
 
 running = False
 
@@ -168,9 +169,9 @@ class HTTPOut():
         else:
             socket.send(content)
 
-class HTTPHandler(threading.Thread):
+class HTTPHandler(threads.Thread):
     def __init__(self, client_socket, client_addr):
-        threading.Thread.__init__(self)
+        threads.Thread.__init__(self)
         self.daemon = True
         self.client_socket = client_socket
         self.client_addr = client_addr
@@ -183,7 +184,7 @@ class HTTPHandler(threading.Thread):
             mt.log.info("Connection opened by " + str(self.client_addr[0]))
 
             keep_alive = True
-            while keep_alive:
+            while keep_alive and self.running:
 
                 # receive and split the data.
                 data = self.client_socket.recv(1024)
@@ -311,58 +312,44 @@ class HTTPHandler(threading.Thread):
         except Exception as inst:
             mt.log.error("Socket error: " + str(inst.args))
         finally:
-            self.client_socket.close()
+            if ( self.client_socket ): self.client_socket.close()
 
-class HTTPServer( threading.Thread ):
-    def __init__(self, onFinish = None):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.onFinish = onFinish
+class HTTPServer( threads.Thread ):
+    def __init__(self, server_socket):
+        threads.Thread.__init__(self)
+        self.sock = server_socket
 
     def run ( self ):
-        global running
-
-        try:
-            config = mt.config
-            addr = ("", int(config["port"]))
-            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            server_socket.bind(addr)
-            server_socket.listen(10)
-            server_socket.settimeout(0.1)
-        
+        while self.running:
             try:
-                while running:
-                    try:
-                        client_socket, client_addr = server_socket.accept()
-                        client_socket.setblocking(1)
-                        client_thread = HTTPHandler(client_socket, client_addr)
-                        client_thread.start()
-                    except socket.timeout:
-                        pass
-            finally:
-                server_socket.shutdown(1)
+                client_socket, client_addr = self.sock.accept()
+                client_socket.setblocking(1)
+                client_thread = HTTPHandler(client_socket, client_addr)
+                client_thread.start()
+            except socket.timeout:
+                pass
 
-        finally:
-            if ( self.onFinish ): self.onFinish()
+    def stop(self):
+        threads.Thread.stop(self)
+        self.sock.shutdown(1)
 
-thread_running = True
-def onThreadFinished():
-    global thread_running
-    thread_running = False
-
-def start(onFinish = None):
-    global running, thread_running
-    running = True
-    thread_running = True
-
-    http_thread = HTTPServer(onThreadFinished)
-    http_thread.start()
+def start():
+    global http_thread
+    try:
+        addr = ("", int(mt.config["port"]))
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind(addr)
+        server_socket.listen(10)
+        server_socket.settimeout(0.1)
     
-def stop():
-    global running, thread_running
-    running = False
-    while ( thread_running ):
-        time.sleep(0.1)
+        http_thread = HTTPServer(server_socket)
+        http_thread.start()
+        return True
+
+    except:
+        pass
+
+    return False
 
 

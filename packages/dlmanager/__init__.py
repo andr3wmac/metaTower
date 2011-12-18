@@ -52,7 +52,7 @@ def onUnload():
             mt.config.add(element, "dlmanager/queue/torrent", "packages/dlmanager/dlmanager.cfg")
 
         mt.config.save("packages/dlmanager/dlmanager.cfg")
-        QueueControl.shutdown()
+        QueueControl.stop()
     
 def remove_selected(resp, selected):
     global QueueControl
