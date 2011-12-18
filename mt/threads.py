@@ -1,3 +1,14 @@
+"""
+ * metaTower v0.4.0
+ * http://www.metatower.com
+ *
+ * Copyright 2011, Andrew MacIntyre
+ * http://www.andrewmac.ca
+ * Licensed under GPL v3.
+ * See license.txt 
+ *  or http://www.metatower.com/license.txt
+"""
+
 import threading, time
 
 pool = []
