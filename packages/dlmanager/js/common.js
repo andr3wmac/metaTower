@@ -113,12 +113,5 @@ var dlmanager = {
 				parent.removeChild(element);
 			}
 		}
-	},
-
-    updateTimer: null,
-	update: function()
-	{
-        if ( this.updateTimer == null )
-		    this.updateTimer = setTimeout("dlmanager.sendUpdate();", 1000);
 	}
 };

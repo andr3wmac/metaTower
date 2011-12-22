@@ -1,4 +1,8 @@
+dlmanager.update = function()
+{
+    setTimeout("dlmanager.sendUpdate();", 1000);
+};
+
 dlmanager.sendUpdate = function() {
-    this.updateTimer = null;
 	mt("dlmanager.update()");
 };

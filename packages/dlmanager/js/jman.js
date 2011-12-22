@@ -6,6 +6,15 @@ $('#dlmanager_main').dialog({
 
 $('#dlmanager_content').selectable();
 
+dlmanager.updateTimer = null;
+dlmanager.update = function()
+{
+    if ( this.updateTimer == null )
+    {
+        this.updateTimer = setTimeout("dlmanager.sendUpdate();", 1000);
+    }
+};
+
 dlmanager.sendUpdate = function() {
     this.updateTimer = null;
 
