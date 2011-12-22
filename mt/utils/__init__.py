@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, os, errno, shutil
+import inspect, uuid, commands, socket, os, errno, shutil, hashlib
 import ExecuteThread, ProfileTicket
 
 profile_enabled = False
@@ -23,6 +23,9 @@ def profile(args = []):
 
 def uid():
     return str(uuid.uuid1()).replace("-", "")
+
+def md5(string):
+    return hashlib.md5(string).hexdigest()
 
 def getSource(depth=2):
     try:

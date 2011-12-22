@@ -47,7 +47,12 @@ def start(version, log_level, profiling):
         un = user["name"]
         users[un] = auth.User()
         users[un].name = un
+        users[un].password = user["password"]
         users[un].password_md5 = user["password-md5"]
+
+        # convert text pass to md5.
+        if ( users[un].password != "" ):
+            users[un].password_md5 = mt.utils.md5(users[un].password)
 
         # load the homedir, and create it if it doesn't exist.
         users[un].homedir = user["home"]
