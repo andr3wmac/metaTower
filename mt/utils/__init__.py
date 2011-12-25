@@ -38,17 +38,31 @@ def getSource(depth=2):
     return source
 
 def getLocalIP():
-    ip = socket.gethostbyname(socket.gethostname())
-    if ( ip.startswith("127.") ):
-        ifargs = commands.getoutput("ifconfig | grep 192.").split(" ")
-        for arg in ifargs:
-            if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
+    ip = "127.0.0.1"
 
-        # Only way it seems to work when metaTower is running from init.d
-        if ( not ip.startswith("192.") ):
-            ifargs = commands.getoutput("/sbin/ifconfig | /bin/grep 192.").split(" ")
+    # easiest way possible.
+    try:
+        ip = socket.gethostbyname(socket.gethostname())
+    except:
+        pass
+
+    if ( ip.startswith("127.") ):
+        try:
+            ifargs = commands.getoutput("ifconfig | grep 192.").split(" ")
             for arg in ifargs:
                 if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
+        except:
+            pass
+
+        # Only way it seems to work when metaTower is running from init.d
+        try:
+            if ( not ip.startswith("192.") ):
+                ifargs = commands.getoutput("/sbin/ifconfig | /bin/grep 192.").split(" ")
+                for arg in ifargs:
+                    if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
+        except:
+            pass
+
     return ip
 
 def isLocalIP(IP):
