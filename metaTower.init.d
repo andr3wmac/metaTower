@@ -1,6 +1,6 @@
 #!/bin/bash
 # /etc/init.d/metaTower
-# version 0.3.6 2011-10-17 (YYYY-MM-DD)
+# version 0.8 2011-12-26 (YYYY-MM-DD)
 
 ### BEGIN INIT INFO
 # Provides:   metaTower
@@ -16,11 +16,11 @@
 
 
 # SETTINGS
-PATH='/home/andrew/dev/metaTower/' # <---- CHANGE TO YOUR PATH
+PATH='/home/server/metaTower/' # <---- CHANGE TO YOUR PATH
 SERVICE='metaTower.py'
 
 mt_start() {
-    if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
+    if /usr/bin/pgrep -f $SERVICE > /dev/null
     then
         echo "metaTower is already running!"
     else
@@ -28,7 +28,7 @@ mt_start() {
         cd $PATH
         /usr/bin/screen -dmS metaTower /usr/bin/python $SERVICE
         /bin/sleep 3
-        if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
+        if /usr/bin/pgrep -f $SERVICE > /dev/null
         then
             echo "metaTower is now running."
         else
@@ -38,7 +38,7 @@ mt_start() {
 }
 
 mt_stop() {
-    if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
+    if /usr/bin/pgrep -f $SERVICE > /dev/null
     then
         echo "Stopping metaTower..."
         /usr/bin/screen -p 0 -S metaTower -X quit
@@ -46,7 +46,7 @@ mt_stop() {
     else
         echo "metaTower was not running."
     fi
-    if /usr/bin/pgrep -u $USER -f $SERVICE > /dev/null
+    if /usr/bin/pgrep -f $SERVICE > /dev/null
     then
         echo "Error! metaTower could not be stopped."
     else
