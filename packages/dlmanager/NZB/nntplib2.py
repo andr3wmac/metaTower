@@ -29,8 +29,7 @@ are strings, not numbers, since they are rarely used for calculations.
 
 
 # Imports
-import re
-import socket
+import re, socket, ssl
 
 __all__ = ["NNTP","NNTPReplyError","NNTPTemporaryError",
            "NNTPPermanentError","NNTPProtocolError","NNTPDataError",
@@ -663,7 +662,7 @@ class NNTP_SSL(NNTP):
             raise socket.error, msg
         if ( timeout ): self.sock.settimeout(timeout)
         self.file = self.sock.makefile('rb')
-        self.sslobj = socket.ssl(self.sock, self.keyfile, self.certfile)
+        self.sslobj = ssl.wrap_socket(self.sock, self.keyfile, self.certfile)
         self.debugging = 0
         self.welcome = self.getresp()
 
