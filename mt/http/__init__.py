@@ -155,17 +155,23 @@ class HTTPOut():
 
         # send the content.
         if ( self.binary_entry != "" ):
-            f = open(self.binary_entry, "rb")
-            f.seek(self.binary_start)
+            f = None
+            try:
+                f = open(self.binary_entry, "rb")
+                f.seek(self.binary_start)
 
-            while (self.binary_start <= self.binary_end):
-                chunk_size = 4096
-                if ( (self.binary_start+chunk_size) > (self.binary_end) ): chunk_size = (self.binary_end-self.binary_start)+1
+                while (self.binary_start <= self.binary_end):
+                    chunk_size = 4096
+                    if ( (self.binary_start+chunk_size) > (self.binary_end) ): chunk_size = (self.binary_end-self.binary_start)+1
 
-                chunk = f.read(chunk_size)
-                if not chunk: break
-                socket.send(chunk)
-                self.binary_start += len(chunk)
+                    chunk = f.read(chunk_size)
+                    if not chunk: break
+                    socket.send(chunk)
+                    self.binary_start += len(chunk)
+            except:
+                mt.log.error("Error reading file.")
+            finally:
+                if ( f != None ): f.close()
         else:
             socket.send(content)
 
