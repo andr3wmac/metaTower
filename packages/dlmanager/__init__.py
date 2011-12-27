@@ -98,7 +98,7 @@ def update(resp):
 
         # downloading
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
-            status = nzb_engine.status
+            status = nzb_engine.execute("getStatus")
             filename = os.path.basename(nzb.filename).replace("'", "\'")
 
             # State 1: currently downloading

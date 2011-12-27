@@ -150,7 +150,7 @@ class QueueController(threads.Thread):
                     ssl = mt.config["dlmanager/nzb/ssl"]
                     ssl_enabled = ssl.isTrue()
 
-                    self.nzb_engine = NZBClient(
+                    self.nzb_engine = threads.Process(NZBClient,
                         nzbFile=queue_item.filename, 
                         save_to=queue_item.save_to, 
                         nntpServer=mt.config["dlmanager/nzb/server"], 
@@ -168,7 +168,7 @@ class QueueController(threads.Thread):
                     #    self.nzb_engine = None
                         
         else:
-            status = self.nzb_engine.status
+            status = self.nzb_engine.execute("getStatus")
             if ( status.completed ) or ( status.error_occured ):
                 for queue_item in self.nzb_queue:
                     if ( queue_item.filename == status.file_name ):

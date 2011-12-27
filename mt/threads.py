@@ -9,21 +9,17 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import threading, time
+import os, imp, multiprocessing, threading, inspect, time
 
 pool = []
 
 class Thread(threading.Thread):
-    def __init__(self, tick_interval = -1, *args, **kwargs):
+    def __init__(self, tick_interval = -1):
         threading.Thread.__init__(self)
         self.running = False     
         self.tick_interval = tick_interval
         self._last_ticktime = 0
         self._tickcount = 0
-        self.init(*args, **kwargs)
-
-    def init(self):
-        self.running = False
 
     def tick(self):
         self._tickcount += 1
@@ -54,6 +50,63 @@ class Thread(threading.Thread):
 
     def stop(self):
         self.running = False
+
+class Process(Thread):
+    class ProcessShell(multiprocessing.Process):
+        def __init__(self, p_class, args, kwargs, conn):
+            multiprocessing.Process.__init__(self)
+            self.connection = conn
+            self.p_class = p_class
+            self.args = args
+            self.kwargs = kwargs
+
+        def run(self):
+            if ( not inspect.isclass(self.p_class) ): return None
+
+            # create and start the object.
+            self.obj = self.p_class(*self.args, **self.kwargs)
+            if hasattr(self.obj, "start"): self.obj.start()
+
+            data = self.connection.recv()
+            while data != None:
+                function_name = data[0]
+                function_args = data[1:]
+
+                result = None
+                if hasattr(self.obj, function_name):
+                    _func = getattr(self.obj, function_name)
+                    result = _func(*function_args)
+
+                self.connection.send(result)
+                data = self.connection.recv()
+
+            # stop if available.
+            if hasattr(self.obj, "stop"): self.obj.stop()
+            del self.obj
+
+    def __init__(self, p_class, *args, **kwargs):
+        Thread.__init__(self)
+        parent_conn, child_conn = multiprocessing.Pipe()
+        self.process = self.ProcessShell(p_class, args, kwargs, child_conn)
+        self.connection = parent_conn
+        self.connection_lock = threading.Lock()
+
+    def run(self):
+        self.process.start()
+        while self.running:
+            self.sleep(0.1)
+        self.connection.send(None)
+        self.process.join()
+
+    def execute(self, *args):
+        result = None
+        self.connection_lock.acquire()
+        try:
+            self.connection.send(args)
+            result = self.connection.recv()
+        finally:
+            self.connection_lock.release()
+        return result
 
 def stopAll():
     global pool
