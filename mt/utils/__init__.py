@@ -22,7 +22,7 @@ def profile(args = []):
     return ProfileTicket.ProfileTicket(args, profile_enabled)
 
 def uid():
-    return str(uuid.uuid1()).replace("-", "")
+    return str(uuid.uuid4()).replace("-", "")
 
 def md5(string):
     return hashlib.md5(string).hexdigest()
