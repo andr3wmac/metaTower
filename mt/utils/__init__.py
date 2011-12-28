@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, os, errno, shutil, hashlib
+import inspect, guid, commands, socket, os, errno, shutil, hashlib
 import ExecuteThread, ProfileTicket
 
 profile_enabled = False
@@ -22,7 +22,7 @@ def profile(args = []):
     return ProfileTicket.ProfileTicket(args, profile_enabled)
 
 def uid():
-    return str(uuid.uuid4()).replace("-", "")
+    return guid.generate()
 
 def md5(string):
     return hashlib.md5(string).hexdigest()
