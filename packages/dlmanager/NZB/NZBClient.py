@@ -3,20 +3,20 @@ from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
 from dlmanager.NZB.Decoder import ArticleDecoder
 
-class NZBClient():
-    class StatusReport(object):
-        def __init__(self):
-            self.message = "Downloading.."
-            self.total_bytes = 0
-            self.current_bytes = 0
-            self.completed = False
-            self.error_occured = False
-            self.start_time = 0
-            self.file_name = ""
-            self.kbps = 0
-            self.assembly = False
-            self.assembly_percent = 0
+class StatusReport(object):
+    def __init__(self):
+        self.message = "Downloading.."
+        self.total_bytes = 0
+        self.current_bytes = 0
+        self.completed = False
+        self.error_occured = False
+        self.start_time = 0
+        self.file_name = ""
+        self.kbps = 0
+        self.assembly = False
+        self.assembly_percent = 0
 
+class NZBClient():
     def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cache_path=""):
         # Settings
         self.save_to = save_to
@@ -45,7 +45,7 @@ class NZBClient():
         self.connection_count = 0
 
         # used to track status.
-        self.status = self.StatusReport()
+        self.status = StatusReport()
         self.status.file_name = nzbFile
         self.status.total_bytes = self.nzb.size
 
