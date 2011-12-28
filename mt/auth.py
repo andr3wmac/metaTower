@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import httplib, hashlib, uuid, time, time, socket, urllib, urllib2
+import httplib, hashlib, time, time, socket, urllib, urllib2
 import mt, threads
 
 class User():

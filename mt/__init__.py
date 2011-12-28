@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import ConfigParser, os, sys, logging, hashlib, uuid, time, inspect, urllib
+import ConfigParser, os, sys, logging, hashlib, time, inspect, urllib
 import ConfigManager, EventManager, PackageManager
 import auth, http, utils, log, sessions, js, threads
 

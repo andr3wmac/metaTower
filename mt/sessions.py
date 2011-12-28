@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import hashlib, uuid, time, os, mt
+import hashlib, time, os, mt
 
 session_list = []
 file_keys = {}
@@ -22,7 +22,7 @@ class Session():
     IP = "127.0.0.1"
     
     def __init__(self):
-        self.auth_key = hashlib.sha256(str(uuid.uuid1())).hexdigest()
+        self.auth_key = hashlib.sha256(mt.utils.uid()).hexdigest()
         self.last_activity = time.time()
         
     def out(self):
