@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import logging, threads, time, os, mt
+import logging, threads, time, os, utils
 
 class LogThread(threads.Thread):
     class LogItem:
@@ -43,11 +43,6 @@ class LogThread(threads.Thread):
         i = self.LogItem(source,level,data)
         self.queue.append(i)
 
-log_dir = "logs"
-names = {};
-mt.utils.rmdir(log_dir)
-mt.utils.mkdir(log_dir)
-
 # DEBUG       10
 # INFO        20
 # WARNING     30
@@ -55,8 +50,15 @@ mt.utils.mkdir(log_dir)
 # CRITICAL    50
 # FATAL       50
 log_level = 0
+log_dir = "logs"
+names = {};
 log_thread = LogThread(log_dir)
 log_thread.start()
+
+def clearLogs():
+    global log_dir
+    utils.rmdir(log_dir)
+    utils.mkdir(log_dir)
 
 def setLevel(value):
     global log_level
@@ -64,7 +66,7 @@ def setLevel(value):
 
 def getName():
     global log_thread
-    source = mt.utils.getSource(3).split(".")[0]
+    source = utils.getSource(3).split(".")[0]
     if ( names.has_key(source) ):
         return names[source]
     return source

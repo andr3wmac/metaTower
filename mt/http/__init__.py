@@ -72,7 +72,9 @@ class HTTPOut():
         filepath = os.path.join(home_folder, filepath)
         if ( os.path.isfile(filepath) ):
             f = open(filepath, "rb")
-            return str(f.read())
+            data = f.read()
+            f.close()
+            return str(data)
         mt.log.error("404 Not Found: " + filepath)
         self.status = "404 Not Found"
         return None
@@ -168,8 +170,11 @@ class HTTPOut():
                     if not chunk: break
                     socket.send(chunk)
                     self.binary_start += len(chunk)
-            except:
-                mt.log.error("Error reading file.")
+
+                f.close()
+                f = None
+            except Exception as inst:
+                mt.log.error("Error reading file:" + str(inst))
             finally:
                 if ( f != None ): f.close()
         else:
