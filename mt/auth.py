@@ -23,20 +23,20 @@ class User():
         self.local_only = False
 
 class UpdateThread( threads.Thread ):
-    def init(self):
+    def __init__(self):
+        threads.Thread.__init__(self)
         self.tick_interval = 300
-        self.last_update = 0
 
     def tick(self):
         # check if we have a remote_ip
-        #if ( mt.config["remote_ip"] == "" ):
+        if ( mt.config["remote_ip"] == "" ):
             # Fetch the remote_ip
-         #   remote_url = "http://whatismyip.org"
-        #    try:
-        #        mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
-        #        print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
-        #    except:
-        #        mt.log.error("Could not fetch remote_ip from: " + remote_url)
+            remote_url = "http://whatismyip.org"
+            try:
+                mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
+                print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"
+            except:
+                mt.log.error("Could not fetch remote_ip from: " + remote_url)
 
         # update the authentication.
         mt.config["auth_key"] = mt.utils.uid()

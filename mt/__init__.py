@@ -79,7 +79,7 @@ def start(version, log_level, profiling):
     if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
     print " http://" + config["local_ip"] + ":" + config["port"] + "/"
 
-    if ( http.start() ):    
+    if ( http.start() ):
         auth.start()
     else:
         stop()
