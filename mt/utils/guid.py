@@ -1,4 +1,3 @@
-## {{{ http://code.activestate.com/recipes/163604/ (r4)
 #!/usr/bin/env python
 
 # GUID.py
