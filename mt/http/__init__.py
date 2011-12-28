@@ -195,7 +195,7 @@ class HTTPHandler(threads.Thread):
             mt.log.info("Connection opened by " + str(self.client_addr[0]))
 
             keep_alive = True
-            self.client_socket.settimeout(15) # keep-alive timeout of 15 seconds.
+            #self.client_socket.settimeout(15) # keep-alive timeout of 15 seconds.
             while keep_alive and self.running:
 
                 # receive and split the data.
