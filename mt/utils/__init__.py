@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, guid, commands, socket, os, errno, shutil, hashlib
+import inspect, uuid, commands, socket, os, errno, shutil, hashlib
 import ExecuteThread, ProfileTicket
 
 profile_enabled = False
@@ -22,7 +22,8 @@ def profile(args = []):
     return ProfileTicket.ProfileTicket(args, profile_enabled)
 
 def uid():
-    return guid.generate()
+    #return guid.generate()
+    return str(uuid.uuid4()).replace("-", "")
 
 def md5(string):
     return hashlib.md5(string).hexdigest()
@@ -107,7 +108,7 @@ def move(src, dst):
 def execute(cmd, include_err = True):
     e = ExecuteThread.ExecuteThread(cmd)
     e.include_err = include_err
-    return e.get_output()
+    return e.get_output()`
 
 def execute_async(cmd, matches = [], include_err = True, eofCallback = None, lineCallback = None, matchCallback = None):
     e = ExecuteThread.ExecuteThread(cmd)
