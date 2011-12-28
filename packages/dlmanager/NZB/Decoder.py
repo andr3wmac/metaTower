@@ -1,4 +1,4 @@
-import re, string, os, time, threading
+import re, string, os, time, mt
 from zlib import crc32
 
 yenc_found = False
@@ -8,11 +8,9 @@ try:
 except:
     pass
 
-class ArticleDecoder(threading.Thread):
+class ArticleDecoder(mt.threads.Thread):
     def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None, onAssemblyPercent = None):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.running = False
+        mt.threads.Thread.__init__(self)
         self.decoder = SegmentDecoder()
 
         self.nextSeg = nextSeg
@@ -24,12 +22,11 @@ class ArticleDecoder(threading.Thread):
         self.path = path
 
     def run(self):
-        self.running = True
         while ( self.running ):
             try:
                 seg = self.nextSeg()
                 if ( seg == None ): 
-                    time.sleep(0.1)                
+                    self.sleep(0.1)                
                     continue
 
                 if ( seg == -1 ):
@@ -43,18 +40,14 @@ class ArticleDecoder(threading.Thread):
                 self.decodeSegment(seg)
 
             except Exception as inst:
-                #mt.log.error("ArticleDecoder running error: " + str(inst.args))
-                self.running = False
+                mt.log.error("ArticleDecoder running error: " + str(inst.args))
+                self.stop()
 
         if ( self.onFinish ): self.onFinish()
 
-    def stop(self):
-        self.running = False
-
     def assembleSegments(self):
         if ( not self.running ): return
-
-        #mt.log.debug("Assembling..")
+        mt.log.debug("Assembling..")
 
         # generate list of files.
         file_index = {}
@@ -73,7 +66,7 @@ class ArticleDecoder(threading.Thread):
                 file = open(os.path.join(self.save_to, file_name), "wb")
                 file_index[file_name].sort()
                 segments = file_index[file_name]
-                #mt.log.debug("Assembling File: " + file_name + " Total Segments: " + str(len(segments)))
+                mt.log.debug("Assembling File: " + file_name + " Total Segments: " + str(len(segments)))
                 for seg in segments:
                     seg_f = open(os.path.join(self.path, seg), "rb")
                     seg_data = seg_f.read()
@@ -83,10 +76,10 @@ class ArticleDecoder(threading.Thread):
                     os.remove(os.path.join(self.path, seg))
 
                 file.close()
-                #mt.log.debug("Assembled file: " + file_name + ".")
+                mt.log.debug("Assembled file: " + file_name + ".")
+
             except Exception as inst:
-                print "error"
-                #mt.log.error("File assembly error: " + str(inst.args))
+                mt.log.error("File assembly error: " + str(inst.args))
             
             # report assembly completion status
             if ( self.onAssemblyPercent ):
@@ -111,7 +104,7 @@ class ArticleDecoder(threading.Thread):
                 if ( self.onFail ): self.onFail(seg)
 
         except Exception as inst:
-            #mt.log.error("ArticleDecoder decode segment(" + seg.msgid + ") error: " + str(inst.args))
+            mt.log.error("ArticleDecoder decode segment(" + seg.msgid + ") error: " + str(inst.args))
             if ( self.onFail ): self.onFail(seg)
 
         finally:
@@ -154,7 +147,7 @@ class SegmentDecoder(object):
 
         # no ending found, article must have been cut off in transmit.
         if ( not end_found ) and ( not ignore_errors ): 
-            #mt.log.debug("Article decode error: =yend not found.")           
+            mt.log.debug("Article decode error: =yend not found.")           
             return False
 
         # join the data together and decode it.
@@ -177,17 +170,17 @@ class SegmentDecoder(object):
             # If a CRC was included, check it.
             if ( seg.decoded_crc != "" ) and ( crc != "" ):
                 if ( seg.decoded_crc.upper() != crc ):
-                    #mt.log.debug("CRC does not match. A: " + seg.decoded_crc.upper() + " B: " + crc)
+                    mt.log.debug("CRC does not match. A: " + seg.decoded_crc.upper() + " B: " + crc)
                     return False
 
             # check partnum
             if ( seg.decoded_number != seg.number ):
-                #mt.log.debug("Part number does not match: " + seg.msgid)
+                mt.log.debug("Part number does not match: " + seg.msgid)
                 return False
 
             # ensure we decoded a filename.
             if ( seg.decoded_filename == "" ):
-                #mt.log.debug(seg.msgid + " does not have a filename.")
+                mt.log.debug(seg.msgid + " does not have a filename.")
                 return False
         else:
             if ( seg.decoded_number != seg.number ): seg.decoded_number = seg.number

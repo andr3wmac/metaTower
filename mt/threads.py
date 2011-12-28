@@ -9,9 +9,20 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import os, imp, multiprocessing, threading, inspect, time
+import os, imp, multiprocessing, threading, inspect, time, random
 
 pool = []
+pool_pid = 0
+
+def stopAll():
+    global pool, pool_pid
+    if ( pool_pid != os.getpid() ): return
+
+    for t in pool:
+        try:
+            t.stop()
+        except:
+            pass
 
 class Thread(threading.Thread):
     def __init__(self, tick_interval = -1):
@@ -20,6 +31,7 @@ class Thread(threading.Thread):
         self.tick_interval = tick_interval
         self._last_ticktime = 0
         self._tickcount = 0
+        # self.id = str(random.random().hex())
 
     def tick(self):
         self._tickcount += 1
@@ -39,9 +51,16 @@ class Thread(threading.Thread):
                     self._last_ticktime = t
             time.sleep(0.1)
 
-    def start(self):    
+    def _checkPool(self):
+        global pool, pool_pid
+        pid = os.getpid()
+        if ( pool_pid != pid ):
+            pool = []
+            pool_pid = pid
+
+    def start(self):
         try:
-            global pool
+            self._checkPool()
             pool.append(self)
             self.running = True
             threading.Thread.start(self)
@@ -84,6 +103,10 @@ class Process(Thread):
             if hasattr(self.obj, "stop"): self.obj.stop()
             del self.obj
 
+            # this will try to kill the pool in case any threads were
+            # created by this process
+            stopAll()
+
     def __init__(self, p_class, *args, **kwargs):
         Thread.__init__(self)
         parent_conn, child_conn = multiprocessing.Pipe()
@@ -107,8 +130,3 @@ class Process(Thread):
         finally:
             self.connection_lock.release()
         return result
-
-def stopAll():
-    global pool
-    for t in pool:
-        t.stop()

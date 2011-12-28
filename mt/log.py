@@ -9,18 +9,18 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import logging, threads, time, os, utils
+import logging, threads, time, os, utils, multiprocessing
+
+class LogItem:
+    def __init__(self, source, level, data):
+        self.source = source
+        self.level = level
+        self.data = data
 
 class LogThread(threads.Thread):
-    class LogItem:
-        def __init__(self, source, level, data):
-            self.source = source
-            self.level = level
-            self.data = data
-
     def __init__(self, log_dir):
         threads.Thread.__init__(self)
-        self.queue = []
+        self.queue = multiprocessing.Queue()
         self.log_dir = log_dir
 
     def run(self):
@@ -40,8 +40,8 @@ class LogThread(threads.Thread):
                 file_handles[f].close()
 
     def addItem(self, source, level, data):
-        i = self.LogItem(source,level,data)
-        self.queue.append(i)
+        i = LogItem(source,level,data)
+        self.queue.put(i)
 
 # DEBUG       10
 # INFO        20

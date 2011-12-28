@@ -183,8 +183,8 @@ class HTTPOut():
 class HTTPHandler(threads.Thread):
     def __init__(self, client_socket, client_addr):
         threads.Thread.__init__(self)
-        self.daemon = True
         self.client_socket = client_socket
+        self.client_socket.settimeout(0.1)
         self.client_addr = client_addr
 
     def run(self):
@@ -198,9 +198,13 @@ class HTTPHandler(threads.Thread):
             #self.client_socket.settimeout(15) # keep-alive timeout of 15 seconds.
             while keep_alive and self.running:
 
-                # receive and split the data.
-                data = self.client_socket.recv(1024)
-                if not data: break
+                # attempt to receive, it will timeout after 0.1 seconds.
+                try:
+                    data = self.client_socket.recv(1024)
+                except:
+                    continue
+
+                if (not data) or (not self.running): break
                 lines = data.rstrip().splitlines(False)
 
                 # create a profile object to track execution time.
@@ -341,9 +345,8 @@ class HTTPServer( threads.Thread ):
             except socket.timeout:
                 pass
 
-    def stop(self):
-        threads.Thread.stop(self)
         self.sock.shutdown(1)
+        self.sock.close()
 
 def start():
     global http_thread
@@ -359,9 +362,8 @@ def start():
         http_thread.start()
         return True
 
-    except:
+    except Exception as inst:
         pass
 
     return False
-
 

@@ -1,4 +1,4 @@
-import sys, os, urllib, time, socket, mt, ssl, threading
+import sys, os, urllib, time, socket, mt, ssl
 from dlmanager.NZB import NZBParser
 from dlmanager.NZB.nntplib2 import NNTP_SSL,NNTPError,NNTP, NNTPReplyError
 from dlmanager.NZB.Decoder import ArticleDecoder
@@ -18,6 +18,7 @@ class StatusReport(object):
 
 class NZBClient():
     def __init__(self, nzbFile, save_to, nntpServer, nntpPort, nntpUser=None, nntpPassword=None, nntpSSL=False, nntpConnections=5, cache_path=""):
+
         # Settings
         self.save_to = save_to
         self.nntpServer = nntpServer
@@ -215,11 +216,9 @@ class NZBClient():
             thread.stop()
         self.clearCache()
 
-class NNTPConnection(threading.Thread):
+class NNTPConnection(mt.threads.Thread):
     def __init__(self, connection_number, server, port, username, password, ssl, nextSegFunc, onSegComplete = None, onSegFailed = None, onThreadStop = None):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.running = False
+        mt.threads.Thread.__init__(self)
 
         # Settings
         self.connection_number = connection_number
@@ -236,7 +235,6 @@ class NNTPConnection(threading.Thread):
         self.onThreadStop = onThreadStop
 
     def run(self):
-        self.running = True
         connection = None
         try:
             mt.log.debug("Thread " + str(self.connection_number) + " started.")
@@ -257,7 +255,7 @@ class NNTPConnection(threading.Thread):
                         
                         # Out of segments, sleep for a bit and see if we get anymore.
                         if ( seg == None ):
-                            time.sleep(0.1)
+                            self.sleep(0.1)
                             continue
 
                         # Download complete, bail.
@@ -318,6 +316,3 @@ class NNTPConnection(threading.Thread):
             except: 
                 pass
             del connection
-
-    def stop(self):
-        self.running = False
