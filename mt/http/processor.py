@@ -100,9 +100,10 @@ def processRequest(session, request_type, request_path, post_data):
             f = open(os.path.join(request_path, file_name), "wb")
             f.write(file_data)
             f.close()
-            output = session.out()
             output.text("Upload successful.")
             mt.events.trigger("upload_success_" + form_name, output)
+            print "Upload success."
+
     return output
 
 # Processes a command, often from a package.

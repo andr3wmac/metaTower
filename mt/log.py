@@ -12,10 +12,11 @@
 import logging, threads, time, os, utils, multiprocessing
 
 class LogItem:
-    def __init__(self, source, level, data):
+    def __init__(self, source, level, data, pid):
         self.source = source
         self.level = level
         self.data = data
+        self.pid = pid
 
 class LogThread(threads.Thread):
     def __init__(self, log_dir):
@@ -28,20 +29,22 @@ class LogThread(threads.Thread):
         try:
             while self.running:
                 try:
-                    item = self.queue.pop()
-                    if ( not file_handles.has_key(item.source) ):
-                        file_handles[item.source] = open(os.path.join(self.log_dir, item.source + ".log"), "w")
-                    file_handles[item.source].write(item.level + ": " + item.data + "\n")
-                    file_handles[item.source].flush()
+                    item = self.queue.get_nowait()
+                    f_name = item.source + "." + str(item.pid) + ".log"
+                    if ( not file_handles.has_key(f_name) ):
+                        file_handles[f_name] = open(os.path.join(self.log_dir, f_name), "w")
+                    file_handles[f_name].write(item.level + ": " + item.data + "\n")
+                    file_handles[f_name].flush()
                 except:
                     self.sleep(1)
+
         finally:
             for f in file_handles: 
                 file_handles[f].close()
 
     def addItem(self, source, level, data):
-        i = LogItem(source,level,data)
-        self.queue.put(i)
+        i = LogItem(source, level, data, os.getpid())
+        self.queue.put_nowait(i)
 
 # DEBUG       10
 # INFO        20

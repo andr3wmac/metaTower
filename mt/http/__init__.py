@@ -132,9 +132,10 @@ class HTTPOut():
             self.headers["Content-Length"] = len(content)
         
         elif ( self.text_entry != "" ):
+            print "Sending text only response:" + self.text_entry
             if ( not self.headers.has_key("Content-Type") ): 
                 self.headers["Content-Type"] = "text/plain"
-            if ( not self.headers.has_key("Content-Type") ): 
+            if ( not self.headers.has_key("Content-Length") ): 
                 self.headers["Content-Length"] = len(self.text_entry)
             content = self.text_entry
         else:

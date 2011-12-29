@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import os, imp, multiprocessing, threading, inspect, time, random
+import os, imp, multiprocessing, threading, inspect, time
 
 pool = []
 pool_pid = 0
@@ -31,7 +31,6 @@ class Thread(threading.Thread):
         self.tick_interval = tick_interval
         self._last_ticktime = 0
         self._tickcount = 0
-        # self.id = str(random.random().hex())
 
     def tick(self):
         self._tickcount += 1
@@ -72,45 +71,49 @@ class Thread(threading.Thread):
 
 class Process(Thread):
     class ProcessShell(multiprocessing.Process):
-        def __init__(self, p_class, args, kwargs, conn):
+        def __init__(self, target, args, kwargs, conn):
             multiprocessing.Process.__init__(self)
             self.connection = conn
-            self.p_class = p_class
+            self.target = target
             self.args = args
             self.kwargs = kwargs
 
         def run(self):
-            if ( not inspect.isclass(self.p_class) ): return None
+            if ( inspect.isfunction(self.target) ):
+                self.target(*self.args, **self.kwargs)            
 
-            # create and start the object.
-            self.obj = self.p_class(*self.args, **self.kwargs)
-            if hasattr(self.obj, "start"): self.obj.start()
+            # if we have a class, create it and allow functions to be
+            # called using the execute() function in the parent class.
+            if ( inspect.isclass(self.target) ):
+                # create and start the object.
+                self.obj = self.target(*self.args, **self.kwargs)
+                if hasattr(self.obj, "start"): self.obj.start()
 
-            data = self.connection.recv()
-            while data != None:
-                function_name = data[0]
-                function_args = data[1:]
-
-                result = None
-                if hasattr(self.obj, function_name):
-                    _func = getattr(self.obj, function_name)
-                    result = _func(*function_args)
-
-                self.connection.send(result)
                 data = self.connection.recv()
+                while data != None:
+                    function_name = data[0]
+                    function_args = data[1:]
 
-            # stop if available.
-            if hasattr(self.obj, "stop"): self.obj.stop()
-            del self.obj
+                    result = None
+                    if hasattr(self.obj, function_name):
+                        _func = getattr(self.obj, function_name)
+                        result = _func(*function_args)
+
+                    self.connection.send(result)
+                    data = self.connection.recv()
+
+                # stop if available.
+                if hasattr(self.obj, "stop"): self.obj.stop()
+                del self.obj
 
             # this will try to kill the pool in case any threads were
             # created by this process
             stopAll()
 
-    def __init__(self, p_class, *args, **kwargs):
+    def __init__(self, target, *args, **kwargs):
         Thread.__init__(self)
         parent_conn, child_conn = multiprocessing.Pipe()
-        self.process = self.ProcessShell(p_class, args, kwargs, child_conn)
+        self.process = self.ProcessShell(target, args, kwargs, child_conn)
         self.connection = parent_conn
         self.connection_lock = threading.Lock()
 

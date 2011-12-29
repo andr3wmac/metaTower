@@ -304,7 +304,6 @@ class NNTPConnection(mt.threads.Thread):
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
-            print "Thread Error: " + str(inst.args)
             mt.log.error("Thread Error: " + str(inst))
 
         finally:

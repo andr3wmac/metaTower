@@ -14,11 +14,11 @@ VERSION = "0.4.0"
 LOG_LEVEL = 10
 PROFILING = False
 
-try:
-    mt.start(VERSION, LOG_LEVEL, PROFILING)
-    raw_input()
-    mt.stop()
-
-except KeyboardInterrupt:
-    mt.stop()
+if mt.start(VERSION, LOG_LEVEL, PROFILING):
+    try:
+        raw_input()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        mt.stop()
         

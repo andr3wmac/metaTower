@@ -70,19 +70,23 @@ def start(version, log_level, profiling):
     packages = PackageManager.PackageManager()
     packages.loadDirectory("packages")
 
-    # determine ip addresses.
-    print "\nHit enter at anytime to shutdown."
-    print "You can connect to your tower at:"
-
-    #  - local
-    config["local_ip"] = utils.getLocalIP()
-    if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
-    print " http://" + config["local_ip"] + ":" + config["port"] + "/"
-
     if ( http.start() ):
+        # determine ip addresses.
+        print "\nHit enter at anytime to shutdown."
+        print "You can connect to your tower at:"
+
+        #  - local
+        config["local_ip"] = utils.getLocalIP()
+        if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
+        print " http://" + config["local_ip"] + ":" + config["port"] + "/"
+
         auth.start()
     else:
+        print "\nCould not start HTTP Server."
         stop()
+        return False
+
+    return True
         
 def stop():
     global running, config, packages, http_running
