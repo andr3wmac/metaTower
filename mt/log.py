@@ -42,8 +42,8 @@ class LogThread(threads.Thread):
             for f in file_handles: 
                 file_handles[f].close()
 
-    def addItem(self, source, level, data):
-        i = LogItem(source, level, data, os.getpid())
+    def addItem(self, source, level, text, pid):
+        i = LogItem(source, level, text, pid)
         self.queue.put_nowait(i)
 
 # DEBUG       10
@@ -54,9 +54,20 @@ class LogThread(threads.Thread):
 # FATAL       50
 log_level = 0
 log_dir = "logs"
+log_pid = 0
+log_thread = None
 names = {};
-log_thread = LogThread(log_dir)
-log_thread.start()
+
+def addItem(name, level, text):
+    global log_thread, log_pid, log_dir
+
+    pid = os.getpid()
+    if ( log_pid != pid ) or ( log_thread == None ):
+        log_pid = pid
+        log_thread = LogThread(log_dir)
+        log_thread.start()
+    
+    log_thread.addItem(name, level, text, pid)
 
 def clearLogs():
     global log_dir
@@ -68,43 +79,40 @@ def setLevel(value):
     log_level = value
 
 def getName():
-    global log_thread
+    global names
     source = utils.getSource(3).split(".")[0]
     if ( names.has_key(source) ):
         return names[source]
     return source
 
 def debug(text):
-    global log_thread, log_level
+    global log_level
     if ( log_level > 10 ): return
-    log_thread.addItem(getName(), "DEBUG", text)
+    addItem(getName(), "DEBUG", text)
 
 def info(text):
-    global log_thread
+    global log_level
     if ( log_level > 20 ): return
-    log_thread.addItem(getName(), "INFO", text)
+    addItem(getName(), "INFO", text)
 
 def warning(text):
-    global log_thread
+    global log_level
     if ( log_level > 30 ): return
-    log_thread.addItem(getName(), "WARNING", text)
+    addItem(getName(), "WARNING", text)
 
 def error(text):
-    global log_thread
+    global log_level
     if ( log_level > 40 ): return
-    log_thread.addItem(getName(), "ERROR", text)
+    addItem(getName(), "ERROR", text)
 
 def critical(text):
-    global log_thread
-    log_thread.addItem(getName(), "CRITICAL", text)
+    addItem(getName(), "CRITICAL", text)
 
 def fatal(text):
-    global log_thread
-    log_thread.addItem(getName(), "FATAL", text)
+    addItem(getName(), "FATAL", text)
 
 def profile(text):
-    global log_thread
-    log_thread.addItem("profile", "PROFILE", text)
+    addItem("profile", "PROFILE", text)
 
 def alias(source, name):
     global names
