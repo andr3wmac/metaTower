@@ -132,7 +132,6 @@ class HTTPOut():
             self.headers["Content-Length"] = len(content)
         
         elif ( self.text_entry != "" ):
-            print "Sending text only response:" + self.text_entry
             if ( not self.headers.has_key("Content-Type") ): 
                 self.headers["Content-Type"] = "text/plain"
             if ( not self.headers.has_key("Content-Length") ): 
@@ -185,7 +184,7 @@ class HTTPHandler(threads.Thread):
     def __init__(self, client_socket, client_addr):
         threads.Thread.__init__(self)
         self.client_socket = client_socket
-        self.client_socket.settimeout(0.1)
+        #self.client_socket.settimeout(0.1)
         self.client_addr = client_addr
 
     def run(self):
@@ -200,10 +199,10 @@ class HTTPHandler(threads.Thread):
             while keep_alive and self.running:
 
                 # attempt to receive, it will timeout after 0.1 seconds.
-                try:
-                    data = self.client_socket.recv(1024)
-                except:
-                    continue
+                # try:
+                data = self.client_socket.recv(1024)
+                #except:
+                    #continue
 
                 if (not data) or (not self.running): break
                 lines = data.rstrip().splitlines(False)
