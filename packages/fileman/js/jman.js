@@ -35,7 +35,8 @@ fileman.data = function(path, dirs, files) {
 		mt.html("fileBrowser", "<li class='folder' ondblclick='fileman.openFolder(\"" + dirs[i] + "\");'>" + dirs[i] + "</li>", true);
 	}
 	for(i = 0; i < files.length; i++) {
-		mt.html("fileBrowser", "<li class='file'>" + files[i] + "</li>", true);
+        var f_path = path + "/" + files[i];
+		mt.html("fileBrowser", "<li class='file'><a href=':" + f_path + "'>" + files[i] + "</a></li>", true);
 	}
 };
 

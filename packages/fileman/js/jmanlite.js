@@ -24,7 +24,8 @@ fileman.data = function(path, dirs, files)
 	{
 		var child = document.createElement("li");
 		child.className = "file";
-		child.innerHTML = "<a href=':" + path + "/" + files[i] + "' target='_self'>" + files[i] + "</a>";
+        var f_path = path + "/" + files[i];
+		child.innerHTML = "<a href=':" + f_path + "' target='_self'>" + files[i] + "</a>";
 		fileBrowser.appendChild(child);
 	}
 }
