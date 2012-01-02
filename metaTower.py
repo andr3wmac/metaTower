@@ -10,7 +10,7 @@
 """
 import mt, sys, os, time
 
-VERSION = "0.4.0"
+VERSION = "0.4.5"
 LOG_LEVEL = 10
 PROFILING = False
 
