@@ -11,6 +11,7 @@ except:
 class ArticleDecoder(mt.threads.Thread):
     def __init__(self, nextSeg, save_to, path, onFinish = None, onSuccess = None, onFail = None, onAssemblyPercent = None):
         mt.threads.Thread.__init__(self)
+        self.daemon = True
         self.decoder = SegmentDecoder()
 
         self.nextSeg = nextSeg

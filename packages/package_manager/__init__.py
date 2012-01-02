@@ -204,7 +204,7 @@ def packageListOut(resp):
             package = mt.packages.list[package_id]
             if ( package.id == source_package.id ):
                 installed = True
-                if ( float(package.version) < float(source_package.version) ):
+                if ( package.version < source_package.version ):
                     updates[package.id] = package.name
         if ( not installed ):
             available_packages[source_package.id] = source_package.name

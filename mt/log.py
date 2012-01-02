@@ -21,6 +21,7 @@ class LogItem:
 class LogThread(threads.Thread):
     def __init__(self, log_dir):
         threads.Thread.__init__(self)
+        self.daemon = True
         self.queue = multiprocessing.Queue()
         self.log_dir = log_dir
 
