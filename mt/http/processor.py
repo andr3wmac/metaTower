@@ -1,5 +1,5 @@
 """
- * metaTower v0.4.0
+ * metaTower v0.4.5
  * http://www.metatower.com
  *
  * Copyright 2011, Andrew MacIntyre
