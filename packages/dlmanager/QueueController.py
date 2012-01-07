@@ -161,7 +161,7 @@ class QueueController(threads.Thread):
                         nntpSSL=ssl_enabled,
                         cache_path=mt.config["dlmanager/nzb/cache_path"])
                     self.nzb_engine.start()
-                    #break
+                    break
                     #except:
                     #    queue_item.downloading = False
                     #    queue_item.error = True
