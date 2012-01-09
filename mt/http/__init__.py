@@ -94,6 +94,8 @@ class HTTPOut():
     def send(self, socket, header_only = False):
         content = ""
 
+        socket.settimeout(None)
+
         if ( self.binary_entry != "" ):
             if ( os.path.isfile(self.binary_entry) ):
                 binary_size = os.path.getsize(self.binary_entry)
