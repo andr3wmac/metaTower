@@ -2,7 +2,7 @@
  * metaTower v0.4.5
  * http://www.metatower.com
  *
- * Copyright 2011, Andrew MacIntyre
+ * Copyright 2012, Andrew Mac
  * http://www.andrewmac.ca
  * Licensed under GPL v3.
  * See license.txt 
