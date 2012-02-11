@@ -42,10 +42,6 @@ class NZBClient():
         # Open the NZB, get this show started.
         realFile = urllib.urlopen(nzbFile)
         self.nzb = NZBParser.parse(realFile)
-        if ( not self.nzb ):
-            print "Error processing NZB."
-            return
-
         self.all_decoded = False
         self.connection_count = 0
 
