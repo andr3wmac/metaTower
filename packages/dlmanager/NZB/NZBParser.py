@@ -1,6 +1,7 @@
 from xml.sax import parse as saxParse
 from xml.sax import parseString as saxParseString
 from xml.sax import handler,SAXException,SAXParseException
+from xml.sax.expatreader import ExpatParser
 
 MAX_RETRIES = 3                   # maximum retries of a segment before giving up.
 
@@ -92,17 +93,24 @@ def parseString( str ):
     return _parse( func )
          
 def parse( file ):
-    def func(h): saxParse( file, h )
-    return _parse( func )
+    h = NZBParser()
+    p = ExpatParser()
+    p.setContentHandler(h)
+    p.setFeature(handler.feature_external_ges, False)
+    p.parse(file)
+    return h.getNzb()
+    
+    #def func(h): saxParse( file, h )
+    #return _parse( func )
             
 def _parse( f ):
     handler = NZBParser()
-    try:
-        f( handler )
-    except (SAXParseException):
-        pass
-    except (SAXException):
-        return None
+    #try:
+    f( handler )
+    #except (SAXParseException):
+    #    pass
+    #except (SAXException):
+    #    return None
     
     nzb = handler.getNzb()
 
