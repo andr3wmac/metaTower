@@ -202,7 +202,7 @@ class NZBClient():
         # We're all outta segments, if they're done decoding, kill the threads.
         if ( queue_empty ) and ( self.all_decoded ):
             return -1
-        
+
         return seg
 
     # empty the cache of any files.
@@ -291,7 +291,6 @@ class NNTPConnection(mt.threads.Thread):
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
-                    self.onSegFailed(seg)
                     mt.log.error("Connection error: " + str(inst))
 
                 finally:
@@ -303,7 +302,7 @@ class NNTPConnection(mt.threads.Thread):
             mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
-        except Exception as inst:
+        except Exception as inst:   
             mt.log.error("Thread Error: " + str(inst))
 
         finally:
