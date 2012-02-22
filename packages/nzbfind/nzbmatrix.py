@@ -18,7 +18,12 @@ class NZBMatrix:
         url = "http://api.nzbmatrix.com/v1.1/search.php?search=" + query + "&catid=" + cat + "&username=" + self.user + "&apikey=" + self.api + "&num=50&englishonly=1"
 
         response = urllib2.urlopen(url)
-        data = response.read()
+        data = ""
+        while 1:
+            d_in = response.read()
+            if not d_in:
+                break
+            data += d_in
         lines = data.split("\n")
 
         results = []
