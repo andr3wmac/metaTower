@@ -2,7 +2,7 @@
 #package_manager_menu li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }
 
 #package_manager_menu .cat { font-weight: bold; }
-#package_manager_menu .subcat { background-image: url('package_manager/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#package_manager_menu .subcat { background-image: url('package_manager/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 #package_manager_menu .subcat:hover { background-color: #E6E6E6; }
 
 #package_manager_content { list-style-type: none; margin: 0; padding: 0; }

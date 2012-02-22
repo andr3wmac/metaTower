@@ -186,7 +186,6 @@ class HTTPHandler(threads.Thread):
     def __init__(self, client_socket, client_addr):
         threads.Thread.__init__(self)
         self.client_socket = client_socket
-        self.client_socket.settimeout(0.1)
         self.client_addr = client_addr
 
     def run(self):
@@ -199,6 +198,7 @@ class HTTPHandler(threads.Thread):
             keep_alive = True
             #self.client_socket.settimeout(15) # keep-alive timeout of 15 seconds.
             while keep_alive and self.running:
+                self.client_socket.settimeout(0.1)
 
                 # attempt to receive, it will timeout after 0.1 seconds.
                 try:
