@@ -144,28 +144,28 @@ class QueueController(threads.Thread):
         if ( self.nzb_engine == None ):
             for queue_item in self.nzb_queue:
                 if ( not queue_item.downloading ) and ( not queue_item.completed ) and ( not queue_item.error ):
-                    #try:
-                    queue_item.downloading = True
+                    try:
+                        queue_item.downloading = True
 
-                    ssl = mt.config["dlmanager/nzb/ssl"]
-                    ssl_enabled = ssl.isTrue()
+                        ssl = mt.config["dlmanager/nzb/ssl"]
+                        ssl_enabled = ssl.isTrue()
 
-                    self.nzb_engine = threads.Process(NZBClient,
-                        nzbFile=queue_item.filename, 
-                        save_to=queue_item.save_to, 
-                        nntpServer=mt.config["dlmanager/nzb/server"], 
-                        nntpPort=int(mt.config["dlmanager/nzb/port"]), 
-                        nntpConnections=int(mt.config["dlmanager/nzb/connections"]), 
-                        nntpUser=mt.config["dlmanager/nzb/username"], 
-                        nntpPassword=mt.config["dlmanager/nzb/password"], 
-                        nntpSSL=ssl_enabled,
-                        cache_path=mt.config["dlmanager/nzb/cache_path"])
-                    self.nzb_engine.start()
-                    break
-                    #except:
-                    #    queue_item.downloading = False
-                    #    queue_item.error = True
-                    #    self.nzb_engine = None
+                        self.nzb_engine = threads.Process(NZBClient,
+                            nzbFile=queue_item.filename, 
+                            save_to=queue_item.save_to, 
+                            nntpServer=mt.config["dlmanager/nzb/server"], 
+                            nntpPort=int(mt.config["dlmanager/nzb/port"]), 
+                            nntpConnections=int(mt.config["dlmanager/nzb/connections"]), 
+                            nntpUser=mt.config["dlmanager/nzb/username"], 
+                            nntpPassword=mt.config["dlmanager/nzb/password"], 
+                            nntpSSL=ssl_enabled,
+                            cache_path=mt.config["dlmanager/nzb/cache_path"])
+                        self.nzb_engine.start()
+                        break
+                    except:
+                        queue_item.downloading = False
+                        queue_item.error = True
+                        self.nzb_engine = None
                         
         else:
             status = self.nzb_engine.execute("getStatus")
