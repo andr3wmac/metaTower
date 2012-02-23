@@ -37,10 +37,10 @@ var nzbfind = {
     data: function(results)
     {
         var html = "<li class='menu' onclick='nzbfind.showMenu()''>Return to Main Menu</li>";
-        for ( id in results )
+        for ( var i = 0; i < results.length; i++ )
         {
-            var result = results[id];
-            html += "<li class='nzb' onClick='nzbfind.download(" + id + ")'>" + result.name + " (<b>" + result.size + "</b>)</li>";
+            var result = results[i];
+            html += "<li class='nzb' onClick='nzbfind.download(" + result.id + ")'>" + result.name + " (<b>" + result.size + "</b>)</li>";
         }
         mt.html("nzbfind_results", html, false);
         nzbfind.status("Done.", 100);

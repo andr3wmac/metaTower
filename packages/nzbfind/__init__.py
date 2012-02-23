@@ -53,9 +53,9 @@ def search(resp, query, cat):
         return
 
     results = engine.search(query, cat)
-    formatted_results = {}
+    formatted_results = []
     for r in results:
-        formatted_results[r.id] = {"name": r.name, "size": r.size}
+        formatted_results.append({"id": r.id, "name": r.name, "size": r.size})
 
     resp.js("nzbfind.data(" + str(formatted_results) + ");")
 
