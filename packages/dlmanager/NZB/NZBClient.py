@@ -287,7 +287,6 @@ class NNTPConnection(mt.threads.Thread):
                 except ssl.SSLError:
                     mt.log.error("Segment timeout: " + seg.msgid)
                     if ( self.onSegFailed ): self.onSegFailed(seg)
-                    pass
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
