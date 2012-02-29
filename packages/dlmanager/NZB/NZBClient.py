@@ -292,8 +292,8 @@ class NNTPConnection(mt.threads.Thread):
                                 seg = None
 
                 # If a connection error occurs, it will loop and try to open another connection.
-                except Exception as inst:
-                    mt.log.error("Connection error: " + str(inst))
+                except:
+                    mt.log.error("Connection error. Reconnecting..")
 
                 finally:
                     if ( seg and self.onSegFailed ): self.onSegFailed(seg)
