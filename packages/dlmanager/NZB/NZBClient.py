@@ -245,6 +245,7 @@ class NNTPConnection(mt.threads.Thread):
 
     def run(self):
         connection = None
+        seg = None
         try:
             mt.log.debug("Thread " + str(self.connection_number) + " started.")
             start_time = time.time()
@@ -307,6 +308,7 @@ class NNTPConnection(mt.threads.Thread):
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
         except Exception as inst:
+            if ( seg and self.onSegFailed ): self.onSegFailed(seg)
             mt.log.error("Thread Error: " + str(inst))
 
         finally:
