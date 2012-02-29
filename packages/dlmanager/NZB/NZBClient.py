@@ -287,6 +287,7 @@ class NNTPConnection(mt.threads.Thread):
                     # Download complete, bail.
                     if ( seg == -1 ): 
                         self.running = False
+                        seg = None
                         break
 
                     # Attempt to grab a segment.
