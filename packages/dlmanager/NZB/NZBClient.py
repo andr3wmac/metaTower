@@ -169,7 +169,7 @@ class NZBClient():
         if ( seg == None ): return
 
         if ( seg.aborted() ):
-            mt.log.error("Segment Aborted: " + seg.msgid + " After: " + str(seg.retries+1) + " Retrys.")
+            mt.log.error("Segment Aborted: " + seg.msgid + " after " + str(seg.retries) + " attempts.")
             self.segments_aborted.append(seg.msgid)
             seg.data = 0
 
@@ -186,7 +186,7 @@ class NZBClient():
 
         seg.retries += 1
 
-        mt.log.error("Segment Failed: " + seg.msgid + " Retry: " + str(seg.retries))
+        mt.log.error("Segment Failed: " + seg.msgid + " Attempt #" + str(seg.retries) + ".")
         self.failed_queue.append(seg)
 
     # NNTP Connection - Next Segment

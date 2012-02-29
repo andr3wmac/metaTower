@@ -4,7 +4,7 @@ from xml.sax import handler,SAXException,SAXParseException
 from xml.sax.xmlreader import XMLReader
 from xml.sax.expatreader import ExpatParser
 
-MAX_RETRIES = 3                   # maximum retries of a segment before giving up.
+MAX_RETRIES = 0                   # maximum retries of a segment before giving up.
 
 class NZB(object):
     def __init__(self):
@@ -44,10 +44,10 @@ class NZBSegment(object):
         self.decoded_number = 0
 
     def lastTry(self):
-        return ( self.retries == MAX_RETRIES )
+        return ( self.retries == (MAX_RETRIES-1) )
 
     def aborted(self):
-        return ( self.retries > MAX_RETRIES )
+        return ( self.retries >= MAX_RETRIES )
 
 class NZBParser(handler.ContentHandler):
     def __init__(self):
