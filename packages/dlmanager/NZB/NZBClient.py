@@ -246,77 +246,70 @@ class NNTPConnection(mt.threads.Thread):
     def run(self):
         connection = None
         seg = None
-        try:
-            mt.log.debug("Thread " + str(self.connection_number) + " started.")
-            start_time = time.time()
+        mt.log.debug("Thread " + str(self.connection_number) + " started.")
+        start_time = time.time()
 
-            while(self.running):
-                seg = None
-                try:
-                    # Open either an SSL or regular NNTP connection.
-                    if ( self.ssl ):
-                        connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
-                    else:
-                        connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=15)
+        while(self.running):
+            seg = None
+            try:
+                # Open either an SSL or regular NNTP connection.
+                if ( self.ssl ):
+                    connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
+                else:
+                    connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=15)
 
-                    while(self.running):
-                        seg = self.nextSegFunc()
-                        
-                        # Out of segments, sleep for a bit and see if we get anymore.
-                        if ( seg == None ):
-                            self.sleep(0.1)
-                            continue
+                while(self.running):
+                    seg = self.nextSegFunc()
+                    
+                    # Out of segments, sleep for a bit and see if we get anymore.
+                    if ( seg == None ):
+                        self.sleep(0.1)
+                        continue
 
-                        # Download complete, bail.
-                        if ( seg == -1 ): 
-                            self.running = False
-                            break
+                    # Download complete, bail.
+                    if ( seg == -1 ): 
+                        self.running = False
+                        break
 
-                        # Attempt to grab a segment.
-                        try:
-                            resp, nr, id, data = connection.body("<%s>" % seg.msgid)
-                            if resp[0] == "2":
-                                seg.data = data
-                                if ( self.onSegComplete ): self.onSegComplete(seg)
-                                seg = None
+                    # Attempt to grab a segment.
+                    try:
+                        resp, nr, id, data = connection.body("<%s>" % seg.msgid)
+                        if resp[0] == "2":
+                            seg.data = data
+                            if ( self.onSegComplete ): self.onSegComplete(seg)
+                            seg = None
 
-                        except ssl.SSLError:
-                            break
-                                
-                        except:
-                            mt.log.error("Error getting segment.")
-                            pass
+                    except ssl.SSLError:
+                        break
+                            
+                    except:
+                        mt.log.error("Error getting segment.")
+                        pass
 
-                        finally:
-                            if ( seg and self.onSegFailed ): 
-                                self.onSegFailed(seg)
-                                seg = None
+                    finally:
+                        if ( seg and self.onSegFailed ): 
+                            self.onSegFailed(seg)
+                            seg = None
 
-                # If a connection error occurs, it will loop and try to open another connection.
-                except:
-                    mt.log.error("Connection error. Reconnecting..")
+            # If a connection error occurs, it will loop and try to open another connection.
+            except:
+                mt.log.error("Connection error. Reconnecting..")
 
-                finally:
-                    if ( seg and self.onSegFailed ): self.onSegFailed(seg)
+            finally:
+                if ( seg and self.onSegFailed ): self.onSegFailed(seg)
 
-                    if ( connection ): 
-                        connection.quit()
-                        connection = None
-
-            end_time = time.time()
-            mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
-
-        # A thread error is fatal, another thread won't be opened. These shouldn't occur.
-        except Exception as inst:
-            if ( seg and self.onSegFailed ): self.onSegFailed(seg)
-            mt.log.error("Thread Error: " + str(inst))
-
-        finally:
-            try: 
-                if ( self.onThreadStop ): self.onThreadStop(self.connection_number)
                 if ( connection ): 
                     connection.quit()
                     connection = None
-            except: 
-                pass
-            del connection
+
+        end_time = time.time()
+        mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
+
+        try: 
+            if ( self.onThreadStop ): self.onThreadStop(self.connection_number)
+            if ( connection ): 
+                connection.quit()
+                connection = None
+        except: 
+            pass
+        del connection
