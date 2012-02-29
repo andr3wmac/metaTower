@@ -281,10 +281,10 @@ class NNTPConnection(mt.threads.Thread):
 
                         except Exception as inst:
                             if ( self.onSegFailed ): self.onSegFailed(seg)
-                            mt.log.error("Error getting segment: " + str(args))
+                            mt.log.error("Error getting segment: " + str(inst))
 
                 # timeout, just restart the connection.
-                except ssl.SSLError:
+                except ssl.SSLError as inst:
                     mt.log.error("Segment timeout: " + seg.msgid)
                     if ( self.onSegFailed ): self.onSegFailed(seg)
 
