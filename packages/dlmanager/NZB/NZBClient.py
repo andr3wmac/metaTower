@@ -127,9 +127,7 @@ class NZBClient():
     # Article Decoder - Decode success.
     def decodeSuccess(self, seg):
         self.status.current_bytes += seg.size
-        self.segments_finished.append(seg.msgid) 
-        if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-            self.all_decoded = True
+        self.segments_finished.append(seg.msgid)
 
     # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
@@ -162,7 +160,7 @@ class NZBClient():
                 self.speedCounter += (data_size/1024)
 
             self.cache.append(seg)
-        mt.log.debug("Segment Complete: " + seg.msgid)
+        #mt.log.debug("Segment Complete: " + seg.msgid)
 
     # NNTP Connection - Download of segment failed.
     def segFailed(self, seg):
@@ -171,17 +169,17 @@ class NZBClient():
         if ( seg.aborted() ):
             mt.log.error("Segment Aborted: " + seg.msgid + " After: " + str(seg.retries+1) + " Retrys.")
             self.segments_aborted.append(seg.msgid)
-            del seg
+            seg.data = 0
 
-            print "Segment Aborted:"
-            print "  Segment Queue Count: " + str(len(self.segment_queue))
-            print "  Failed Queue Count: " + str(len(self.failed_queue))
-            print "  Finished Segments: " + str(len(self.segments_finished))
-            print "  Aborted Segments:  " + str(len(self.segments_aborted))
-            print "  Total: " + str(len(self.segment_list))
-            if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-                print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
-                self.all_decoded = True
+            #print "Segment Aborted:"
+            #print "  Segment Queue Count: " + str(len(self.segment_queue))
+            #print "  Failed Queue Count: " + str(len(self.failed_queue))
+            #print "  Finished Segments: " + str(len(self.segments_finished))
+            #print "  Aborted Segments:  " + str(len(self.segments_aborted))
+            #print "  Total: " + str(len(self.segment_list))
+            #if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+            #    print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
+            #    self.all_decoded = True
             return
 
         seg.retries += 1
@@ -206,6 +204,9 @@ class NZBClient():
                 queue_empty = True
                 pass
             pass
+
+        if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+            self.all_decoded = True
 
         # We're all outta segments, if they're done decoding, kill the threads.
         if ( queue_empty ) and ( self.all_decoded ):
