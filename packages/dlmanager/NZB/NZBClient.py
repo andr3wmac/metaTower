@@ -172,6 +172,11 @@ class NZBClient():
             mt.log.error("Segment Aborted: " + seg.msgid + " After: " + str(seg.retries+1) + " Retrys.")
             self.segments_aborted.append(seg.msgid)
             del seg
+
+            print "Segment Aborted:"
+            print "  Finished Segments: " + str(len(self.segments_finished))
+            print "  Aborted Segments:  " + str(len(self.segments_aborted))
+            print "  Total: " + str(len(self.segment_list))
             if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
                 print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
                 self.all_decoded = True
