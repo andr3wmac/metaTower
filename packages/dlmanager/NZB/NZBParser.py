@@ -43,9 +43,6 @@ class NZBSegment(object):
         self.decoded_crc = ""
         self.decoded_number = 0
 
-    def lastTry(self):
-        return ( self.retries == (MAX_RETRIES-1) )
-
     def aborted(self):
         return ( self.retries >= MAX_RETRIES )
 
