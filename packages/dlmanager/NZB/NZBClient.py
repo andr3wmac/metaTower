@@ -249,9 +249,8 @@ class NNTPConnection(mt.threads.Thread):
             mt.log.debug("Thread " + str(self.connection_number) + " started.")
             start_time = time.time()
 
-            seg = None
             while(self.running):
-
+                seg = None
                 try:
                     # Open either an SSL or regular NNTP connection.
                     if ( self.ssl ):
@@ -278,30 +277,27 @@ class NNTPConnection(mt.threads.Thread):
                             if resp[0] == "2":
                                 seg.data = data
                                 if ( self.onSegComplete ): self.onSegComplete(seg)
-                            else:
-                                self.onSegFailed(seg)
-
-                        except NNTPError:
-                            mt.log.error("NNTP error.")
-                            if ( self.onSegFailed ): self.onSegFailed(seg)
+                                seg = None
 
                         except ssl.SSLError:
-                            raise
+                            break
+                                
+                        except:
+                            mt.log.error("Error getting segment.")
+                            pass
 
-                        except Exception as inst:
-                            mt.log.error("Error getting segment: " + str(inst))
-                            if ( self.onSegFailed ): self.onSegFailed(seg)
-
-                # timeout, just restart the connection.
-                except ssl.SSLError as inst:
-                    mt.log.error("Segment timeout: " + seg.msgid)
-                    if ( self.onSegFailed ): self.onSegFailed(seg)
+                        finally:
+                            if ( seg and self.onSegFailed ): 
+                                self.onSegFailed(seg)
+                                seg = None
 
                 # If a connection error occurs, it will loop and try to open another connection.
                 except Exception as inst:
                     mt.log.error("Connection error: " + str(inst))
 
                 finally:
+                    if ( seg and self.onSegFailed ): self.onSegFailed(seg)
+
                     if ( connection ): 
                         connection.quit()
                         connection = None
@@ -310,7 +306,7 @@ class NNTPConnection(mt.threads.Thread):
             mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
 
         # A thread error is fatal, another thread won't be opened. These shouldn't occur.
-        except Exception as inst:   
+        except Exception as inst:
             mt.log.error("Thread Error: " + str(inst))
 
         finally:
