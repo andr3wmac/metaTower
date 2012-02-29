@@ -128,6 +128,8 @@ class NZBClient():
     def decodeSuccess(self, seg):
         self.status.current_bytes += seg.size
         self.segments_finished.append(seg.msgid)
+        if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+            self.all_decoded = True
 
     # Article Decoder - Decode failed.
     def decodeFailed(self, seg):
@@ -171,15 +173,15 @@ class NZBClient():
             self.segments_aborted.append(seg.msgid)
             seg.data = 0
 
-            #print "Segment Aborted:"
-            #print "  Segment Queue Count: " + str(len(self.segment_queue))
-            #print "  Failed Queue Count: " + str(len(self.failed_queue))
-            #print "  Finished Segments: " + str(len(self.segments_finished))
-            #print "  Aborted Segments:  " + str(len(self.segments_aborted))
-            #print "  Total: " + str(len(self.segment_list))
-            #if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-            #    print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
-            #    self.all_decoded = True
+            print "Segment Aborted:"
+            print "  Segment Queue Count: " + str(len(self.segment_queue))
+            print "  Failed Queue Count: " + str(len(self.failed_queue))
+            print "  Finished Segments: " + str(len(self.segments_finished))
+            print "  Aborted Segments:  " + str(len(self.segments_aborted))
+            print "  Total: " + str(len(self.segment_list))
+            if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+                print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
+                self.all_decoded = True
             return
 
         seg.retries += 1
@@ -205,9 +207,6 @@ class NZBClient():
                 pass
             pass
 
-        if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
-            self.all_decoded = True
-
         # We're all outta segments, if they're done decoding, kill the threads.
         if ( queue_empty ) and ( self.all_decoded ):
             return -1
@@ -230,6 +229,7 @@ class NNTPConnection(mt.threads.Thread):
         mt.threads.Thread.__init__(self)
 
         # Settings
+        self.connection = None
         self.connection_number = connection_number
         self.server = server
         self.port = port
@@ -243,21 +243,39 @@ class NNTPConnection(mt.threads.Thread):
         self.onSegFailed = onSegFailed
         self.onThreadStop = onThreadStop
 
+    def connect(self):
+        # Open either an SSL or regular NNTP connection.
+        try:
+            if ( self.ssl ):
+                self.connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
+            else:
+                self.connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=15)
+        except:
+            pass
+
+        if ( self.connection ): return True
+        return False
+
+    def disconnect(self):
+        if ( self.connection ):
+            try:
+                self.connection.quit()
+            except:
+                pass
+        self.connection = None
+
     def run(self):
         connection = None
         seg = None
+
+        # Thread has started.
         mt.log.debug("Thread " + str(self.connection_number) + " started.")
         start_time = time.time()
 
         while(self.running):
             seg = None
-            try:
-                # Open either an SSL or regular NNTP connection.
-                if ( self.ssl ):
-                    connection = NNTP_SSL(self.server, self.port, self.username, self.password, False, True, timeout=15)
-                else:
-                    connection = NNTP(self.server, self.port, self.username, self.password, False, True, timeout=15)
-
+            connected = self.connect()
+            if ( connected ):
                 while(self.running):
                     seg = self.nextSegFunc()
                     
@@ -273,7 +291,7 @@ class NNTPConnection(mt.threads.Thread):
 
                     # Attempt to grab a segment.
                     try:
-                        resp, nr, id, data = connection.body("<%s>" % seg.msgid)
+                        resp, nr, id, data = self.connection.body("<%s>" % seg.msgid)
                         if resp[0] == "2":
                             seg.data = data
                             if ( self.onSegComplete ): self.onSegComplete(seg)
@@ -286,32 +304,19 @@ class NNTPConnection(mt.threads.Thread):
                         mt.log.error("Error getting segment.")
                         pass
 
-                    finally:
-                        if ( seg and self.onSegFailed ): 
-                            self.onSegFailed(seg)
-                            seg = None
+                    if ( seg and self.onSegFailed ): 
+                        self.onSegFailed(seg)
+                        seg = None
 
-            # If a connection error occurs, it will loop and try to open another connection.
-            except:
-                mt.log.error("Connection error. Reconnecting..")
-
-            finally:
+                # Disconnect when we're finished.
                 if ( seg and self.onSegFailed ): self.onSegFailed(seg)
-                try:
-                    if ( connection ): 
-                        connection.quit()
-                        connection = None
-                except:
-                    pass
+                self.disconnect()
+            else:
+                mt.log.error("Connection error. Reconnecting in 3 seconds.")
+                self.sleep(3)
 
+        # Thread has ended.
+        self.disconnect() # just to be safe.
         end_time = time.time()
         mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
-
-        try: 
-            if ( self.onThreadStop ): self.onThreadStop(self.connection_number)
-            if ( connection ): 
-                connection.quit()
-                connection = None
-        except: 
-            pass
-        del connection
+        if ( self.onThreadStop ): self.onThreadStop(self.connection_number)
