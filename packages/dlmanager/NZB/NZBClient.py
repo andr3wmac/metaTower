@@ -172,6 +172,9 @@ class NZBClient():
             mt.log.error("Segment Aborted: " + seg.msgid + " After: " + str(seg.retries+1) + " Retrys.")
             self.segments_aborted.append(seg.msgid)
             del seg
+            if ( (len(self.segments_finished)+len(self.segments_aborted)) >= len(self.segment_list) ):
+                print "All Decoded with " + str(len(self.segments_aborted)) + " aborted."
+                self.all_decoded = True
             return
 
         seg.retries += 1
@@ -184,7 +187,7 @@ class NZBClient():
         # if we're not running send an instant kill switch.
         if ( not self.running ): return -1
 
-        # try to a segment from main queue or failed queue.
+        # try to get a segment from main queue or failed queue.
         queue_empty = False
         seg = None
         try:
