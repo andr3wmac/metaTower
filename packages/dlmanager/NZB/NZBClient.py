@@ -281,16 +281,16 @@ class NNTPConnection(mt.threads.Thread):
                             else:
                                 self.onSegFailed(seg)
 
-                        except NNTPReplyError:
-                            mt.log.error("NNTP reply error.")
+                        except NNTPError:
+                            mt.log.error("NNTP error.")
                             if ( self.onSegFailed ): self.onSegFailed(seg)
 
                         except ssl.SSLError:
                             raise
 
                         except Exception as inst:
-                            if ( self.onSegFailed ): self.onSegFailed(seg)
                             mt.log.error("Error getting segment: " + str(inst))
+                            if ( self.onSegFailed ): self.onSegFailed(seg)
 
                 # timeout, just restart the connection.
                 except ssl.SSLError as inst:
