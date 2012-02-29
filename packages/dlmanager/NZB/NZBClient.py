@@ -174,6 +174,8 @@ class NZBClient():
             del seg
 
             print "Segment Aborted:"
+            print "  Segment Queue Count: " + str(len(self.segment_queue))
+            print "  Failed Queue Count: " + str(len(self.failed_queue))
             print "  Finished Segments: " + str(len(self.segments_finished))
             print "  Aborted Segments:  " + str(len(self.segments_aborted))
             print "  Total: " + str(len(self.segment_list))
