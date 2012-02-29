@@ -297,10 +297,12 @@ class NNTPConnection(mt.threads.Thread):
 
             finally:
                 if ( seg and self.onSegFailed ): self.onSegFailed(seg)
-
-                if ( connection ): 
-                    connection.quit()
-                    connection = None
+                try:
+                    if ( connection ): 
+                        connection.quit()
+                        connection = None
+                except:
+                    pass
 
         end_time = time.time()
         mt.log.debug("Thread " + str(self.connection_number) + " stopped after " + str(end_time-start_time) + " seconds.")
