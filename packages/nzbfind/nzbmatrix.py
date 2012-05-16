@@ -26,6 +26,8 @@ class NZBMatrix:
             data += d_in
         lines = data.split("\n")
 
+        mt.log.debug("NZBMatrix Response:\n" + data)
+
         results = []
         result = Result()
         for line in lines:

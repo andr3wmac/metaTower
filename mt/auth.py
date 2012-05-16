@@ -31,7 +31,7 @@ class UpdateThread( threads.Thread ):
         # check if we have a remote_ip
         if ( mt.config["remote_ip"] == "" ):
             # Fetch the remote_ip
-            remote_url = "http://whatismyip.org"
+            remote_url = "https://www.metatower.net/ip.php"
             try:
                 mt.config["remote_ip"] = urllib.urlopen(remote_url).read()
                 print " http://" + mt.config["remote_ip"] + ":" + mt.config["port"] + "/"

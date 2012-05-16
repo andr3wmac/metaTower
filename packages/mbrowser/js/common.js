@@ -107,7 +107,7 @@ var mbrowser = {
 
         var html = "<li class='video' id='" + id + "'>";
         html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
-        html += "<div class='name'><a id='" + id + "_file' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
+        html += "<div class='name'><a id='" + id + "_file' target='_blank' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
 
         var f_args = item["path"].split("/");
         var f = f_args[f_args.length-1];
