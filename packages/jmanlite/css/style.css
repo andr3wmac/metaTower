@@ -1,7 +1,22 @@
 /* CSS Document */
 
-body{background:#61676F;font-family:Arial, Helvetica, sans-serif; font-size:0.7em; margin: 0; padding: 0;}
-ul, li{margin:0; padding:0; list-style:none;}
+body {
+    background:#61676F;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:0.7em; 
+    margin: 0; 
+    padding: 0;
+}
+
+ul, li {
+    margin:0; 
+    padding:0; 
+    list-style:none;
+}
+
+li:hover {
+    background: #222;
+}
 
 a {
     text-decoration: none;

@@ -3,24 +3,18 @@
 
 #mbrowser_menu .cat { font-weight: bold; }
 #mbrowser_menu .subcat { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_menu .subcat:hover { background-color: #E6E6E6; }
 
 #mbrowser_content { list-style-type: none; margin: 0; padding: 0; }
 #mbrowser_content li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }
 
 #mbrowser_content .menu { cursor: pointer; font-weight: bold; }
-#mbrowser_content .menu:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .audio { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_content .audio:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .video { }
-#mbrowser_content .video:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .show { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_content .show:hover { background-color: #E6E6E6; }
 #mbrowser_content .season { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_content .season:hover { background-color: #E6E6E6; }
 
 #mbrowser_content .icon {
     float: left;
