@@ -3,15 +3,9 @@
 
 #nzbfind_menu .cat { font-weight: bold; }
 #nzbfind_menu .subcat { background-image: url('nzbfind/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#nzbfind_menu .subcat:hover { background-color: #E6E6E6; }
 
 #nzbfind_content { list-style-type: none; margin: 0; padding: 0; }
 #nzbfind_content li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }
 
 #nzbfind_content .menu { font-weight: bold; cursor: pointer; }
-#nzbfind_content .menu:hover { background-color: #E6E6E6; }
-
 #nzbfind_content .nzb { cursor: pointer; background-image: url('nzbfind/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#nzbfind_content .nzb:hover { background-color: #E6E6E6; }
-
-#nzbfind_content a { text-decoration: none; color: black; }

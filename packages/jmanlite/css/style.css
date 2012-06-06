@@ -146,16 +146,12 @@ html ul.jman_taskbar li ul.menu li a:hover { /*--Hover effect for menu links--*/
     -webkit-border-radius: 5px; 
 }
 
-.progressBar 
-{
-	height: 18px;
+.progressBar {
 	background: black;
-	padding: 2px;
+	border: 2px solid black;
 }
 
-.progressBar_progress
-{
-	height: 18px;
-	background: white;
+.progressBar_progress {
+	background: #444;
 }
 
