@@ -41,12 +41,3 @@
     width: 350px;
     margin-right: 10px;
 }
-
-.progressBar {
-	background: #ECEBEB;
-	border: 1px solid #DBDADA;
-}
-
-.progressBar_progress {
-	background: #87B3BC;
-}

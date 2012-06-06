@@ -149,9 +149,11 @@ html ul.jman_taskbar li ul.menu li a:hover { /*--Hover effect for menu links--*/
 .progressBar {
 	background: black;
 	border: 2px solid black;
+    height: 20px;
 }
 
 .progressBar_progress {
 	background: #444;
+    height: 20px;
 }
 
