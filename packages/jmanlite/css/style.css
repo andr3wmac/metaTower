@@ -3,6 +3,18 @@
 body{background:#61676F;font-family:Arial, Helvetica, sans-serif; font-size:0.7em; margin: 0; padding: 0;}
 ul, li{margin:0; padding:0; list-style:none;}
 
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+
 .taskbar { position: absolute; top: 0px; left: 0px; right: 0px; height: 32px; background-repeat: repeat-x; background-image: url('../images/menu_bg.png');  }
 .taskbar_menu { margin: 0px; padding-left: 2px; float: left; height: 32px; width: 35px; border-right:1px solid #665a4e; }
 .taskbar_item { 
