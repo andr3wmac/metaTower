@@ -5,6 +5,7 @@ var jmanlite = {
         this.caption = "";
         this.package_name = "";
         this.on_click = "";
+        this.element = null;
     },
 
     menu: function(caption, package_name)
@@ -12,12 +13,14 @@ var jmanlite = {
         var item = new this.MenuItem();
         item.caption = caption;
         item.package_name = package_name;
-        this.menu_items.push(item);
+       
 
         var e = document.createElement("li");
         e.innerHTML = "<a onClick=\"jmanlite.menuClicked('" + package_name + "');\" href=\"#\">" + caption + "</a>";
         document.getElementById("jmanlite_taskbar").appendChild(e);
        
+        item.element = e;
+        this.menu_items.push(item);
         //mt.html("jmanlite_taskbar", "<li>, true);
     },
 
@@ -29,9 +32,9 @@ var jmanlite = {
             if ( entry.package_name == package_name )
             {
                 mt("event('jmanlite.menu." + package_name + "')")
-                entry.style.fontWeight = "bold";
+                entry.element.style.fontWeight = "bold";
             } else {
-                entry.style.fontWeight = "normal";
+                entry.element.style.fontWeight = "normal";
             }
         }
     }
