@@ -12,6 +12,7 @@ ul, li {
     margin:0; 
     padding:0; 
     list-style:none;
+    line-height: 1.1em;
 }
 
 li:hover {
@@ -77,13 +78,14 @@ ul.jman_taskbar li:hover {
     background: none;
 }
 ul.jman_taskbar li a {
-	padding: 10px 5px;
-	color: #fff;
+	padding: 8px 5px;
+	color: #AAA;
 	display: block;
 	text-decoration: none;
 	float: left;
 }
 ul.jman_taskbar li a:hover{
+    color: white;
 	font-weight: bold;
 }
 ul.jman_taskbar li span { /*--Drop down trigger styles--*/
