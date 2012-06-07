@@ -25,7 +25,10 @@ var jmanlite = {
 			if ( entry.package_name == package_name )
 			{
 				mt("event('jmanlite.menu." + package_name + "')")
-			}
+                entry.style.font-weight = "bold";
+			} else {
+                entry.style.font-weight = "normal";
+            }
 		}
 	}
 };
