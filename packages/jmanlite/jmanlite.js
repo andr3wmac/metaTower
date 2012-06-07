@@ -33,8 +33,10 @@ var jmanlite = {
             {
                 mt("event('jmanlite.menu." + package_name + "')")
                 entry.element.style.fontWeight = "bold";
+                entry.element.style.color = "white";
             } else {
                 entry.element.style.fontWeight = "normal";
+                entry.element.style.color = "#AAA";
             }
         }
     }
