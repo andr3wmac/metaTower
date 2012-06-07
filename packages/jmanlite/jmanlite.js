@@ -13,7 +13,6 @@ var jmanlite = {
         var item = new this.MenuItem();
         item.caption = caption;
         item.package_name = package_name;
-       
 
         var e = document.createElement("li");
         e.innerHTML = "<a onClick=\"jmanlite.menuClicked('" + package_name + "');\" href=\"#\">" + caption + "</a>";
