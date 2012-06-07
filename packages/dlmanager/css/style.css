@@ -1,5 +1,5 @@
 #dlmanager_content { list-style-type: none; margin: 0; padding: 0; }
-#dlmanager_content li { font-size: 1.0em; border: 0px; background-repeat:no-repeat; background-position: left 6px; padding: 5px 5px 5px 50px; }
+#dlmanager_content li { border: 0px; background-repeat:no-repeat; background-position: left 6px; padding: 5px 5px 5px 50px; line-height: 1.2em; }
 #dlmanager_content .dlmanager_nzb { background-image: url('dlmanager/images/nzb.png');  }
 #dlmanager_content .dlmanager_torrent { background-image: url('dlmanager/images/torrent.png'); }
 #dlmanager_content .ui-widget-content {  }
