@@ -29,14 +29,7 @@ var jmanlite = {
         {
             var entry = this.menu_items[i];
             if ( entry.package_name == package_name )
-            {
                 mt("event('jmanlite.menu." + package_name + "')")
-                entry.element.style.fontWeight = "bold";
-                entry.element.style.color = "white";
-            } else {
-                entry.element.style.fontWeight = "normal";
-                entry.element.style.color = "#AAA";
-            }
         }
     }
 };

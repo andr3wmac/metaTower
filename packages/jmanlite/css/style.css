@@ -69,7 +69,6 @@ ul.jman_taskbar {
 	background: url(../images/menu_bg.png) repeat-x;
 }
 ul.jman_taskbar li {
-    color: #AAA;
 	float: left;
 	margin: 0;	
 	padding: 0 15px 0 0;
@@ -79,6 +78,7 @@ ul.jman_taskbar li:hover {
     background: none;
 }
 ul.jman_taskbar li a {
+    color: #AAA;
 	padding: 9px 5px;
 	display: block;
 	text-decoration: none;
