@@ -14,7 +14,11 @@ var jmanlite = {
         item.package_name = package_name;
         this.menu_items.push(item);
 
-        mt.html("jmanlite_taskbar", "<li><a onClick=\"jmanlite.menuClicked('" + package_name + "');\" href=\"#\">" + caption + "</a></li>", true);
+        var e = document.createElement("li");
+        e.innerHTML = "<a onClick=\"jmanlite.menuClicked('" + package_name + "');\" href=\"#\">" + caption + "</a>";
+        document.getElementById("jmanlite_taskbar").appendChild(e);
+       
+        //mt.html("jmanlite_taskbar", "<li>, true);
     },
 
     menuClicked: function(package_name)
