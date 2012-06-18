@@ -11,17 +11,15 @@ this_year = int(time.strftime('%Y'))
 
 def onLoad():
     mt.config.load("packages/mbrowser/mbrowser.cfg")
-
-    mt.events.register("jman.load", jman_load)
-    mt.events.register("jman.menu.mbrowser", jman_menu)
-
-    mt.events.register("jmanlite.load", jmanlite_load)
-    mt.events.register("jmanlite.menu.mbrowser", jmanlite_menu)
-
     scan()
 
 def onUnload():
     ffmpeg.stop()
+
+def home(resp):
+    resp.htmlFile("mbrowser/home.html", "container")
+    resp.jsFile("mbrowser/script.js")
+    resp.cssFile("mbrowser/style.css")
 
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "Media Browser", 3)

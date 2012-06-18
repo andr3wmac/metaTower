@@ -1,40 +1,39 @@
 #mbrowser_menu { list-style-type: none; margin: 0; padding: 0; }
-#mbrowser_menu li { border: 0px; margin: 3px; padding: 5px; }
-
+#mbrowser_menu li { border: 0px; padding: 5px; }
 #mbrowser_menu .cat { font-weight: bold; }
-#mbrowser_menu .subcat { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_menu .subcat { cursor: pointer; }
 
-#mbrowser_content { list-style-type: none; margin: 0; padding: 0; }
-#mbrowser_content li { border: 0px; margin: 3px; padding: 5px; }
+#mbrowser_main { list-style-type: none; margin: 0; padding: 0; }
+#mbrowser_main li { border: 0px; margin: 3px; padding: 5px; }
 
-#mbrowser_content .menu { cursor: pointer; font-weight: bold; }
+#mbrowser_main .menu { cursor: pointer; font-weight: bold; }
 
-#mbrowser_content .audio { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_main .audio { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 
-#mbrowser_content .video { }
+#mbrowser_main .video { }
 
-#mbrowser_content .show { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_content .season { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_main .show { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_main .season { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 
-#mbrowser_content .icon {
+#mbrowser_main .icon {
     float: left;
 }
-#mbrowser_content .name {
+#mbrowser_main .name {
     padding-left: 25px;
     cursor: pointer;
 }
 
-#mbrowser_content .info {
+#mbrowser_main .info {
     padding: 10px 30px 0px;
 }
 
-#mbrowser_content .info li {
+#mbrowser_main .info li {
     list-style-type: circle;
     padding: 3px;
     margin: 0px;
 }
 
-#mbrowser_content .rename_input {
+#mbrowser_main .rename_input {
     border: 1px solid #DBDADA;
     width: 350px;
     margin-right: 10px;

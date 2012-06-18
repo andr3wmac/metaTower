@@ -18,8 +18,8 @@ def onLoad():
     # register events.
     mt.events.register("jman.load", jman_load)
     mt.events.register("jman.menu.dlmanager", jman_menu)
-    mt.events.register("jmanlite.load", jmanlite_load)
-    mt.events.register("jmanlite.menu.dlmanager", jmanlite_menu)
+    mt.events.register("mtwm.load", mtwm_load)
+    mt.events.register("mtwm.menu.dlmanager", mtwm_menu)
     
 def onUnload():
     global QueueControl
@@ -73,13 +73,13 @@ def jman_menu(resp):
     resp.js("jman.dialog('dlmanager_main');")
     update(resp)
 
-def jmanlite_load(resp):
-    mt.packages.jmanlite.menu(resp.session, "Download Manager", "dlmanager")
+def mtwm_load(resp):
+    mt.packages.mtwm.menu(resp.session, "Download Manager", "dlmanager")
     
-def jmanlite_menu(resp):
-    resp.htmlFile("dlmanager/html/jmanlite.html", "jmanlite_content", False)
+def mtwm_menu(resp):
+    resp.htmlFile("dlmanager/html/mtwm.html", "mtwm_content", False)
     resp.jsFile("dlmanager/js/common.js")
-    resp.jsFile("dlmanager/js/jmanlite.js")
+    resp.jsFile("dlmanager/js/mtwm.js")
     resp.cssFile("dlmanager/css/style.css")
     update(resp)
 

@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, os, errno, shutil, hashlib
+import inspect, uuid, commands, socket, os, errno, shutil, hashlib, platform, ctypes
 import ExecuteThread, ProfileTicket
 
 profile_enabled = False
@@ -137,3 +137,13 @@ def convert_bytes(bytes):
     else:
         size = '%.2fb' % bytes
     return size
+
+def get_free_space():
+    folder = "."
+    if platform.system() == 'Windows':
+        free_bytes = ctypes.c_ulonglong(0)
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(folder), None, None, ctypes.pointer(free_bytes))
+        return free_bytes.value
+    else:
+        s = os.statvfs(folder	)
+        return s.f_bsize * s.f_bavail
