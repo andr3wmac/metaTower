@@ -100,7 +100,7 @@ a:hover {
     float: left;
     border-right: 1px solid #444;
     padding: 20px;
-    min-width: 200px;
+    width: 100px;
     text-align: right;
     vertical-align: top;
 }
@@ -109,14 +109,13 @@ a:hover {
     float: right;
     border-left: 1px solid #444;
     padding: 20px;
-    min-width: 200px;
+    width: 200px;
     vertical-align: top;
 }
 
 .window .main {
     padding: 20px;
     min-height: 300px;
-    width: 100%;
     vertical-align: top;
 }
 

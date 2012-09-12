@@ -1,5 +1,5 @@
-mt.layout("home", "window", {"header": "home_header", "footer": "home_footer"} );
-mt.layout("home_layout", "spread", { "columns": ["home_packagelist", "home_main"] } );
+mt.layout("home", "window", {header: "home_header", footer: "home_footer"} );
+mt.layout("home_layout", "spread", {columns: ["home_packagelist", "home_main"] } );
 
 //<table><tr>
 //        <td class="left">

@@ -1,6 +1,5 @@
-mt.layout("mbrowser", "window", {"header": "mbrowser_header"} );
-mt.layout("mbrowser_layout", "spread", {"columns": ["mbrowser_menu", "mbrowser_main"] } );
-
+mt.layout("mbrowser", "window", {header: "mbrowser_header"} );
+mt.layout("mbrowser_layout", "spread", {columns: ["mbrowser_menu", "mbrowser_main"] } );
 
 var mbrowser = {
 	allAudio: function() { mt("mbrowser.query({'type': 'audio'})"); },

@@ -61,7 +61,9 @@ var mtwm = {
         var container = target.parentNode;
 
         var table = document.createElement("table");
-        mt.cloneAttributes(target, table);
+        table.id = target.id;
+        table.className = target.className;
+        //mt.cloneAttributes(target, table);
 
         var tr = document.createElement("tr");
         table.appendChild(tr);
@@ -71,12 +73,15 @@ var mtwm = {
             var e = document.getElementById(args.columns[a]);
             var parent = e.parentNode;
             var td = document.createElement("td");
-            mt.cloneAttributes(e, td);
+            
+            //mt.cloneAttributes(e, td);
+            td.id = e.id;
+            td.className = e.className;
             td.innerHTML = e.innerHTML;
-
+            
             parent.removeChild(e);
             tr.appendChild(td);
-        }
+        };
 
         container.insertBefore(table, target);
         container.removeChild(target);
@@ -102,8 +107,13 @@ mtwm.home = {
         var header = document.getElementById("home_header");
         header.innerHTML = "metaTower v" + version;
 
+        
+
         var plist = document.getElementById("home_packagelist");
-        plist.innerHTML = "";
+        if ( plist )
+        {
+            plist.innerHTML = "";
+        }
 
         for(var name in packages)
         {
