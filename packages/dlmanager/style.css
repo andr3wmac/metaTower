@@ -5,3 +5,9 @@
 #dlmanager_content .ui-widget-content {  }
 #dlmanager_content .ui-progressbar { height: 20px; width: 100%; }
 #dlmanager_content .ui-selected { background-color: #E6E6E6; }
+
+#dlmanager_menu { list-style-type: none; }
+#dlmanager_menu li { border: 0px; padding: 5px; width: 150px; }
+#dlmanager_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
+#dlmanager_menu .refresh { font-weight: bold; margin-top: 20px; cursor: pointer; }
+#dlmanager_menu .subcat { cursor: pointer; }
