@@ -2,6 +2,7 @@ mt.layout("dlmanager", "window", {header: "dlmanager_header"} );
 mt.layout("dlmanager_layout", "spread", {columns: ["dlmanager_menu", "dlmanager_main"] } );
 
 var dlmanager = {
+    completed: [],
 	nzb: function(id, filename, state, args)
 	{
 		// the actual output
@@ -45,6 +46,7 @@ var dlmanager = {
 
 		    // Completed
 		    case 4:
+                dlmanager.completed.push(id);
                 var par2_element = document.getElementById(id + "_par2");
                 var unrar_element = document.getElementById(id + "_unrar");
                 if ( !par2_element || !unrar_element )
@@ -116,7 +118,15 @@ var dlmanager = {
 				parent.removeChild(element);
 			}
 		}
-	}
+	},
+
+    removeCompleted: function()
+    {
+        var comp = dlmanager.completed.join();
+        dlmanager.remove(comp);
+        mt("dlmanager.remove_selected('" + comp + "')");
+        dlmanager.completed = [];
+    }
 };
 
 dlmanager.update = function()
