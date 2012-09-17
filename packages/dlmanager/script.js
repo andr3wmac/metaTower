@@ -127,3 +127,5 @@ dlmanager.update = function()
 dlmanager.sendUpdate = function() {
 	mt("dlmanager.update()");
 };
+
+dlmanager.sendUpdate();
