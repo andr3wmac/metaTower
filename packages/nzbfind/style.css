@@ -2,6 +2,7 @@
 #nzbfind_menu li { border: 0px; padding: 5px; width: 150px; }
 
 #nzbfind_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
+#nzbfind_menu .cat:hover { };
 #nzbfind_menu .subcat { cursor: pointer; }
 
 #nzbfind_content { list-style-type: none; margin: 0; padding: 0; }
@@ -10,4 +11,4 @@
 #nzbfind_content .menu { font-weight: bold; cursor: pointer; }
 #nzbfind_content .nzb { cursor: pointer; background-image: url('nzbfind/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 
-#nzbfind_results li { padding-top: 10px; }
+#nzbfind_results li { padding: 5px; }
