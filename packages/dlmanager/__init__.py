@@ -61,6 +61,11 @@ def remove_selected(resp, selected):
     QueueControl.removeItems(items)
     update(resp)
 
+def home(resp):
+    resp.htmlFile("dlmanager/home.html", "container")
+    resp.jsFile("dlmanager/script.js")
+    resp.cssFile("dlmanager/style.css")
+
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "Download Manager", 0)
     mt.packages.jman.taskbar(resp.session, "Download Manager", ['dlmanager_main'])
