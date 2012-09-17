@@ -41,12 +41,12 @@ var nzbfind = {
 	download: function(id)
     {
         mt("nzbfind.download(" + id + ")");
-        nzbfind.status("Downloading NZB..", 0);
+        nzbfind.status("Downloading..", 0);
     },
 
     dl_complete: function()
     {
-        nzbfind.status("Done. Check your download manager.", 100);
+        nzbfind.status("Done.", 100);
     },
 
     data: function(results)
