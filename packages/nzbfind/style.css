@@ -1,8 +1,8 @@
-#nzbfind_menu { list-style-type: none; margin: 0; padding: 0; }
-#nzbfind_menu li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; width: 150px;}
+#nzbfind_menu { list-style-type: none; }
+#nzbfind_menu li { border: 0px; padding: 5px; width: 150px; }
 
-#nzbfind_menu .cat { font-weight: bold; }
-#nzbfind_menu .subcat { background-image: url('nzbfind/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#nzbfind_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
+#nzbfind_menu .subcat { cursor: pointer; }
 
 #nzbfind_content { list-style-type: none; margin: 0; padding: 0; }
 #nzbfind_content li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }

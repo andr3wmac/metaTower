@@ -1,4 +1,4 @@
-mt.layout("nzbfind", "window", {header: "mbrowser_header"} );
+mt.layout("nzbfind", "window", {header: "nzbfind_header"} );
 mt.layout("nzbfind_layout", "spread", {columns: ["nzbfind_menu", "nzbfind_main"] } );
 
 var nzbfind = {

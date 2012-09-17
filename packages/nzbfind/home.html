@@ -1,0 +1,33 @@
+<div id="nzbfind">
+    <div id="nzbfind_header">
+        NZB Finder
+    </div>
+    <div id="nzbfind_layout">
+        <div id="nzbfind_menu" class="left">
+            <li class="cat">TV</li>
+            <li class="subcat" onclick="nzbfind.setCat('tv-all', this.id)">All</li>
+	        <li class="subcat" onclick="nzbfind.setCat('6', this.id)">Divx/Xvid</li>
+	        <li class="subcat" onclick="nzbfind.setCat('41', this.id)">x264</li>
+            <li class="subcat" onclick="nzbfind.setCat('7', this.id)">Sports</li>
+	        <li class="cat">Movies</li>
+	        <li class="subcat" onclick="nzbfind.setCat('movies-all', this.id)">All</li>
+	        <li class="subcat" onclick="nzbfind.setCat('2', this.id)">Divx/Xvid</li>
+	        <li class="subcat" onclick="nzbfind.setCat('42', this.id)">x264</li>
+
+            <div id="nzbfind_statusbar" style="display: none; padding: 5px">
+                <div id="nzbfind_status" style="position: absolute; padding-top: 6px; padding-left:10px;">></div>
+                <div id="nzbfind_progress"></div>
+            </div>
+        </div>
+        <div id="nzbfind_main" class="main">
+            <div style="border-bottom: 1px solid #B6B6B2">
+                <div style="float: right; padding-left: 5px;"><button onclick="nzbfind.search()">Search</button></div>
+                <div style="overflow: hidden; height: 32px"><input id="nzbfind_query" style="border: 1px solid black; padding: 3px; width: 100%; color: black" /></div>
+            </div>
+            <ul id="nzbfind_results" style="margin-top: 10px">
+            </ul>
+        </div>
+    </div>
+</div>
+
+
