@@ -110,7 +110,7 @@ mtwm.home = {
         var plist = document.getElementById("home_packagelist");
         if ( plist )
         {
-            var plistHTML = "<ul>";
+            var plistHTML = "";
             for(var name in packages)
             {
                 var func = packages[name];
@@ -119,7 +119,6 @@ mtwm.home = {
                 else
                     plistHTML += "<li>" + name + "</li>";
             }
-            plistHTML += "</ul>";
             plist.innerHTML = plistHTML;
         }
 

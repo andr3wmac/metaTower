@@ -98,11 +98,10 @@ a:hover {
 }
 
 .window .left {
-    float: left;
     border-right: 1px solid #444;
-    padding: 20px;
     text-align: right;
-    vertical-align: top;
+    display: block;
+    padding: 20px;
 }
 
 .window .right {
@@ -134,9 +133,8 @@ a:hover {
     
 }
 #home_packagelist li {
-    width: auto;
     padding: 5px;
-    height: 20px;
+    width: 200px;
 }
 #home_footer {
     text-align: right;

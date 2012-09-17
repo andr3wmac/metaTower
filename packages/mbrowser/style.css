@@ -1,6 +1,7 @@
 #mbrowser_menu { list-style-type: none; }
-#mbrowser_menu li { border: 0px; padding: 5px; }
-#mbrowser_menu .cat { font-weight: bold; }
+#mbrowser_menu li { border: 0px; padding: 5px; width: 150px; }
+#mbrowser_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
+#mbrowser_menu .refresh { font-weight: bold; padding-top: 20px; cursor: pointer; }
 #mbrowser_menu .subcat { cursor: pointer; }
 
 #mbrowser_status { padding-top: 50px; text-align: left; }
