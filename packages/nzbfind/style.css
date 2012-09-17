@@ -10,4 +10,4 @@
 #nzbfind_content .menu { font-weight: bold; cursor: pointer; }
 #nzbfind_content .nzb { cursor: pointer; background-image: url('nzbfind/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
 
-#nzbfind_results .li { padding-top: 10px; }
+#nzbfind_results li { padding-top: 10px; }
