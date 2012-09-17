@@ -115,6 +115,7 @@ mtwm.home = {
             plist.innerHTML = "";
         }
 
+        plist.innerHTML = "<ul>";
         for(var name in packages)
         {
             var func = packages[name];
@@ -123,6 +124,7 @@ mtwm.home = {
             else
                 plist.innerHTML += "<li>" + name + "</li>";
         }
+        plist.innerHTML += "</ul>";
 
         var main = document.getElementById("home_main");
         main.innerHTML = "Free Space: " + free_space;
