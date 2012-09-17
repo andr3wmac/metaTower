@@ -134,6 +134,7 @@ a:hover {
 }
 #home_packagelist li {
     padding: 5px;
+    height: 20px;
 }
 #home_footer {
     text-align: right;
