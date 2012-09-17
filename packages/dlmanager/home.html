@@ -1,0 +1,26 @@
+<div id="dlmanager">
+    <div id="dlmanager_header">
+        Download Manager
+    </div>
+    <div id="dlmanager_layout">
+        <div id="dlmanager_menu" class="left">
+            <li class="cat">Audio</li>
+            <li class="subcat" onclick="dlmanager.allAudio()">All</li>
+            <li class="subcat" onclick="dlmanager.newAudio()">Newest</li>
+            <li class="cat">Video</li>
+            <li class="subcat" onclick="dlmanager.allVideo()">All</li>
+            <li class="subcat" onclick="dlmanager.movies()">Movies</li>
+            <li class="subcat" onclick="dlmanager.tv()">TV Shows</li>
+            <li class="subcat" onclick="dlmanager.newVideo()">Newest</li>
+            <li class="refresh" onclick="dlmanager.refresh()">Refresh Library</li>
+
+            <div id="dlmanager_statusbar" style="display: none;">
+                <div id="dlmanager_status"><a href='#' onclick="mt('dlmanager.stopConvert()');">Click to Stop</a></div>
+                <div id="dlmanager_progress"></div>
+            </div>
+        </div>
+        <div id="dlmanager_main" class="main">
+            <ul id="dlmanager_content" style="margin: 0px; padding: 0px;"></ul>            
+        </div>
+    </div>
+</div>
