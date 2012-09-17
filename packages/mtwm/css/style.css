@@ -128,7 +128,6 @@ a:hover {
 .window .progressBar {
 	background: #222;
     height: 10px;
-    margin: 2px 10px 0px 0px;
 }
 
 .window .progressBar_progress {
