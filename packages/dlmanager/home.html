@@ -4,6 +4,10 @@
     </div>
     <div id="dlmanager_layout">
         <div id="dlmanager_menu" class="left">
+            <li class="cat">Show Only</li>
+            <li class="subcat" onclick="dlmanager.allVideo()">NZBs</li>
+            <li class="subcat" onclick="dlmanager.movies()">Torrents</li>
+
             <li class="cat">Add NZB/Torrent</li>
             <li class="subcat">
                 <form id="dlmanager_upload" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
@@ -11,11 +15,7 @@
 			        <input type="submit" onclick="dlmanager.jman.toggleUpload();" value="Upload">
 		        </form>
             </li>
-            <li class="cat">Video</li>
-            <li class="subcat" onclick="dlmanager.allVideo()">All</li>
-            <li class="subcat" onclick="dlmanager.movies()">Movies</li>
-            <li class="subcat" onclick="dlmanager.tv()">TV Shows</li>
-            <li class="subcat" onclick="dlmanager.newVideo()">Newest</li>
+
             <li class="refresh" onclick="dlmanager.refresh()">Clear Completed</li>
 
             <div id="dlmanager_statusbar" style="display: none;">
