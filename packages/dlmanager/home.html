@@ -6,13 +6,19 @@
         <div id="dlmanager_menu" class="left">
             <li class="cat">Audio</li>
             <li class="subcat" onclick="dlmanager.allAudio()">All</li>
-            <li class="subcat" onclick="dlmanager.newAudio()">Newest</li>
+            <li class="subcat">
+                <form id="dlmanager_upload" style="display: none" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
+			        <input type="file" name="nzb">
+			        <input type="submit" onclick="dlmanager.jman.toggleUpload();" value="Add">
+			        <input type="button" onclick="dlmanager.jman.toggleUpload();" value="Cancel">
+		        </form>
+            </li>
             <li class="cat">Video</li>
             <li class="subcat" onclick="dlmanager.allVideo()">All</li>
             <li class="subcat" onclick="dlmanager.movies()">Movies</li>
             <li class="subcat" onclick="dlmanager.tv()">TV Shows</li>
             <li class="subcat" onclick="dlmanager.newVideo()">Newest</li>
-            <li class="refresh" onclick="dlmanager.refresh()">Refresh Library</li>
+            <li class="refresh" onclick="dlmanager.refresh()">Clear Completed</li>
 
             <div id="dlmanager_statusbar" style="display: none;">
                 <div id="dlmanager_status"><a href='#' onclick="mt('dlmanager.stopConvert()');">Click to Stop</a></div>
