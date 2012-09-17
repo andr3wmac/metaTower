@@ -1,3 +1,6 @@
+mt.layout("nzbfind", "window", {header: "mbrowser_header"} );
+mt.layout("nzbfind_layout", "spread", {columns: ["nzbfind_menu", "nzbfind_main"] } );
+
 var nzbfind = {
     category: '0',
     setCat: function(cat) 
@@ -45,4 +48,16 @@ var nzbfind = {
         mt.html("nzbfind_results", html, false);
         nzbfind.status("Done.", 100);
     },
+};
+
+nzbfind.showStatus = function()
+{
+    var sBar = document.getElementById("nzbfind_statusbar");
+    sBar.style.display = "block";
+};
+
+nzbfind.hideStatus = function()
+{
+    var sBar = document.getElementById("nzbfind_statusbar");
+    sBar.style.display = "none";
 };

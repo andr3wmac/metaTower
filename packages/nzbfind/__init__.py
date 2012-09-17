@@ -15,15 +15,10 @@ def onLoad():
         api = cfg["nzbfind/sources/nzbmatrix/api-key"]
         engine = nzbmatrix.NZBMatrix(user, api, save_to)
 
-    mt.events.register("jman.load", jman_load)
-    mt.events.register("jman.menu.nzbfind", jman_menu)
-
-    mt.events.register("jmanlite.load", jmanlite_load)
-    mt.events.register("jmanlite.menu.nzbfind", jmanlite_menu)
-
-def onUnload():
-    mt.events.clear(jman_load)
-    mt.events.clear(jman_menu)
+def home(resp):
+    resp.htmlFile("nzbfind/home.html", "container")
+    resp.jsFile("nzbfind/script.js")
+    resp.cssFile("nzbfind/style.css")
 
 def jman_load(resp):
     mt.packages.jman.menu(resp.session, "NZB Find", 5)

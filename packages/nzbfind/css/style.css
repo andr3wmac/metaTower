@@ -1,5 +1,5 @@
 #nzbfind_menu { list-style-type: none; margin: 0; padding: 0; }
-#nzbfind_menu li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; }
+#nzbfind_menu li { border: 0px;  font-size: 1.0em; margin: 3px; padding: 5px; width: 150px;}
 
 #nzbfind_menu .cat { font-weight: bold; }
 #nzbfind_menu .subcat { background-image: url('nzbfind/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
