@@ -133,6 +133,7 @@ a:hover {
     
 }
 #home_packagelist li {
+    width: auto;
     padding: 5px;
     height: 20px;
 }
