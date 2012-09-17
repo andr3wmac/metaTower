@@ -39,7 +39,7 @@ var nzbfind = {
 
     data: function(results)
     {
-        var html = "<li class='menu' onclick='nzbfind.showMenu()''>Return to Main Menu</li>";
+        var html = "";
         for ( var i = 0; i < results.length; i++ )
         {
             var result = results[i];

@@ -106,6 +106,7 @@ a:hover {
     text-align: right;
     display: block;
     padding: 20px;
+    vertical-align: top;
 }
 
 .window .right {
