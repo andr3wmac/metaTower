@@ -5,10 +5,12 @@
     <div id="dlmanager_layout">
         <div id="dlmanager_menu" class="left">
             <li class="cat">Add NZB/Torrent</li>
+            <li class="subcat">
                 <form id="dlmanager_upload" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
-			        <input type="file" name="nzb">
+			        <input id="dlmanager_fileinp" type="file" name="nzb">
 			        <input type="submit" onclick="dlmanager.jman.toggleUpload();" value="Upload">
 		        </form>
+            </li>
             <li class="cat">Video</li>
             <li class="subcat" onclick="dlmanager.allVideo()">All</li>
             <li class="subcat" onclick="dlmanager.movies()">Movies</li>

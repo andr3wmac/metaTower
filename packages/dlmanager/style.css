@@ -11,3 +11,5 @@
 #dlmanager_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
 #dlmanager_menu .refresh { font-weight: bold; margin-top: 20px; cursor: pointer; }
 #dlmanager_menu .subcat { cursor: pointer; }
+
+#dlmanager_fileinp { width: 150px; }
