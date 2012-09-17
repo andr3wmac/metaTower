@@ -3,10 +3,22 @@ mt.layout("nzbfind_layout", "spread", {columns: ["nzbfind_menu", "nzbfind_main"]
 
 var nzbfind = {
     category: '0',
-    setCat: function(cat) 
+    categories: ['tv-all', '6', '41', '7', 'movies-all', '2', '42'],
+    setCat: function(num) 
     { 
-        nzbfind.category = cat; 
-        nzbfind.hideMenu(); 
+        nzbfind.category = nzbfind.categories[num];
+        for(var x = 0; x < nzbfind.categories.length; x++)
+        {
+            var e = document.getElementById("nzbfind_menu" + x);
+            if ( x == num )
+            {
+                e.style.fontWeight = "bold";
+            }
+            else
+            {
+                e.style.fontWeight = "normal";   
+            }
+        }
     },
 
     status: function(msg, progress)

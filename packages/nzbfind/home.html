@@ -5,26 +5,30 @@
     <div id="nzbfind_layout">
         <div id="nzbfind_menu" class="left">
             <li class="cat">TV</li>
-            <li class="subcat" onclick="nzbfind.setCat('tv-all', this.id)">All</li>
-	        <li class="subcat" onclick="nzbfind.setCat('6', this.id)">Divx/Xvid</li>
-	        <li class="subcat" onclick="nzbfind.setCat('41', this.id)">x264</li>
-            <li class="subcat" onclick="nzbfind.setCat('7', this.id)">Sports</li>
+            <li id="nzbfind_menu0" class="subcat" onclick="nzbfind.setCat(0)">All</li>
+	        <li id="nzbfind_menu1" class="subcat" onclick="nzbfind.setCat(1)">Divx/Xvid</li>
+	        <li id="nzbfind_menu2" class="subcat" onclick="nzbfind.setCat(2)">x264</li>
+            <li id="nzbfind_menu3" class="subcat" onclick="nzbfind.setCat(3)">Sports</li>
 	        <li class="cat">Movies</li>
-	        <li class="subcat" onclick="nzbfind.setCat('movies-all', this.id)">All</li>
-	        <li class="subcat" onclick="nzbfind.setCat('2', this.id)">Divx/Xvid</li>
-	        <li class="subcat" onclick="nzbfind.setCat('42', this.id)">x264</li>
+	        <li id="nzbfind_menu4" class="subcat" onclick="nzbfind.setCat(4)">All</li>
+	        <li id="nzbfind_menu5" class="subcat" onclick="nzbfind.setCat(5)">Divx/Xvid</li>
+	        <li id="nzbfind_menu6" class="subcat" onclick="nzbfind.setCat(6)">x264</li>
 
-            <div id="nzbfind_statusbar" style="display: none; padding: 5px">
-                <div id="nzbfind_status" style="position: absolute; padding-top: 6px; padding-left:10px;">></div>
+            <div id="nzbfind_statusbar">
+                <div id="nzbfind_status"></div>
                 <div id="nzbfind_progress"></div>
             </div>
         </div>
         <div id="nzbfind_main" class="main">
-            <div style="border-bottom: 1px solid #888; padding-bottom: 10px;">
-                <div style="float: right; padding-left: 5px;"><button style="color: black;" onclick="nzbfind.search()">Search</button></div>
-                <div style="overflow: hidden; height: 32px"><input id="nzbfind_query" style="border: 1px solid black; padding: 3px; width: 100%; color: black" /></div>
+            <div id="nzbfind_search">
+                <div id="nzbfind_searchbtn">
+                    <button onclick="nzbfind.search()">Search</button>
+                </div>
+                <div id="nzbfind_searchbox">
+                    <input id="nzbfind_query"/>
+                </div>
             </div>
-            <ul id="nzbfind_results" style="margin-top: 10px">
+            <ul id="nzbfind_results">
             </ul>
         </div>
     </div>
