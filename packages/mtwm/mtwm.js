@@ -107,24 +107,21 @@ mtwm.home = {
         var header = document.getElementById("home_header");
         header.innerHTML = "metaTower v" + version;
 
-        
-
         var plist = document.getElementById("home_packagelist");
         if ( plist )
         {
-            plist.innerHTML = "";
+            var plistHTML = "<ul>";
+            for(var name in packages)
+            {
+                var func = packages[name];
+                if ( func )
+                    plistHTML += "<li><a onClick=\"" + func + "\">" + name + "</a></li>";
+                else
+                    plistHTML += "<li>" + name + "</li>";
+            }
+            plistHTML += "</ul>";
+            plist.innerHTML = plistHTML;
         }
-
-        plist.innerHTML = "<ul>";
-        for(var name in packages)
-        {
-            var func = packages[name];
-            if ( func )
-                plist.innerHTML += "<li><a onClick=\"" + func + "\">" + name + "</a></li>";
-            else
-                plist.innerHTML += "<li>" + name + "</li>";
-        }
-        plist.innerHTML += "</ul>";
 
         var main = document.getElementById("home_main");
         main.innerHTML = "Free Space: " + free_space;
