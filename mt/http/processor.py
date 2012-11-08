@@ -12,8 +12,13 @@
 import thread, os, time, sys, Cookie, uuid, hashlib, mimetypes
 import mt
 
-def processRequest(session, request_type, request_path, post_data):
-    output = mt.http.HTTPOut(session)
+def processRequest(httpIn):
+    request_type = httpIn.type
+    request_path = httpIn.path
+    post_data = httpIn.post_data
+    session = httpIn.session
+
+    output = mt.http.HTTPOut(httpIn.session)
 
     # GET Request
     if ( request_type == "GET" ):
@@ -131,7 +136,10 @@ def processCommand(path, session):
             return None
 
 # Process login from a client.
-def processLogin(client_socket, path, auth_line):
+def processLogin(client_socket, httpIn):
+    path = httpIn.path
+    auth_line = httpIn.auth_line
+
     config = mt.config
     user = None
     resp = None
@@ -187,6 +195,7 @@ def processLogin(client_socket, path, auth_line):
         # Create a response variable and
         resp = mt.http.HTTPOut(sesh)
         resp.cookies["session"] = sesh.auth_key
+        httpIn.session = sesh
 
         # Trigger any login events.
         mt.packages.onLogin(resp)
@@ -195,8 +204,10 @@ def processLogin(client_socket, path, auth_line):
         # For instance with a local, no security auto-login.
         # Therefore if the URL contains any commands, we'll pass it
         # back around for execution.
-        if ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
-            resp.append(processRequest(sesh, "GET", path, ""))
+        if ( path == "/" ):
+            resp.append(processRequest(httpIn))
+        elif ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
+            resp.append(processRequest(httpIn))
         else:
             # Clean redirect will remove the auth_key from the URL,
             # it's rather unsightly for the user.

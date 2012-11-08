@@ -15,6 +15,17 @@ from mt import threads
 
 running = False
 
+class HTTPIn():
+    def __init__(self):
+        self.type = "unknown"
+        self.path = ""
+        self.post_data = ""
+        self.cookies = {}
+        self.header_only = False
+        self.auth_line = ""
+        self.user_agent = ""
+        self.session = None
+
 class HTTPOut():
     class mtEntry():
         def __init__(self):
@@ -213,34 +224,31 @@ class HTTPHandler(threads.Thread):
                 p = mt.utils.profile()
 
                 # process the data into a managable form.
+                httpIn = HTTPIn()
                 output = HTTPOut()
-
-                request_type = "unknown"
-                request_path = ""
-                post_data = ""
-                cookies = {}
-                header_only = False
-                auth_line = ""
 
                 for line in lines:
                     args = line.split(" ")
 
                     if ( args[0] == "GET" ) or ( args[0] == "POST" ):
-                        request_type = args[0]
-                        request_path = args[1]
+                        httpIn.type = args[0]
+                        httpIn.path = args[1]
                         output.http_version = args[2]
 
                     if ( args[0] == "HEAD" ):
-                        request_type = "GET"
-                        request_path = args[1]
+                        httpIn.type = args[0]
+                        httpIn.path = args[1]
+                        httpIn.header_only = True
                         output.http_version = args[2]
-                        header_only = True
 
                     if ( args[0] == "Cookie:" ):
                         cookiedata = line[8:].split(";")
                         for cookie in cookiedata:
                             cookieargs = cookie.split("=")
-                            cookies[cookieargs[0].lstrip()] = cookieargs[1]
+                            httpIn.cookies[cookieargs[0].lstrip()] = cookieargs[1]
+
+                    if ( args[0] == "User-Agent:" ):
+                        httpIn.user_agent = " ".join(args[1:])
 
                     if ( args[0] == "Content-Type:" ):
                         if ( args[1] == "multipart/form-data;" ):
@@ -251,11 +259,11 @@ class HTTPHandler(threads.Thread):
                                     if ( len(boundary_data) < 4 ): 
                                         data += self.client_socket.recv(1024)
                                     else:
-                                        post_data = data.split(boundary_args[1])[2]
+                                        httpIn.post_data = data.split(boundary_args[1])[2]
                         if ( args[1] == "application/x-www-form-urlencoded" ):
                             # this needs to be updated later.                
                             data += self.client_socket.recv(1024)
-                            post_data = data.split("\r\n\r\n")[1]
+                            httpIn.post_data = data.split("\r\n\r\n")[1]
 
                     if ( args[0] == "Connection:"):
                         if ( args[1].lower() != "keep-alive" ):
@@ -268,44 +276,43 @@ class HTTPHandler(threads.Thread):
                         if ( byte_range[1] != "" ): output.binary_end = int(byte_range[1])
 
                     if (( args[0] == "Authorization:" ) and ( len(args) == 3 )):
-                        auth_line = base64.b64decode(args[2])
+                        httpIn.auth_line = base64.b64decode(args[2])
 
                     if ( args[0] == "" ):
                         break
             
                 # clean the path
-                request_path = request_path.replace("%20", " ")
-                request_path = request_path.replace("%22", '"')
-                request_path = request_path.replace("%27", "'")
-                request_path = request_path.replace("%7B", "{")
-                request_path = request_path.replace("%7D", "}")
+                httpIn.path = httpIn.path.replace("%20", " ")
+                httpIn.path = httpIn.path.replace("%22", '"')
+                httpIn.path = httpIn.path.replace("%27", "'")
+                httpIn.path = httpIn.path.replace("%7B", "{")
+                httpIn.path = httpIn.path.replace("%7D", "}")
 
                 # check to see if we have a session cookie and if its valid.    
                 try:    
                     # filekeys are one time use, external, check for that
-                    if ( request_path[:2] == "/*" ):
-                        key = request_path[2:]
+                    if ( httpIn.path[:2] == "/*" ):
+                        key = httpIn.path[2:]
                         fkey = mt.sessions.fileKey(key)
                         if ( fkey != None ):
                             output.file(fkey, "")
                         else:
                             output.text("Expired or invalid.")
                     else:
-                        session = None
-                        if ( "session" in cookies ): 
-                            session = mt.sessions.find(cookies["session"])
+                        if ( "session" in httpIn.cookies ): 
+                            httpIn.session = mt.sessions.find(httpIn.cookies["session"])
 
-                        if ( session == None ):
-                            output.append(processor.processLogin(self.client_socket, request_path, auth_line))
+                        if ( httpIn.session == None ):
+                            output.append(processor.processLogin(self.client_socket, httpIn))
                         else:
                             # keep session IP up to date.
-                            session.IP = self.client_addr[0]
+                            httpIn.session.IP = self.client_addr[0]
 
                             # check for a dirty url ( login when a cookie exists )
-                            if ( request_path.startswith("/?") ):
-                                output.append(session.cleanRedirect())
+                            if ( httpIn.path.startswith("/?") ):
+                                output.append(httpIn.session.cleanRedirect())
                             else:
-                                output.append(processor.processRequest(session, request_type, request_path, post_data))
+                                output.append(processor.processRequest(httpIn))
                 except Exception as inst:
                     raise
                     mt.log.error("Login: " + str(inst.args))
@@ -315,17 +322,17 @@ class HTTPHandler(threads.Thread):
                 try:
                     if ( output != None ):
                         if ( type(output).__name__ == 'instance' ) and ( output.__class__ is HTTPOut ):
-                            output.send(self.client_socket, header_only)
+                            output.send(self.client_socket, httpIn.header_only)
                         else:
-                            out = session.out()
+                            out = httpIn.session.out()
                             out.text(str(output))
-                            out.send(self.client_socket, header_only)
+                            out.send(self.client_socket, httpIn.header_only)
 
                 except Exception as inst:
                     mt.log.error("Sending packet: " + str(inst.args))
                     keep_alive = False
 
-                p.end([request_path])
+                p.end([httpIn.path])
 
         except Exception as inst:
             mt.log.error("Socket error: " + str(inst.args))
