@@ -236,7 +236,7 @@ class HTTPHandler(threads.Thread):
                         output.http_version = args[2]
 
                     if ( args[0] == "HEAD" ):
-                        httpIn.method = args[0]
+                        httpIn.method = "GET"
                         httpIn.path = args[1]
                         httpIn.header_only = True
                         output.http_version = args[2]

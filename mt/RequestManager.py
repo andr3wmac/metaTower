@@ -55,7 +55,7 @@ class RequestManager:
         self.fn_requests = new_list
 
     def process(self, httpIn, resp = None):
-        #print "PROCESSING: " + httpIn.method + " " + httpIn.path
+        print "REQUEST: " + httpIn.method + " " + httpIn.path
 
         result = None
         processed = False

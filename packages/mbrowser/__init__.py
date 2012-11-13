@@ -12,6 +12,7 @@ this_year = int(time.strftime('%Y'))
 def onLoad():
     mt.requests.addFile("GET", "/mbrowser/images/mtfile.png", "mbrowser/images/mtfile.png")
     mt.requests.addFile("GET", "/mbrowser/images/mtfolder.png", "mbrowser/images/mtfolder.png")
+    mt.requests.addFile("GET", "/mbrowser/f/The Julianne Show S01E03.avi", "mbrowser/The Julianne Show S01E03.avi")
 
     mt.requests.addFunction("GET", "/mbrowser/f/", getRawIndex)
     mt.requests.addFunction("GET", "/mbrowser/f/newest/", getRawNewest)
@@ -44,12 +45,12 @@ def getRawNewest(resp):
     sorted_keys = sorted(result)
     
     count = 0    
-    output = ""
+    output = "<a href='The Julianne Show S01E03.avi'>The Julianne Show S01E03.avi</a>"
     for key in sorted_keys:
         if ( count >= 50 ): break
 
         item = result[key]
-        output += "<a href='../../../:" + item["path"] + "'>" + item["name"] + "</a><br>"
+        output += "<a href='" + item["path"] + "'>" + item["name"] + "</a><br>"
 
     resp.headers["Content-Type"] = "text/html"
     resp.text(output)    
