@@ -153,14 +153,14 @@ def processLogin(client_socket, httpIn):
         # For instance with a local, no security auto-login.
         # Therefore if the URL contains any commands, we'll pass it
         # back around for execution.
-        if ( path == "/" ):
-            resp.append(processRequest(httpIn))
-        elif ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
-            resp.append(processRequest(httpIn))
-        else:
+        #if ( path == "/" ):
+        resp.append(processRequest(httpIn))
+        #elif ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
+            #resp.append(processRequest(httpIn))
+        #else:
             # Clean redirect will remove the auth_key from the URL,
             # it's rather unsightly for the user.
-            resp = sesh.cleanRedirect(resp)
+            #resp = sesh.cleanRedirect(resp)
     
     # If resp is None at this point, all login attempts have failed.
     if ( resp == None ):
