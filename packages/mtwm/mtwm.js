@@ -94,7 +94,7 @@ mt.addLayout("spread", mtwm.spread);
 mtwm.home = {
     show: function()
     {
-        // nothing yet.
+        mt("mtwm.home()");
     },
 
     hide: function()

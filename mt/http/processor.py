@@ -13,101 +13,50 @@ import thread, os, time, sys, Cookie, uuid, hashlib, mimetypes
 import mt
 
 def processRequest(httpIn):
-    request_type = httpIn.type
-    request_path = httpIn.path
-    post_data = httpIn.post_data
-    session = httpIn.session
-
     output = mt.http.HTTPOut(httpIn.session)
-
-    # GET Request
-    if ( request_type == "GET" ):
-        # too short to process.
-        if ( len(request_path) < 1 ): return
+    
+    # Special functions.
+    processed = False    
+    if ( httpIn.method == "GET" and len(httpIn.path) > 1 ):
         
-        # These commands allow the user to change user/window
-        # managers therefore they need to be executed first.
-        if ( len(request_path) > 1 ):
-            # Change window manager.
-            if ( request_path[1] == "-" ):
-                session.user.windowmanager = request_path[2:]
-                request_path = "/"
+        # Change user.
+        if ( httpIn.path[1] == "@" ):
+            login_info = httpIn.path[2:].split(":")
 
-            # Change user.
-            elif ( request_path[1] == "@" ):
-                login_info = request_path[2:].split(":")
-
-                new_user = None
-                if ( len(login_info) == 1 ):
-                    new_user = verifyUser(request_path[2:], "", session.local)
-                if ( len(login_info) == 2 ):
-                    new_user = verifyUser(login_info[0], login_info[1], session.local)
-                
-                if ( new_user != None ): session.user = new_user
-                request_path = "/"
-
-        # '/' = default request
-        # '/?' = Login key, useless at this point we're already logged in.
-        if ( request_path == "/" ) or ( request_path[1] == "?" ):
-            mt.events.trigger(session.user.windowmanager + ".onIndex", output)
+            new_user = None
+            if ( len(login_info) == 1 ):
+                new_user = verifyUser(httpIn.path[2:], "", httpIn.session.local)
+            if ( len(login_info) == 2 ):
+                new_user = verifyUser(login_info[0], login_info[1], httpIn.session.local)
+            
+            if ( new_user != None ): session.user = new_user
+            httpIn.path = "/"
 
         # Execute a command.
-        elif ( request_path[1] == "!" ):
-            output = processCommand(request_path, session)
+        elif ( httpIn.path[1] == "!" ):
+            output = processCommand(httpIn.path, httpIn.session)
+            processed = True
 
         # Request a file.
         # The ':' tells metaTower the file search can be anywhere.
-        elif ( request_path[1] == ":" ):
-            file_parts = os.path.split(request_path[2:])
+        elif ( httpIn.path[1] == ":" ):
+            file_parts = os.path.split(httpIn.path[2:])
             output.file(file_parts[1], file_parts[0])
+            processed = True
 
         # metaTower.js is kept internal in js.py
         # we output it at request.
-        elif ( request_path[1:].lower() == "metatower.js" ):
+        elif ( httpIn.path[1:].lower() == "metatower.js" ):
             js_file = mt.js.content
             output.headers["Content-Type"] = "application/javascript"
             output.headers["Content-Length"] = len(js_file)
             output.text_entry = js_file
-
-        # anything else process like a file request.
-        # unlike ':' the search is in packages/ folders
-        else:
-            output.file(request_path[1:])
-                
-    # POST Request
-    if ( request_type == "POST" ):
-        post_args = post_data.splitlines()
-        
-        content_type = ""
-        form_name = ""
-        file_name = ""
-        file_data = ""
-        
-        x = 1
-        while x < len(post_args):
-            line = post_args[x]
-            if ( line[0:20] == "Content-Disposition:" ):
-                args = line.split('"')
-                form_name = args[1]
-                file_name = args[3]
-            if ( line[0:14] == "Content-Type: " ):
-                content_type = line
-            if (( file_name != "" ) and ( line == "" )):
-                file_data = post_data.split(content_type + "\r\n\r\n")[1]
-                file_data = file_data[0:len(file_data)-4]
-                break
-                
-            x += 1
-                
-        if (( file_name != "" ) and ( file_data != "" )):
-            if ( request_path == "/" ): request_path = "files/upload/"
-            else: request_path = request_path[1:]
-            f = open(os.path.join(request_path, file_name), "wb")
-            f.write(file_data)
-            f.close()
-            output.text("Upload successful.")
-            mt.events.trigger("upload_success_" + form_name, output)
-            print "Upload success."
+            processed = True
+    
+    # if it wasn't a special fucntion send it off
+    # to request processor.     
+    if ( not processed ):
+        mt.requests.process(httpIn, output)
 
     return output
 

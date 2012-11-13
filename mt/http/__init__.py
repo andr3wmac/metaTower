@@ -17,7 +17,7 @@ running = False
 
 class HTTPIn():
     def __init__(self):
-        self.type = "unknown"
+        self.method = "unknown"
         self.path = ""
         self.post_data = ""
         self.cookies = {}
@@ -231,12 +231,12 @@ class HTTPHandler(threads.Thread):
                     args = line.split(" ")
 
                     if ( args[0] == "GET" ) or ( args[0] == "POST" ):
-                        httpIn.type = args[0]
+                        httpIn.method = args[0]
                         httpIn.path = args[1]
                         output.http_version = args[2]
 
                     if ( args[0] == "HEAD" ):
-                        httpIn.type = args[0]
+                        httpIn.method = args[0]
                         httpIn.path = args[1]
                         httpIn.header_only = True
                         output.http_version = args[2]
@@ -254,7 +254,7 @@ class HTTPHandler(threads.Thread):
                         if ( args[1] == "multipart/form-data;" ):
                             boundary_args = args[2].split("=")
                             if ( boundary_args[0] == "boundary" ):
-                                while post_data == "":
+                                while httpIn.post_data == "":
                                     boundary_data = data.split(boundary_args[1])
                                     if ( len(boundary_data) < 4 ): 
                                         data += self.client_socket.recv(1024)

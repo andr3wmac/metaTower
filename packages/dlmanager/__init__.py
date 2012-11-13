@@ -14,13 +14,14 @@ def onLoad():
     # start up our queue monitor.
     QueueControl = QueueController()
     QueueControl.start()
-    
-    # register events.
-    mt.events.register("jman.load", jman_load)
-    mt.events.register("jman.menu.dlmanager", jman_menu)
-    mt.events.register("mtwm.load", mtwm_load)
-    mt.events.register("mtwm.menu.dlmanager", mtwm_menu)
-    
+
+    # register http requests
+    mt.requests.addFunction("POST", "/packages/dlmanager/queue/", onUpload)
+    mt.requests.addFile("GET", "/dlmanager/images/nzb.png", "dlmanager/images/nzb.png")
+    mt.requests.addFile("GET", "/dlmanager/images/par2.png", "dlmanager/images/par2.png")
+    mt.requests.addFile("GET", "/dlmanager/images/torrent.png", "dlmanager/images/torrent.png")
+    mt.requests.addFile("GET", "/dlmanager/images/unrar.png", "dlmanager/images/unrar.png")    
+
 def onUnload():
     global QueueControl
 
@@ -54,6 +55,36 @@ def onUnload():
         mt.config.save("packages/dlmanager/dlmanager.cfg")
         QueueControl.stop()
     
+def onUpload(resp, httpIn):
+    post_args = httpIn.post_data.splitlines()
+        
+    content_type = ""
+    form_name = ""
+    file_name = ""
+    file_data = ""
+    
+    x = 1
+    while x < len(post_args):
+        line = post_args[x]
+        if ( line[0:20] == "Content-Disposition:" ):
+            args = line.split('"')
+            form_name = args[1]
+            file_name = args[3]
+        if ( line[0:14] == "Content-Type: " ):
+            content_type = line
+        if (( file_name != "" ) and ( line == "" )):
+            file_data = httpIn.post_data.split(content_type + "\r\n\r\n")[1]
+            file_data = file_data[0:len(file_data)-4]
+            break
+            
+        x += 1
+            
+    if (( file_name != "" ) and ( file_data != "" )):
+        f = open(os.path.join("packages/dlmanager/queue/", file_name), "wb")
+        f.write(file_data)
+        f.close()
+        output.text("Upload successful.")
+
 def remove_selected(resp, selected):
     global QueueControl
 
@@ -65,28 +96,6 @@ def home(resp):
     resp.htmlFile("dlmanager/home.html", "container")
     resp.jsFile("dlmanager/script.js")
     resp.cssFile("dlmanager/style.css")
-
-def jman_load(resp):
-    mt.packages.jman.menu(resp.session, "Download Manager", 0)
-    mt.packages.jman.taskbar(resp.session, "Download Manager", ['dlmanager_main'])
-    resp.htmlFile("dlmanager/html/jman.html", "body", True)
-    resp.jsFile("dlmanager/js/common.js")
-    resp.jsFile("dlmanager/js/jman.js")
-    resp.cssFile("dlmanager/css/style.css")
-    
-def jman_menu(resp):
-    resp.js("jman.dialog('dlmanager_main');")
-    update(resp)
-
-def mtwm_load(resp):
-    mt.packages.mtwm.menu(resp.session, "Download Manager", "dlmanager")
-    
-def mtwm_menu(resp):
-    resp.htmlFile("dlmanager/html/mtwm.html", "mtwm_content", False)
-    resp.jsFile("dlmanager/js/common.js")
-    resp.jsFile("dlmanager/js/mtwm.js")
-    resp.cssFile("dlmanager/css/style.css")
-    update(resp)
 
 def update(resp):
     global QueueControl

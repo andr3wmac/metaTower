@@ -10,6 +10,12 @@ convert_output = ""
 this_year = int(time.strftime('%Y'))
 
 def onLoad():
+    mt.requests.addFile("GET", "/mbrowser/images/mtfile.png", "mbrowser/images/mtfile.png")
+    mt.requests.addFile("GET", "/mbrowser/images/mtfolder.png", "mbrowser/images/mtfolder.png")
+
+    mt.requests.addFunction("GET", "/mbrowser/f/", getRawIndex)
+    mt.requests.addFunction("GET", "/mbrowser/f/newest/", getRawNewest)
+
     mt.config.load("packages/mbrowser/mbrowser.cfg")
     scan()
 
@@ -21,30 +27,32 @@ def home(resp):
     resp.jsFile("mbrowser/script.js")
     resp.cssFile("mbrowser/style.css")
 
-def jman_load(resp):
-    mt.packages.jman.menu(resp.session, "Media Browser", 3)
-    mt.packages.jman.taskbar(resp.session, "Media Browser", ['mbrowser_main', 'mbrowser_player'], {"Video Player": "jman.dialog(\"mbrowser_player\");"})
-    resp.htmlFile("mbrowser/html/jman.html", append = True)
-    resp.jsFile("mbrowser/js/common.js")
-    resp.jsFile("mbrowser/js/jman.js")
-    resp.cssFile("mbrowser/css/style.css")
+def getRawIndex(resp):
+    resp.headers["Content-Type"] = "text/html"
+    resp.text("<a href='#'>Audio - All</a><br>")
+    resp.text("<a href='#'>Audio - Newest</a><br>")
+    resp.text("<a href='#'>Video - All</a><br>")
+    resp.text("<a href='#'>Video - Movies</a><br>")
+    resp.text("<a href='#'>Video - TV Shows</a><br>")
+    resp.text("<a href='newest/'>Video - Newest</a><br>")
+    resp.text("<a href='#'>Refresh Library</a>")
 
-def jman_menu(resp):
-    global converting
-    scan()
-    resp.js("jman.dialog('mbrowser_main');")
-    if ( converting ): status(resp)
+def getRawNewest(resp):
+    lib_results = searchLibrary({'type': 'video'})
+    result = {}
+    for item in lib_results: result[item["time"]] = item
+    sorted_keys = sorted(result)
+    
+    count = 0    
+    output = ""
+    for key in sorted_keys:
+        if ( count >= 50 ): break
 
-def jmanlite_load(resp):
-    mt.packages.jmanlite.menu(resp.session, "Media Browser", "mbrowser")
+        item = result[key]
+        output += "<a href='../../../:" + item["path"] + "'>" + item["name"] + "</a><br>"
 
-def jmanlite_menu(resp):
-    scan()
-    resp.htmlFile("mbrowser/html/jmanlite.html", "jmanlite_content", False)
-    resp.jsFile("mbrowser/js/common.js")
-    resp.jsFile("mbrowser/js/jmanlite.js")
-    resp.cssFile("mbrowser/css/style.css")
-    if ( converting ): status(resp)
+    resp.headers["Content-Type"] = "text/html"
+    resp.text(output)    
 
 def getFileList(path):
     results = []

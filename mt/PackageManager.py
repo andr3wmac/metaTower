@@ -123,8 +123,5 @@ class PackageManager:
     def event(self, resp, event, args = {}):
         mt.events.trigger(event, resp, args)
         
-    def pageLoaded(self, resp):
-        mt.events.trigger(resp.session.user.windowmanager + ".onPageLoad", resp)
-
     def onLogin(self, resp):
         mt.events.trigger("session.onLogin", resp)

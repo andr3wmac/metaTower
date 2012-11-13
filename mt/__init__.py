@@ -10,19 +10,20 @@
 """
 
 import ConfigParser, os, sys, logging, hashlib, time, inspect, urllib
-import ConfigManager, EventManager, PackageManager
+import ConfigManager, EventManager, PackageManager, RequestManager
 import auth, http, utils, log, sessions, js, threads
 
 restart = False
 config = None
 events = None
+requests = None
 packages = None
 users = {}
 
 login_tickets = {}
 
 def start(version, log_level, profiling):
-    global running, config, users, packages, events, http_running
+    global running, config, requests, users, packages, events, http_running
 
     # intro
     print "metaTower v" + version + "\n"
@@ -65,6 +66,9 @@ def start(version, log_level, profiling):
 
     # events
     events = EventManager.EventManager()
+
+    # requests
+    requests = RequestManager.RequestManager()
 
     # packages
     packages = PackageManager.PackageManager()
