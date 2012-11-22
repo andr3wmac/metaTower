@@ -138,7 +138,7 @@ var dlmanager = {
         var menu = document.getElementById(id + "menu_");
         if ( menu == null )
         {
-            var html = "<div id='menu_" + id + "'><ul>";
+            var html = "<div id='menu_" + id + "' class='dlmanager_item_menu'><ul>";
             html += "<li><a href='#' onclick='dlmanager.remove(\"" + id + "\");'>'>Remove</a></li>";
             html += "<li><a href='#'>Move to bottom</a></li>";
             html += "</ul>";
