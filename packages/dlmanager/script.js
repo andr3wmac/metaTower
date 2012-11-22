@@ -111,12 +111,11 @@ var dlmanager = {
         var menu = document.getElementById(id + "menu_");
         if ( menu == null )
         {
-            alert("toggle menu!");
-            //var file = document.getElementById(id + "_file");
-            //var f_args = file.href.split("/");
-            //var f = f_args[f_args.length-1];
-            //var html = mbrowser.getInfoHTML(id, f, null, null, true);
-            //mt.html(id, html, true);
+            var html = "<div id='menu_" + id + "'><ul>";
+            html += "<li>Remove</li>";
+            html += "<li>Move to bottom</li>";
+            html += "</ul>";
+            mt.html(id, html, true);
         } else {
             if ( menu.style.display == "none" )
             {

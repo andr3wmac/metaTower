@@ -7,6 +7,7 @@
 #dlmanager_content .ui-selected { background-color: #E6E6E6; }
 #dlmanager_content .icon {
     float: left;
+    margin-left: -50px;
 }
 
 #dlmanager_menu { list-style-type: none; }
