@@ -1,17 +1,18 @@
-#dlmanager_content { list-style-type: none; margin: 0; padding: 0; }
-#dlmanager_content li {  }
-#dlmanager_content .dlmanager_nzb li { 
+#dlmanager_content { 
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0; 
+}
+
+.dlmanager_icon {
+    float: left;
+    margin-left: -50px;
+}
+
+.dlmanager_item li { 
     border: 0px;
     padding: 5px 5px 5px 50px; 
     line-height: 1.2em;  
-}
-#dlmanager_content .dlmanager_torrent { background-image: url('dlmanager/images/torrent.png'); }
-#dlmanager_content .ui-widget-content {  }
-#dlmanager_content .ui-progressbar { height: 20px; width: 100%; }
-#dlmanager_content .ui-selected { background-color: #E6E6E6; }
-#dlmanager_content .icon {
-    float: left;
-    margin-left: -50px;
 }
 
 .dlmanager_item_menu {
@@ -29,7 +30,5 @@
 #dlmanager_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
 #dlmanager_menu .refresh { font-weight: bold; margin-top: 20px; cursor: pointer; }
 #dlmanager_menu .subcat { cursor: pointer; }
-
-
 
 #dlmanager_fileinp { width: 150px; }

@@ -22,9 +22,9 @@ var dlmanager = {
         // Check if its been created.
 		if ( !nzb_element )
 		{
-			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
+			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_item\"></li>", true);
 			nzb_element = document.getElementById(id);
-            mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", true);
+            mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='dlmanager_icon' src='dlmanager/images/nzb.png'>", true);
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", true);
             mt.progress("prog_" + id, 0);
 		};
@@ -66,7 +66,7 @@ var dlmanager = {
                 var unrar_element = document.getElementById(id + "_unrar");
                 if ( !par2_element || !unrar_element )
                 {
-                    mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", false);
+                    mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='dlmanager_icon' src='dlmanager/images/nzb.png'>", false);
                     mt.html(id, "<b>" + filename + "</b><br><img src=\"dlmanager/images/par2.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_par2\"></span><br><img src=\"dlmanager/images/unrar.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_unrar\"></span>", true);
                     par2_element = document.getElementById(id + "_par2");
                     unrar_element = document.getElementById(id + "_unrar");
@@ -96,7 +96,7 @@ var dlmanager = {
 
 		if ( !torrent_element )
 		{
-			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_torrent\"></li>", true);
+			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_item\"></li>", true);
 			torrent_element = document.getElementById(id);
 		}
 
