@@ -61,7 +61,7 @@ class ConfigManager:
                 self.items.append(item)
             self._loadTree(a, path + a.tag + "/", filename)
     
-    def load(self, filename):
+    def load(self, filename, expendable = False):
         basename, ext = os.path.splitext(filename)
         default = filename.replace(ext, ".default" + ext)
         try:
@@ -71,10 +71,12 @@ class ConfigManager:
             tree = ElementTree.fromstring(data)
             self._loadTree(tree, "", filename)
         except Exception as inst:
-            mt.log.error("Could not load config file: " + filename + ", Reason: " + str(inst.args))
-            if ( os.path.isfile(default) ):
-                mt.log.info("Using default cfg file: " + default)
-                self.load(default)
+            # if its not expendable we'll raise an error.
+            if ( not expendable ):
+                mt.log.error("Could not load config file: " + filename + ", Reason: " + str(inst.args))
+                if ( os.path.isfile(default) ):
+                    mt.log.info("Using default cfg file: " + default)
+                    self.load(default)
 
     def loadString(self, data, filename = ""):
         newTree = ElementTree.fromstring(data)

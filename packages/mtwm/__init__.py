@@ -2,12 +2,12 @@ import time, mt
 
 def onLoad():
     mt.requests.addFunction("GET", "/", onIndex)   
-    mt.requests.addFile("GET", "/mtwm/style.css", "mtwm/style.css")
-    mt.requests.addFile("GET", "/mtwm/theme.css", "mtwm/theme.css")
-    mt.requests.addFile("GET", "/mtwm/mtwm.js", "mtwm/mtwm.js")
-    mt.requests.addFile("GET", "/mtwm/images/menu_bg.png", "mtwm/images/menu_bg.png")
-    mt.requests.addFile("GET", "/mtwm/images/tower.png", "mtwm/images/tower.png") 
-    mt.requests.addFile("GET", "/mtwm/images/content_bg.png", "mtwm/images/content_bg.png") 
+    mt.requests.addFile("GET", "/mtwm/style.css", "packages/mtwm/style.css")
+    mt.requests.addFile("GET", "/mtwm/theme.css", "packages/mtwm/theme.css")
+    mt.requests.addFile("GET", "/mtwm/mtwm.js", "packages/mtwm/mtwm.js")
+    mt.requests.addFile("GET", "/mtwm/images/menu_bg.png", "packages/mtwm/images/menu_bg.png")
+    mt.requests.addFile("GET", "/mtwm/images/tower.png", "packages/mtwm/images/tower.png") 
+    mt.requests.addFile("GET", "/mtwm/images/content_bg.png", "packages/mtwm/images/content_bg.png") 
 
 #def onUnload():
 #    mt.events.clear(onIndex)
@@ -15,11 +15,11 @@ def onLoad():
 
 def onIndex(resp):
     resp.session.mtwm_menu = []
-    resp.file("mtwm/index.html")
+    resp.file("packages/mtwm/index.html")
 
 def home(resp):
-    resp.htmlFile("mtwm/home.html", "container")
-    resp.jsFile("mtwm/script.js")
+    resp.htmlFile("packages/mtwm/home.html", "container")
+    resp.jsFile("packages/mtwm/script.js")
     updateHome(resp)
 
 def updateHome(resp):

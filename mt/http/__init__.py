@@ -73,14 +73,13 @@ class HTTPOut():
         newEntry.html = True
         self.mt_entrys.append(newEntry)
 
-    def file(self, filepath, home_folder = "packages"):
-        self.binary_entry = os.path.join(home_folder, filepath)
+    def file(self, filepath):
+        self.binary_entry = filepath
         
     def text(self, data):
         self.text_entry += data
         
-    def _getFileContents(self, filepath, home_folder = "packages"):
-        filepath = os.path.join(home_folder, filepath)
+    def _getFileContents(self, filepath):
         if ( os.path.isfile(filepath) ):
             f = open(filepath, "rb")
             data = f.read()
@@ -295,7 +294,7 @@ class HTTPHandler(threads.Thread):
                         key = httpIn.path[2:]
                         fkey = mt.sessions.fileKey(key)
                         if ( fkey != None ):
-                            output.file(fkey, "")
+                            output.file(fkey)
                         else:
                             output.text("Expired or invalid.")
                     else:

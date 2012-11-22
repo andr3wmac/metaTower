@@ -41,7 +41,7 @@ def processRequest(httpIn):
         # The ':' tells metaTower the file search can be anywhere.
         elif ( httpIn.path[1] == ":" ):
             file_parts = os.path.split(httpIn.path[2:])
-            output.file(file_parts[1], file_parts[0])
+            output.file(os.path.join(file_parts[0], file_parts[1]))
             processed = True
 
         # metaTower.js is kept internal in js.py

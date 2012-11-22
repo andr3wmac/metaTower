@@ -40,22 +40,15 @@ class RequestManager:
         newFileRequest = self.FileRequest(method, path, file_path, source)
         self.file_requests.append(newFileRequest)
 
-    def clear(self, function = None):
-        if ( function == None ): self.fn_requests = []
-        else:
-            new_list = []
-            for e in self.fn_requests:
-                if e.function != function: new_list.append(e)
-            self.fn_requests = new_list
-
-    def clearSource(self, source):
+    def clearFileRequests(self):
+        source = mt.utils.getSource()
         new_list = []
-        for e in self.fn_requests:
+        for e in self.file_requests:
             if e.source != source: new_list.append(e)
-        self.fn_requests = new_list
+        self.file_requests = new_list
 
     def process(self, httpIn, resp = None):
-        print "REQUEST: " + httpIn.method + " " + httpIn.path
+        #print "REQUEST: " + httpIn.method + " " + httpIn.path
 
         result = None
         processed = False

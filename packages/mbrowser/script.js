@@ -6,6 +6,7 @@ var mbrowser = {
 	newAudio: function() { mt("mbrowser.query({'type': 'audio'}, True, 50)"); },
 	allVideo: function() { mt("mbrowser.query({'type': 'video'})"); },
 	newVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50)"); },
+    unviewedVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50, True)"); },
     movies: function() { mt("mbrowser.query({'type': 'video', 'vidtype': 'movie'})"); },
 
     tv: function(show, season)
@@ -110,7 +111,7 @@ var mbrowser = {
 
         var html = "<li class='video' id='" + id + "'>";
         html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
-        html += "<div class='name'><a id='" + id + "_file' target='_blank' href=':" + item["path"] + "'>" + item["name"] + "</a></div>";
+        html += "<div class='name'><a id='" + id + "_file' target='_blank' href='mbrowser/f/" + item["path"] + "'>" + item["name"] + "</a></div>";
 
         var f_args = item["path"].split("/");
         var f = f_args[f_args.length-1];

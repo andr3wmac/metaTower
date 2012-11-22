@@ -17,10 +17,10 @@ def onLoad():
 
     # register http requests
     mt.requests.addFunction("POST", "/packages/dlmanager/queue/", onUpload)
-    mt.requests.addFile("GET", "/dlmanager/images/nzb.png", "dlmanager/images/nzb.png")
-    mt.requests.addFile("GET", "/dlmanager/images/par2.png", "dlmanager/images/par2.png")
-    mt.requests.addFile("GET", "/dlmanager/images/torrent.png", "dlmanager/images/torrent.png")
-    mt.requests.addFile("GET", "/dlmanager/images/unrar.png", "dlmanager/images/unrar.png")    
+    mt.requests.addFile("GET", "/dlmanager/images/nzb.png", "packages/dlmanager/images/nzb.png")
+    mt.requests.addFile("GET", "/dlmanager/images/par2.png", "packages/dlmanager/images/par2.png")
+    mt.requests.addFile("GET", "/dlmanager/images/torrent.png", "packages/dlmanager/images/torrent.png")
+    mt.requests.addFile("GET", "/dlmanager/images/unrar.png", "packages/dlmanager/images/unrar.png")    
 
 def onUnload():
     global QueueControl
@@ -93,9 +93,9 @@ def remove_selected(resp, selected):
     update(resp)
 
 def home(resp):
-    resp.htmlFile("dlmanager/home.html", "container")
-    resp.jsFile("dlmanager/script.js")
-    resp.cssFile("dlmanager/style.css")
+    resp.htmlFile("packages/dlmanager/home.html", "container")
+    resp.jsFile("packages/dlmanager/script.js")
+    resp.cssFile("packages/dlmanager/style.css")
 
 def update(resp):
     global QueueControl

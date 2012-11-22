@@ -1,6 +1,7 @@
 import os, re, time, string, ffmpeg, mt
 
 items = {}
+
 status_msg = "Idle."
 status_prog = 0
 converting = False
@@ -10,23 +11,56 @@ convert_output = ""
 this_year = int(time.strftime('%Y'))
 
 def onLoad():
-    mt.requests.addFile("GET", "/mbrowser/images/mtfile.png", "mbrowser/images/mtfile.png")
-    mt.requests.addFile("GET", "/mbrowser/images/mtfolder.png", "mbrowser/images/mtfolder.png")
-    mt.requests.addFile("GET", "/mbrowser/f/The Julianne Show S01E03.avi", "mbrowser/The Julianne Show S01E03.avi")
-
-    mt.requests.addFunction("GET", "/mbrowser/f/", getRawIndex)
-    mt.requests.addFunction("GET", "/mbrowser/f/newest/", getRawNewest)
+    #mt.requests.addFunction("GET", "/mbrowser/f/", getRawIndex)
+    #mt.requests.addFunction("GET", "/mbrowser/f/newest/", getRawNewest)
 
     mt.config.load("packages/mbrowser/mbrowser.cfg")
+    mt.config.load("packages/mbrowser/viewed.cfg", True)
+
     scan()
 
+def setupFileRequests():
+    mt.requests.clearFileRequests()
+
+    global items
+
+    mt.requests.addFile("GET", "/mbrowser/images/mtfile.png", "packages/mbrowser/images/mtfile.png")
+    mt.requests.addFile("GET", "/mbrowser/images/mtfolder.png", "packages/mbrowser/images/mtfolder.png")
+
+    for key in items:
+        item = items[key]
+        mt.requests.addFunction("GET", "/mbrowser/f/" + item["path"], getFile)
+        #mt.requests.addFile("GET", "/mbrowser/f/" + item["path"], item["path"])
+    
+def getFile(resp, httpIn):
+    global items
+
+    path = httpIn.path.replace("/mbrowser/f/", "")
+
+    # generate a list of files from the known library
+    found = False
+    config_list = mt.config.get("mbrowser/viewed/file")
+    for item in config_list:
+        if ( item["path"] == path ): found = True
+    
+    if ( not found ):
+        element = mt.config.ConfigItem("")
+        element["path"] = path
+        mt.config.add(element, "mbrowser/viewed/file", "packages/mbrowser/viewed.cfg")
+        mt.config.save("packages/mbrowser/viewed.cfg")
+    
+    f = items[path]
+    if ( f ):
+        resp.file(path)
+
 def onUnload():
+    mt.requests.clearFileRequests()
     ffmpeg.stop()
 
 def home(resp):
-    resp.htmlFile("mbrowser/home.html", "container")
-    resp.jsFile("mbrowser/script.js")
-    resp.cssFile("mbrowser/style.css")
+    resp.htmlFile("packages/mbrowser/home.html", "container")
+    resp.jsFile("packages/mbrowser/script.js")
+    resp.cssFile("packages/mbrowser/style.css")
 
 def getRawIndex(resp):
     resp.headers["Content-Type"] = "text/html"
@@ -65,10 +99,13 @@ def getFileList(path):
 
 def scan():
     global items
+
     for f in getFileList(mt.config["mbrowser/library/path"]):
         if ( items.has_key(f) ): continue
         idata = processFile(f)
         if ( idata ): items[f] = idata
+            
+    setupFileRequests()
 
 def processFile(f):
     idata = None
@@ -174,7 +211,7 @@ def tvQuery(resp, name = "", season = ""):
             output += "}"
         resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
 
-def query(resp, args, newest = False, limit = 10000):
+def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
     lib_results = searchLibrary(args)
 
     result = {}
@@ -182,6 +219,12 @@ def query(resp, args, newest = False, limit = 10000):
         for item in lib_results: result[item["time"]] = item
     else:
         for item in lib_results: result[item["name"]] = item
+
+    flist = []
+    if ( unviewed_only ):
+        config_list = mt.config.get("mbrowser/viewed/file")
+        for item in config_list:
+            flist.append(item["path"])
     
     #paths = ""
     #names = ""
@@ -190,8 +233,11 @@ def query(resp, args, newest = False, limit = 10000):
     output = ""
     for key in sorted_keys:
         if ( count >= limit ): break
-
         item = result[key]
+
+        if ( unviewed_only ):
+            if ( item["path"] in flist ): continue
+        
         output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
 
         # check if it has a weblink.

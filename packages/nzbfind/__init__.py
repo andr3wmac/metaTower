@@ -16,9 +16,9 @@ def onLoad():
         engine = nzbmatrix.NZBMatrix(user, api, save_to)
 
 def home(resp):
-    resp.htmlFile("nzbfind/home.html", "container")
-    resp.jsFile("nzbfind/script.js")
-    resp.cssFile("nzbfind/style.css")
+    resp.htmlFile("packages/nzbfind/home.html", "container")
+    resp.jsFile("packages/nzbfind/script.js")
+    resp.cssFile("packages/nzbfind/style.css")
 
 def search(resp, query, cat):
     global engine
