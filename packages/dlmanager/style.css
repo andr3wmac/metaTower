@@ -9,7 +9,7 @@
     margin-left: -50px;
 }
 
-#dlmanager_content .dlmanager_item li { 
+#dlmanager_content .dlmanager_item { 
     border: 0px;
     padding: 5px 5px 5px 50px; 
     line-height: 1.2em;  
