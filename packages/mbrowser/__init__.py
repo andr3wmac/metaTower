@@ -209,7 +209,7 @@ def tvQuery(resp, name = "", season = ""):
             if ( item.has_key("external") ):
                 output += ", 'external': '" + item["external"] + "'"
             output += "}"
-        resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
+        resp.js("mbrowser.tvData('" + name + "', [" + output[2:].replace("'", "\\'") + "]);")
 
 def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
     lib_results = searchLibrary(args)
@@ -238,7 +238,7 @@ def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
         if ( unviewed_only ):
             if ( item["path"] in flist ): continue
         
-        output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"] + "', 'path':'" + item["path"] + "'"
+        output += ", {'id':'" + item["id"] + "', 'name':'" + item["name"].replace("'", "\\'") + "', 'path':'" + item["path"].replace("'", "\\'") + "'"
 
         # check if it has a weblink.
         if ( item.has_key("web") ):
