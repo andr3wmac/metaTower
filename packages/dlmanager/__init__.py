@@ -85,11 +85,10 @@ def onUpload(resp, httpIn):
         f.close()
         output.text("Upload successful.")
 
-def remove_selected(resp, selected):
+def remove(resp, uid):
     global QueueControl
 
-    items = selected.split(",")
-    QueueControl.removeItems(items)
+    QueueControl.remove(uid)
     update(resp)
 
 def remove_completed(resp):
@@ -111,14 +110,15 @@ def update(resp):
 
     # gather data from NZB queue.
     for nzb in nzb_queue:
+        filename = os.path.basename(nzb.filename).replace("'", "\'")   
+
         # already deleted.
         if ( nzb.removed ):
-            resp.js("dlmanager.remove('" + nzb.uid + "');")
+            resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', -1);") 
 
         # downloading
         elif ( nzb.downloading ) and ( nzb_engine != None ) and ( nzb_engine.running ):
             status = nzb_engine.execute("getStatus")
-            filename = os.path.basename(nzb.filename).replace("'", "\'")
 
             # State 1: currently downloading
             if ( not status.assembly ):
@@ -135,26 +135,23 @@ def update(resp):
 
         # State 3: failed
         elif ( nzb.error ):
-            filename = os.path.basename(nzb.filename).replace("'", "\'")
             resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 3);")
 
         # State 4: completed
         elif ( nzb.completed ):
-            filename = os.path.basename(nzb.filename).replace("'", "\'")
             args = {"par2": nzb.par2_results, 
                     "unrar": nzb.unrar_results}
             resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 4, " + str(args) + ");")
 
         # State 0: queued
         else:
-            filename = os.path.basename(nzb.filename).replace("'", "\'")
             resp.js("dlmanager.nzb('" + nzb.uid + "', '" + filename + "', 0);")
 
     # Gather data from torrent queue.
     for torrent in torrent_queue:
         # Torrent Removed.
         if ( torrent.removed ):
-            resp.js("dlmanager.remove('" + torrent.uid + "');")
+            resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', -1);")
 
         # Torrent is inactive.
         elif ( torrent.lt_entry == None ):

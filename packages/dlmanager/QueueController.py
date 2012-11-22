@@ -90,9 +90,9 @@ class QueueController(threads.Thread):
             self.torrent_engine = lt.session()
             self.torrent_engine.listen_on(6881, 6891)
 
-    def removeItems(self, items):
+    def remove(self, uid):
         for nzb in self.nzb_queue:
-            if ( nzb.uid in items ):
+            if ( nzb.uid == uid ):
                 if ( nzb.downloading ):
                     if ( self.nzb_engine != None ):
                         self.nzb_engine.stop()
@@ -102,7 +102,7 @@ class QueueController(threads.Thread):
                 nzb.removed = True
 
         for torrent in self.torrent_queue:
-            if torrent.uid in items:
+            if torrent.uid == uid:
                 if ( torrent.lt_entry != None ):
                     self.torrent_engine.remove_torrent(torrent.lt_entry)
                     torrent.lt_entry = None

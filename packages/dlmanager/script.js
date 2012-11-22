@@ -18,6 +18,16 @@ var dlmanager = {
         
         switch ( state )
         {
+            // Removed
+            case -1:
+		        var element = document.getElementById(id);
+		        if ( element )
+		        {
+			        var parent = element.parentNode;
+			        parent.removeChild(element);
+		        }
+                break;
+
 		    // Queued.
 		    case 0:
                 mt.html(id + "_file", "<b>" + filename + "</b>", false);
@@ -75,6 +85,16 @@ var dlmanager = {
 
         switch(state)
         {
+            // Removed
+            case -1:
+		        var element = document.getElementById(id);
+		        if ( element )
+		        {
+			        var parent = element.parentNode;
+			        parent.removeChild(element);
+		        }
+                break;
+
             // Queued.
 		    case 0:
 			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false);
@@ -112,8 +132,8 @@ var dlmanager = {
         if ( menu == null )
         {
             var html = "<div id='menu_" + id + "'><ul>";
-            html += "<li>Remove</li>";
-            html += "<li>Move to bottom</li>";
+            html += "<li><a href='#' onclick='dlmanager.remove(\"" + id + "\");'>'>Remove</a></li>";
+            html += "<li><a href='#'>Move to bottom</a></li>";
             html += "</ul>";
             mt.html(id, html, true);
         } else {
@@ -126,27 +146,14 @@ var dlmanager = {
         }
     },
 
-	remove: function(selected)
+	remove: function(id)
 	{
-		var items = selected.split(",");
-		for(i = 0; i < items.length; i++)
-		{
-			if ( items[i] == "" ) continue;
-			var element = document.getElementById(items[i]);
-			if ( element )
-			{
-				var parent = element.parentNode;
-				parent.removeChild(element);
-			}
-		}
+		mt("dlmanager.remove('" + id + "')");
 	},
 
     removeCompleted: function()
     {
-        //var comp = dlmanager.completed.join();
-        //dlmanager.remove(comp);
         mt("dlmanager.remove_completed()");
-        //dlmanager.completed = [];
     }
 };
 
