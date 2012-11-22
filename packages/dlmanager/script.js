@@ -11,8 +11,8 @@ var dlmanager = {
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
 			nzb_element = document.getElementById(id);
-            mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", false);
-            mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", false);
+            mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", true);
+            mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", true);
             mt.progress("prog_" + id, 0);
 		};
         
