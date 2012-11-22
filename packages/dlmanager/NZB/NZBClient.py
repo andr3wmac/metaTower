@@ -292,7 +292,11 @@ class NNTPConnection(mt.threads.Thread):
 
                     except ssl.SSLError:
                         break
-                            
+                         
+                    except NNTPError as e:
+                        mt.log.error("Error getting segment: " + e.response)
+                        pass
+   
                     except:
                         mt.log.error("Error getting segment.")
                         pass
