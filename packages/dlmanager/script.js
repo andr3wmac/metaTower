@@ -22,7 +22,7 @@ var dlmanager = {
         // Check if its been created.
 		if ( !nzb_element )
 		{
-			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
+			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\" class='dlmanager_item'></li>", true);
 			nzb_element = document.getElementById(id);
             mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", true);
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", true);
