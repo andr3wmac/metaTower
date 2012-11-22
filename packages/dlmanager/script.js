@@ -7,6 +7,19 @@ var dlmanager = {
 	{
 		// the actual output
 		var nzb_element = document.getElementById(id);
+
+        // Check if its been removed.
+        if ( state == -1 )
+        {
+		    if ( nzb_element )
+		    {
+		        var parent = nzb_element.parentNode;
+		        parent.removeChild(nzb_element);
+            }
+            return;
+        }
+
+        // Check if its been created.
 		if ( !nzb_element )
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
@@ -18,15 +31,6 @@ var dlmanager = {
         
         switch ( state )
         {
-            // Removed
-            case -1:
-		        var element = document.getElementById(id);
-		        if ( element )
-		        {
-			        var parent = element.parentNode;
-			        parent.removeChild(element);
-		        }
-                break;
 
 		    // Queued.
 		    case 0:
@@ -77,6 +81,18 @@ var dlmanager = {
 	{
 		// the actual output
 		var torrent_element = document.getElementById(id);
+
+        // Check if its been removed.
+        if ( state == -1 )
+        {
+		    if ( torrent_elementt )
+		    {
+		        var parent = torrent_element.parentNode;
+		        parent.removeChild(torrent_element);
+            }
+            return;
+        }
+
 		if ( !torrent_element )
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_torrent\"></li>", true);
@@ -85,16 +101,6 @@ var dlmanager = {
 
         switch(state)
         {
-            // Removed
-            case -1:
-		        var element = document.getElementById(id);
-		        if ( element )
-		        {
-			        var parent = element.parentNode;
-			        parent.removeChild(element);
-		        }
-                break;
-
             // Queued.
 		    case 0:
 			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false);
