@@ -108,6 +108,13 @@ class QueueController(threads.Thread):
                     torrent.lt_entry = None
                 os.remove(torrent.filename)
                 torrent.removed = True
+
+    def removeCompleted(self):
+        for nzb in self.nzb_queue:
+            if ( not nzb.downloading ) and (( nzb.completed ) or ( nzb.error )):
+                os.remove(nzb.filename)
+                mt.utils.rmdir(nzb.save_to)
+                nzb.removed = True
     
     def torrentFiles(self):
         results = []

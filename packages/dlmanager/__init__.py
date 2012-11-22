@@ -92,6 +92,11 @@ def remove_selected(resp, selected):
     QueueControl.removeItems(items)
     update(resp)
 
+def remove_completed(resp):
+    global QueueControl
+    QueueControl.removeCompleted()
+    update(resp)
+
 def home(resp):
     resp.htmlFile("packages/dlmanager/home.html", "container")
     resp.jsFile("packages/dlmanager/script.js")

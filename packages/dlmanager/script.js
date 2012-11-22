@@ -122,10 +122,10 @@ var dlmanager = {
 
     removeCompleted: function()
     {
-        var comp = dlmanager.completed.join();
-        dlmanager.remove(comp);
-        mt("dlmanager.remove_selected('" + comp + "')");
-        dlmanager.completed = [];
+        //var comp = dlmanager.completed.join();
+        //dlmanager.remove(comp);
+        mt("dlmanager.remove_completed()");
+        //dlmanager.completed = [];
     }
 };
 
