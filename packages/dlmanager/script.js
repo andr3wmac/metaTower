@@ -10,7 +10,7 @@ var dlmanager = {
 		if ( !nzb_element )
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
-            mt.html("<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>";
+            mt.html("<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>", false);
 			nzb_element = document.getElementById(id);
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", false);
             mt.progress("prog_" + id, 0);
