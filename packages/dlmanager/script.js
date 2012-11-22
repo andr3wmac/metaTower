@@ -10,6 +10,7 @@ var dlmanager = {
 		if ( !nzb_element )
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_nzb\"></li>", true);
+            mt.html("<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='icon' src='dlmanager/images/nzb.png'>";
 			nzb_element = document.getElementById(id);
             mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", false);
             mt.progress("prog_" + id, 0);
@@ -104,6 +105,27 @@ var dlmanager = {
 			    mt.progress("prog_" + id, 0);
 		};
 	},
+
+    toggleMenu: function(id)
+    {
+        var menu = document.getElementById(id + "menu_");
+        if ( menu == null )
+        {
+            alert("toggle menu!");
+            //var file = document.getElementById(id + "_file");
+            //var f_args = file.href.split("/");
+            //var f = f_args[f_args.length-1];
+            //var html = mbrowser.getInfoHTML(id, f, null, null, true);
+            //mt.html(id, html, true);
+        } else {
+            if ( menu.style.display == "none" )
+            {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        }
+    },
 
 	remove: function(selected)
 	{
