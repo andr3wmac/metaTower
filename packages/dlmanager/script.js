@@ -141,7 +141,7 @@ var dlmanager = {
 
     toggleMenu: function(id)
     {
-        var menu = document.getElementById(id + "menu_");
+        var menu = document.getElementById("menu_" + id);
         if ( menu == null )
         {
             var html = "<div id='menu_" + id + "' class='dlmanager_item_menu'><ul>";
