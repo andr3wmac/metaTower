@@ -115,7 +115,7 @@ var dlmanager = {
 		    case 1:
                 mt.html(id + "_file", "<b>" + filename + "</b>", false);
 
-                html += args["msg"];
+                html = args["msg"];
                 html += "  <i>DL</i>: " + args["dl_rate"] + " kb/s";
                 html += "  <i>UL</i>: " + args["ul_rate"] + " kb/s";
                 html += "  <i>Peers</i>: " + args["peers"];
