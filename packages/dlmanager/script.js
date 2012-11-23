@@ -97,6 +97,8 @@ var dlmanager = {
 		if ( !torrent_element )
 		{
 			mt.html("dlmanager_content", "<li id=\"" + id + "\" class=\"dlmanager_item\"></li>", true);
+            mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='dlmanager_icon' src='dlmanager/images/torrent.png'>", false);
+            mt.html(id, "<span id=\"" + id + "_file\"></span><br><span id=\"" + id + "_message\"></span><div id=\"prog_" + id + "\"></div>", true);
 			torrent_element = document.getElementById(id);
 		}
 
@@ -104,31 +106,35 @@ var dlmanager = {
         {
             // Queued.
 		    case 0:
-			    mt.html(id, "<b>" + filename + "</b><br>Queued.<div id=\"prog_" + id + "\"></div>", false);
+			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
+                mt.html(id + "_message", "Queued.", false);
 			    mt.progress("prog_" + id, 0);	
 		        break;
 
             // Downloading.
 		    case 1:
-                var html = "<b>" + filename + "</b><br>";
+                mt.html(id + "_file", "<b>" + filename + "</b>", false);
+
                 html += args["msg"];
                 html += "  <i>DL</i>: " + args["dl_rate"] + " kb/s";
                 html += "  <i>UL</i>: " + args["ul_rate"] + " kb/s";
                 html += "  <i>Peers</i>: " + args["peers"];
-                html += "<div id=\"prog_" + id + "\"></div>";
-			    mt.html(id, html, false);
+                mt.html(id + "_message", html, false);
+
 			    mt.progress("prog_" + id, args["progress"]);	
 		        break;
 
             // Completed.
 		    case 2:
-			    mt.html(id, "<b>" + filename + "</b><br>Completed.<div id=\"prog_" + id + "\"></div>", false);
+			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
+                mt.html(id + "_message", "Completed. Seeding.", false);
 			    mt.progress("prog_" + id, 100);	
                 break;
     
             // Other Status, display.
 		    default:
-			    mt.html(id, "<b>" + filename + "</b><br>" + state + "<div id=\"prog_" + id + "\"></div>", false);
+                mt.html(id + "_file", "<b>" + filename + "</b>", false);
+                mt.html(id + "_message", state, false);
 			    mt.progress("prog_" + id, 0);
 		};
 	},
