@@ -83,7 +83,7 @@ def onUpload(resp, httpIn):
         f = open(os.path.join("packages/dlmanager/queue/", file_name), "wb")
         f.write(file_data)
         f.close()
-        output.text("Upload successful.")
+        resp.text("Upload successful.")
 
 def remove(resp, uid):
     global QueueControl
