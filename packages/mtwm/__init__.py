@@ -2,6 +2,7 @@ import time, mt
 
 def onLoad():
     mt.requests.addFunction("GET", "/", onIndex)   
+    mt.requests.addFile("GET", "/mtwm/quickbar.css", "packages/mtwm/quickbar.css")    
     mt.requests.addFile("GET", "/mtwm/style.css", "packages/mtwm/style.css")
     mt.requests.addFile("GET", "/mtwm/theme.css", "packages/mtwm/theme.css")
     mt.requests.addFile("GET", "/mtwm/mtwm.js", "packages/mtwm/mtwm.js")

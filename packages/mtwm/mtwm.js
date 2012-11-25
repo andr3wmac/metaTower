@@ -115,7 +115,7 @@ mtwm.home = {
             {
                 var func = packages[name];
                 if ( func )
-                    plistHTML += "<li><a onClick=\"" + func + "\">" + name + "</a></li>";
+                    plistHTML += "<li><a href='#' onClick=\"" + func + "\">" + name + "</a></li>";
                 else
                     plistHTML += "<li>" + name + "</li>";
             }
@@ -123,6 +123,6 @@ mtwm.home = {
         }
 
         var main = document.getElementById("home_main");
-        main.innerHTML = "Free Space: " + free_space;
+        main.innerHTML = "<p>Free Space: " + free_space + "</p>";
     }
 };

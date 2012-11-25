@@ -1,22 +1,55 @@
-#mbrowser_menu { list-style-type: none; }
-#mbrowser_menu li { border: 0px; padding: 5px; width: 150px; }
-#mbrowser_menu .cat { font-weight: bold; border-bottom: 1px solid #888; padding-top: 20px; }
-#mbrowser_menu .refresh { font-weight: bold; margin-top: 20px; cursor: pointer; }
-#mbrowser_menu .subcat { cursor: pointer; }
+#mbrowser_menu .refresh { 
+    font-weight: bold; 
+}
 
-#mbrowser_status { padding-top: 50px; text-align: left; }
+#mbrowser_statusbar {
+    margin-right: 20px;
+}
 
-#mbrowser_main { list-style-type: none; }
-#mbrowser_main li { border: 0px; margin: 3px; padding: 5px; }
+#mbrowser_status { 
+    padding-top: 50px; 
+    text-align: left; 
+}
 
-#mbrowser_main .menu { cursor: pointer; font-weight: bold; }
+#mbrowser_main { 
+    list-style-type: none; 
+}
 
-#mbrowser_main .audio { background-image: url('mbrowser/images/mtfile.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_main li { 
+    border: 0px; 
+    margin: 3px; 
+    padding: 5px; 
+}
+
+#mbrowser_main .menu { 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+#mbrowser_main .audio { 
+    background-image: url('mbrowser/images/mtfile.png'); 
+    background-repeat:no-repeat; 
+    background-position: 5px 3px;  
+    padding-left: 25px; 
+}
 
 #mbrowser_main .video { }
 
-#mbrowser_main .show { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
-#mbrowser_main .season { cursor: pointer; background-image: url('mbrowser/images/mtfolder.png'); background-repeat:no-repeat; background-position: 5px 3px;  padding-left: 25px; }
+#mbrowser_main .show { 
+    cursor: pointer; 
+    background-image: url('mbrowser/images/mtfolder.png'); 
+    background-repeat:no-repeat; 
+    background-position: 5px 3px;  
+    padding-left: 25px; 
+}
+
+#mbrowser_main .season { 
+    cursor: pointer; 
+    background-image: url('mbrowser/images/mtfolder.png'); 
+    background-repeat:no-repeat; 
+    background-position: 5px 3px;  
+    padding-left: 25px; 
+}
 
 #mbrowser_main .icon {
     float: left;
@@ -27,11 +60,13 @@
 }
 
 #mbrowser_main .info {
-    padding: 10px 30px 0px;
+    background: #222;
+    padding: 2px;
+    margin: 10px;
 }
 
 #mbrowser_main .info li {
-    list-style-type: circle;
+    list-style-type: none;
     padding: 3px;
     margin: 0px;
 }

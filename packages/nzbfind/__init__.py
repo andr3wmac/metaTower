@@ -15,6 +15,8 @@ def onLoad():
         api = cfg["nzbfind/sources/nzbmatrix/api-key"]
         engine = nzbmatrix.NZBMatrix(user, api, save_to)
 
+    mt.requests.addFile("GET", "/nzbfind/images/mtfile.png", "packages/nzbfind/images/mtfile.png")
+
 def home(resp):
     resp.htmlFile("packages/nzbfind/home.html", "container")
     resp.jsFile("packages/nzbfind/script.js")

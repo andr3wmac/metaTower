@@ -1,23 +1,13 @@
-/* metaTower Window Manager */
-
 body {
-    background:#61676F;
-    font-family:Arial, Helvetica, sans-serif;
-    font-size: 1.0em; 
-    margin: 0; 
-    padding: 0;
-    color: white;
-}
-
-ul, li {
-    margin:0; 
-    padding:0; 
-    list-style:none;
-    line-height: 1.1em;
-}
-
-li:hover {
-    background: #222;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	background: #61676F;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white; 
+	min-width: 600px;
+	font-size: 100%;
 }
 
 a {
@@ -32,50 +22,14 @@ a:hover {
     font-weight: bold;
 }
 
-#mtwm_quickbar {
-	list-style: none;
-	padding: 0;	
-	margin: 0;
-	float: left;
-	width: 100%;
-	background: #222;
-	background: url(images/menu_bg.png) repeat-x;
-}
-#mtwm_quickbar li {
-	float: left;
-	margin: 0;	
-	padding: 0 15px 0 0;
-	position: relative;
-}
-#mtwm_quickbar li:hover {
-    background: none;
-}
-#mtwm_quickbar li a {
-    color: #AAA;
-	padding: 9px 5px;
-	display: block;
-	text-decoration: none;
-	float: left;
-}
-#mtwm_quickbar li a:hover{
-    color: white;
-	font-weight: bold;
-}
-#mtwm_quickbar .icon {
-	margin-left: 15px;
-	width: 32px;
-	height: 35px;
-	float: left;
-	background: url(images/tower.png) no-repeat center 1px;
-    cursor: pointer;
-}
-
 #container {
 	padding-top: 35px;
 }
 
+/* Window */
+
 .window {
-	margin: 10px;
+    margin: 10px;
 	padding: 20px;
 	background-repeat: repeat;
 	background-image: url('images/content_bg.png');
@@ -85,46 +39,80 @@ a:hover {
     -webkit-border-radius: 10px; 
 }
 
-.window table {
-    width: 100%;
-}
-
-.window .header {
-    padding: 5px 0px 20px 20px;
+/* Window : Header */
+.header {
+	clear:both;
+	padding: 5px 0px 20px 20px;
     font-size: 1.2em;
     border-bottom: 1px solid #444;
 }
 
-.window .footer {
-    padding: 20px 20px 0px 20px;
-    font-size: 1.2em;
-    border-top: 1px solid #444;
+/* Window : Body Mask */
+.window_mask {
+	position:relative;	/* This fixes the IE7 overflow hidden bug */
+	clear:both;
+	float:left;
+	width:100%;			/* width of whole page */
+	overflow:hidden;		/* This chops off any overhanging divs */
 }
 
-.window .left {
-    border-right: 1px solid #444;
-    text-align: right;
-    display: block;
-    padding: 20px;
-    vertical-align: top;
+/* Window : Body */
+.window_body {
+	float:left;
+	width:100%;
+	position:relative;
 }
 
-.window .right {
-    float: right;
-    border-left: 1px solid #444;
-    padding: 20px;
-    width: 200px;
-    vertical-align: top;
+/* Window : Main & Menu (Left Column) */
+.window_main
+{
+    margin-top: 20px;
+    float:left;
+	position:relative;
+	padding:0 0 1em 0;
+	overflow:hidden;
+}
+.window_menu
+{
+	float:left;
+	position:relative;
+	padding:0 0 1em 0;
+	overflow:hidden;
 }
 
-.window .main {
-    padding: 20px;
-    min-height: 300px;
+/* Window : Left Menu */
+.leftmenu {
+	/*background:#fff;          right column background colour */
+}
+.leftmenu .window_body {
+	right:75%;
+	/*background: #f4f4f4;	    left column background colour */
+}
+.leftmenu .window_main {
+	width:71%;			/* right column content width */
+	left:102%;			/* 100% plus left column left padding */
     vertical-align: top;
     text-align: left;
-    width: 100%;
 }
 
+.leftmenu .window_menu {
+	width: 21%;
+	left: 6%;
+    border-right: 1px solid #444;
+    text-align: right;
+    vertical-align: top;
+}
+.leftmenu .window_menu li {
+    list-style: none;
+    padding: 20px 20px 5px 0px;
+}
+
+.leftmenu .window_menu .cat {
+    font-weight: bold; 
+    border-bottom: 1px solid #888;
+}
+
+/* Window : Progress Bar */
 .window .progressBar {
 	background: #222;
     height: 10px;
@@ -135,16 +123,14 @@ a:hover {
     height: 10px;
 }
 
-#home_packagelist {
-    
-}
-#home_packagelist li {
-    padding: 5px;
-    width: 200px;
-}
-#home_footer {
-    text-align: right;
-    font-size: 0.8em;
-    color: #DDD;
+/* Window: Footer */
+.footer {
+    padding: 20px 20px 0px 20px;
+    border-top: 1px solid #444;
+	clear:both;
 }
 
+.hidden_footer {
+    padding: 0px;
+	clear:both;
+}

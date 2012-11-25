@@ -1,25 +1,30 @@
-<div id="mbrowser">
-    <div id="mbrowser_header">
+<div id="mbrowser" class="window">
+    <div class="header">
         Media Browser
     </div>
-    <div id="mbrowser_layout">
-        <div id="mbrowser_menu" class="left">
-            <li class="cat">Audio</li>
-            <li class="subcat" onclick="mbrowser.allAudio()">All</li>
-            <li class="subcat" onclick="mbrowser.newAudio()">Newest</li>
-            <li class="cat">Video</li>
-            <li class="subcat" onclick="mbrowser.allVideo()">All</li>
-            <li class="subcat" onclick="mbrowser.movies()">Movies</li>
-            <li class="subcat" onclick="mbrowser.tv()">TV Shows</li>
-            <li class="subcat" onclick="mbrowser.newVideo()">Newest</li>
-            <li class="subcat" onclick="mbrowser.unviewedVideo()">Unviewed</li>
-            <li class="refresh" onclick="mbrowser.refresh()">Refresh Library</li>
+    <div class="window_mask leftmenu">
+        <div class="window_body">
+            <div class="window_main">
+                <p id="mbrowser_main"></p>
+            </div>            
+            <div id="mbrowser_menu" class="window_menu">
+                <li class="cat">Audio</li>
+                <li><a href="#!" onclick="mbrowser.allAudio()">All</a></li>
+                <li><a href="#!" onclick="mbrowser.newAudio()">Newest</a></li>
+                <li class="cat">Video</li>
+                <li><a href="#!" onclick="mbrowser.allVideo()">All</a></li>
+                <li><a href="#!" onclick="mbrowser.movies()">Movies</a></li>
+                <li><a href="#!" onclick="mbrowser.tv()">TV Shows</a></li>
+                <li><a href="#!" onclick="mbrowser.newVideo()">Newest</a></li>
+                <li><a href="#!" onclick="mbrowser.unviewedVideo()">Unviewed</a></li>
+                <li class="refresh"><a href="#!" onclick="mbrowser.refresh()">Refresh Library</a></li>
 
-            <div id="mbrowser_statusbar" style="display: none;">
-                <div id="mbrowser_status"><a href='#' onclick="mt('mbrowser.stopConvert()');">Click to Stop</a></div>
-                <div id="mbrowser_progress"></div>
-            </div>
-        </div>
-        <div id="mbrowser_main" class="main"></div>
+                <div id="mbrowser_statusbar" style="display: none;">
+                    <div id="mbrowser_status"><a href='#' onclick="mt('mbrowser.stopConvert()');">Click to Stop</a></div>
+                    <div id="mbrowser_progress"></div>
+                </div>
+            </div>            
+        </div>    
     </div>
+    <div class="hidden_footer"></div>
 </div>

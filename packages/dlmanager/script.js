@@ -1,5 +1,3 @@
-mt.layout("dlmanager", "window", {header: "dlmanager_header"} );
-mt.layout("dlmanager_layout", "spread", {columns: ["dlmanager_menu", "dlmanager_main"] } );
 
 var dlmanager = {
     completed: [],

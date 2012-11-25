@@ -1,37 +1,33 @@
-<div id="nzbfind">
-    <div id="nzbfind_header">
+<div id="nzbfind" class="window">
+    <div class="header">
         NZB Finder
     </div>
-    <div id="nzbfind_layout">
-        <div id="nzbfind_menu" class="left">
-            <li class="cat">TV</li>
-            <li id="nzbfind_menu0" class="subcat" onclick="nzbfind.setCat(0)">All</li>
-	        <li id="nzbfind_menu1" class="subcat" onclick="nzbfind.setCat(1)">Divx/Xvid</li>
-	        <li id="nzbfind_menu2" class="subcat" onclick="nzbfind.setCat(2)">x264</li>
-            <li id="nzbfind_menu3" class="subcat" onclick="nzbfind.setCat(3)">Sports</li>
-	        <li class="cat">Movies</li>
-	        <li id="nzbfind_menu4" class="subcat" onclick="nzbfind.setCat(4)">All</li>
-	        <li id="nzbfind_menu5" class="subcat" onclick="nzbfind.setCat(5)">Divx/Xvid</li>
-	        <li id="nzbfind_menu6" class="subcat" onclick="nzbfind.setCat(6)">x264</li>
+    <div class="window_mask leftmenu">
+        <div class="window_body">
+            <div id="nzbfind_main" class="window_main">
+                <p>
+                    <input id="nzbfind_query" type="text" onkeyup="nzbfind.keyup(event)" /> 
+                    <button onclick="nzbfind.search()">Search</button>                              
+                </p>
+                <ul id="nzbfind_results"></ul>
+            </div>
+            <div id="nzbfind_menu" class="window_menu">
+                <li class="cat">TV</li>
+                <li><a href="#!" id="nzbfind_menu0" onclick="nzbfind.setCat(0)">All</a></li>
+	            <li><a href="#!" id="nzbfind_menu1" onclick="nzbfind.setCat(1)">Divx/Xvid</a></li>
+	            <li><a href="#!" id="nzbfind_menu2" onclick="nzbfind.setCat(2)">x264</a></li>
+                <li><a href="#!" id="nzbfind_menu3" onclick="nzbfind.setCat(3)">Sports</a></li>
+	            <li class="cat">Movies</li>
+	            <li><a href="#!" id="nzbfind_menu4" onclick="nzbfind.setCat(4)">All</a></li>
+	            <li><a href="#!" id="nzbfind_menu5" onclick="nzbfind.setCat(5)">Divx/Xvid</a></li>
+	            <li><a href="#!" id="nzbfind_menu6" onclick="nzbfind.setCat(6)">x264</a></li>
 
-            <div id="nzbfind_statusbar">
-                <div id="nzbfind_status"></div>
-                <div id="nzbfind_progress"></div>
-            </div>
-        </div>
-        <div id="nzbfind_main" class="main">
-            <div id="nzbfind_search">
-                <div id="nzbfind_searchbtn">
-                    <button onclick="nzbfind.search()">Search</button>
-                </div>
-                <div id="nzbfind_searchbox">
-                    <input id="nzbfind_query"/>
+                <div id="nzbfind_statusbar">
+                    <div id="nzbfind_status"></div>
+                    <div id="nzbfind_progress"></div>
                 </div>
             </div>
-            <ul id="nzbfind_results">
-            </ul>
         </div>
     </div>
+    <div class="hidden_footer"></div>
 </div>
-
-

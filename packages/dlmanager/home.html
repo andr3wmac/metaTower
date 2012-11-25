@@ -1,30 +1,34 @@
-<div id="dlmanager">
-    <div id="dlmanager_header">
+<div id="dlmanager" class="window">
+    <div class="header">
         Download Manager
     </div>
-    <div id="dlmanager_layout">
-        <div id="dlmanager_menu" class="left">
-            <li class="cat">Show Only</li>
-            <li class="subcat" onclick="dlmanager.allVideo()">NZBs</li>
-            <li class="subcat" onclick="dlmanager.movies()">Torrents</li>
+    <div class="window_mask leftmenu">
+        <div class="window_body">
+            <div class="window_main">
+                <ul id="dlmanager_content" class="dlmanager_dllist"></ul>
+            </div>
 
-            <li class="cat">Add NZB/Torrent</li>
-            <li class="subcat">
-                <form id="dlmanager_upload" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
-			        <input id="dlmanager_fileinp" type="file" name="nzb">
-			        <input type="submit" value="Upload">
-		        </form>
-            </li>
+            <div id="dlmanager_menu" class="window_menu">
+                <li class="cat">Show Only</li>
+                <li><a href="#!" onclick="dlmanager.allVideo()">NZBs</a></li>
+                <li><a href="#!" onclick="dlmanager.movies()">Torrents</a></li>
 
-            <li class="refresh" onclick="dlmanager.removeCompleted();">Clear Completed</li>
+                <li class="cat">Add NZB/Torrent</li>
+                <li>
+                    <form id="dlmanager_upload" method='POST' enctype='multipart/form-data' action='packages/dlmanager/queue/' target='hiddenFrame'>
+			            <input id="dlmanager_fileinp" type="file" name="nzb">
+			            <input type="submit" value="Upload">
+		            </form>
+                </li>
 
-            <div id="dlmanager_statusbar" style="display: none;">
-                <div id="dlmanager_status"><a href='#' onclick="mt('dlmanager.stopConvert()');">Click to Stop</a></div>
-                <div id="dlmanager_progress"></div>
+                <li class="refresh"><a href="#!" onclick="dlmanager.removeCompleted();">Clear Completed</a></li>
+
+                <div id="dlmanager_statusbar" style="display: none;">
+                    <div id="dlmanager_status"><a href='#!' onclick="mt('dlmanager.stopConvert()');">Click to Stop</a></div>
+                    <div id="dlmanager_progress"></div>
+                </div>
             </div>
         </div>
-        <div id="dlmanager_main" class="main">
-            <ul id="dlmanager_content" style="margin: 0px; padding: 0px;"></ul>            
-        </div>
     </div>
+    <div class="hidden_footer"></div>
 </div>

@@ -209,7 +209,7 @@ def tvQuery(resp, name = "", season = ""):
             if ( item.has_key("external") ):
                 output += ", 'external': '" + item["external"] + "'"
             output += "}"
-        resp.js("mbrowser.tvData('" + name + "', [" + output[2:].replace("'", "\\'") + "]);")
+        resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
 
 def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
     lib_results = searchLibrary(args)

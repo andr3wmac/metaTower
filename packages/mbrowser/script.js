@@ -1,20 +1,36 @@
-mt.layout("mbrowser", "window", {header: "mbrowser_header"} );
-mt.layout("mbrowser_layout", "spread", {columns: ["mbrowser_menu", "mbrowser_main"] } );
 
 var mbrowser = {
-	allAudio: function() { mt("mbrowser.query({'type': 'audio'})"); },
-	newAudio: function() { mt("mbrowser.query({'type': 'audio'}, True, 50)"); },
-	allVideo: function() { mt("mbrowser.query({'type': 'video'})"); },
-	newVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50)"); },
-    unviewedVideo: function() { mt("mbrowser.query({'type': 'video'}, True, 50, True)"); },
-    movies: function() { mt("mbrowser.query({'type': 'video', 'vidtype': 'movie'})"); },
+	allAudio: function() { 
+        mt("mbrowser.query({'type': 'audio'})"); 
+        return false;
+    },
+	newAudio: function() { 
+        mt("mbrowser.query({'type': 'audio'}, True, 50)"); 
+        return false;
+    },
+	allVideo: function() { 
+        mt("mbrowser.query({'type': 'video'})"); 
+        return false;
+    },
+	newVideo: function() { 
+        mt("mbrowser.query({'type': 'video'}, True, 50)"); 
+        return false;
+    },
+    unviewedVideo: function() { 
+        mt("mbrowser.query({'type': 'video'}, True, 50, True)"); 
+        return false;
+    },
+    movies: function() { 
+        mt("mbrowser.query({'type': 'video', 'vidtype': 'movie'})"); 
+        return false;
+    },
 
     tv: function(show, season)
     {
         if ( show )
         {
-            if ( season ) mt("mbrowser.tvQuery('" + show + "', '" + season + "')");
-            else mt("mbrowser.tvQuery('" + show + "')");
+            if ( season ) mt("mbrowser.tvQuery(\"" + show + "\", \"" + season + "\")");
+            else mt("mbrowser.tvQuery(\"" + show + "\")");
         }
         else
             mt("mbrowser.tvQuery()");
@@ -83,6 +99,7 @@ var mbrowser = {
     {
         mbrowser.status("Refreshing..", 0);
         mt("mbrowser.refreshLibrary()");
+        return false;
     },
     refreshComplete: function()
     {
@@ -193,7 +210,7 @@ mbrowser.tvShows = function(shows)
     for (var i = 0; i < shows.length; i++)
     {
         var show = shows[i];
-        html += "<li class='show' onclick=\"mbrowser.tv('" + show + "');\">" + show + "</li>";
+        html += "<li class='show'><a href='#' onclick='mbrowser.tv(\"" + show + "\");'>" + show + "</a></li>";
     }
     mt.html("mbrowser_main", html, true);
 };
@@ -205,7 +222,7 @@ mbrowser.tvSeasons = function(show, seasons)
     for (var i = 0; i < seasons.length; i++)
     {
         var season = seasons[i];
-        html += "<li class='season' onclick=\"mbrowser.tv('" + show + "', '" + season + "');\">" + show + " - Season " + season + "</li>";
+        html += "<li class='season'><a href='#' onclick='mbrowser.tv(\"" + show + "\", \"" + season + "\"');\">" + show + " - Season " + season + "</a></li>";
     }
     mt.html("mbrowser_main", html, true);
 };

@@ -1,6 +1,3 @@
-mt.layout("nzbfind", "window", {header: "nzbfind_header"} );
-mt.layout("nzbfind_layout", "spread", {columns: ["nzbfind_menu", "nzbfind_main"] } );
-
 var nzbfind = {
     category: '0',
     categories: ['tv-all', '6', '41', '7', 'movies-all', '2', '42'],
@@ -19,6 +16,12 @@ var nzbfind = {
                 e.style.fontWeight = "normal";   
             }
         }
+    },
+
+    keyup: function(e)
+    {   
+        if ( e.keyCode == 13 )
+          	nzbfind.search();
     },
 
     status: function(msg, progress)
