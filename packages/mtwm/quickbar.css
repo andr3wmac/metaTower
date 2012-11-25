@@ -1,0 +1,43 @@
+#mtwm_quickbar {
+	list-style: none;
+	padding: 0;	
+	margin: 0;
+	float: left;
+	width: 100%;
+	background: #222;
+	background: url(images/menu_bg.png) repeat-x;
+}
+#mtwm_quickbar li {
+	float: left;
+	margin: 0;	
+	padding: 0 15px 0 0;
+	position: relative;
+}
+#mtwm_quickbar li:hover {
+    background: none;
+}
+#mtwm_quickbar li a {
+    color: #AAA;
+	padding: 9px 5px;
+	display: block;
+	text-decoration: none;
+	float: left;
+}
+#mtwm_quickbar li a:hover{
+    color: white;
+	font-weight: bold;
+}
+#mtwm_quickbar .icon {
+	margin-left: 15px;
+	width: 32px;
+	height: 35px;
+	float: left;
+	background: url(images/tower.png) no-repeat center 1px;
+    cursor: pointer;
+}
+
+#home_footer {
+    text-align: right;
+    font-size: 0.8em;
+    color: #DDD;
+}
