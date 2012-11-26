@@ -1,14 +1,10 @@
-#dlmanager_content img {
-    float: left;
-}
-
 .dlmanager_icon {
     float: left;
 }
 
 .dlmanager_item { 
     border: 0px;
-    /*padding: 5px 5px 5px 50px;*/ 
+    padding-bottom: 5px;
     line-height: 1.2em;  
 }
 
