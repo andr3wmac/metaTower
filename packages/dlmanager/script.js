@@ -65,7 +65,7 @@ var dlmanager = {
                 if ( !par2_element || !unrar_element )
                 {
                     mt.html(id, "<img onclick=\"dlmanager.toggleMenu('" + id + "')\" class='dlmanager_icon' src='dlmanager/images/nzb.png'>", false);
-                    mt.html(id, "<b>" + filename + "</b><br><img src=\"dlmanager/images/par2.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_par2\"></span><br><img src=\"dlmanager/images/unrar.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_unrar\"></span>", true);
+                    mt.html(id, "<b>" + filename + "</b><br><img src=\"dlmanager/images/par2.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span><span id=\"" + id + "_par2\"></span><br><img src=\"dlmanager/images/unrar.png\" width=\"16\" height=\"16\" style=\"padding-right: 5px\"><span id=\"" + id + "_unrar\"></span></span>", true);
                     par2_element = document.getElementById(id + "_par2");
                     unrar_element = document.getElementById(id + "_unrar");
                 }
