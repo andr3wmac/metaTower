@@ -45,6 +45,9 @@ var nzbfind = {
     {
         mt("nzbfind.download(" + id + ")");
         nzbfind.status("Downloading..", 0);
+
+        var e = document.getElementById("nzbfind_" + id);
+        if ( e ) e.className = "nzb_downloaded";
     },
 
     dl_complete: function()
@@ -58,7 +61,9 @@ var nzbfind = {
         for ( var i = 0; i < results.length; i++ )
         {
             var result = results[i];
-            html += "<li class='nzb' onClick='nzbfind.download(" + result.id + ")'>" + result.name + " (<b>" + result.size + "</b>)</li>";
+            var dl_class = "nzb";
+            if ( result.downloaded == "True" ) dl_class = "nzb_downloaded"; 
+            html += "<li id='nzbfind_" + result.id  + "' class='" + dl_class + "'><a href='#!' onClick='nzbfind.download(" + result.id + ")'>" + result.name + " (<b>" + result.size + "</b>)</a></li>";
         }
         mt.html("nzbfind_results", html, false);
         nzbfind.status("Done.", 100);

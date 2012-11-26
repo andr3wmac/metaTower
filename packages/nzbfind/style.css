@@ -1,20 +1,33 @@
 #nzbfind_results
 {
     list-style: none;
-    padding: 0px;
+    padding: 10px 0px 0px 0px;
 }
 
 #nzbfind_results .nzb 
 { 
-    cursor: pointer; 
     background-image: url('nzbfind/images/mtfile.png'); 
     background-repeat: no-repeat; 
-    background-position: 5px 3px;  
+    background-position: 2px 5px;  
     padding-left: 25px; 
 }
 
-#nzbfind_results li 
+#nzbfind_results .nzb_downloaded 
 { 
+    background-image: url('nzbfind/images/mtfile_trans.png'); 
+    background-repeat: no-repeat; 
+    background-position: 2px 5px;  
+    padding-left: 25px; 
+    color: #AAA;
+}
+
+#nzbfind_results .nzb_downloaded a
+{
+    color: #AAA;
+}
+
+#nzbfind_results li 
+{
     padding: 5px; 
 }
 

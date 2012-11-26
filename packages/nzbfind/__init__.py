@@ -17,6 +17,7 @@ def onLoad():
         engine = nzbmatrix.NZBMatrix(user, api, save_to)
 
     mt.requests.addFile("GET", "/nzbfind/images/mtfile.png", "packages/nzbfind/images/mtfile.png")
+    mt.requests.addFile("GET", "/nzbfind/images/mtfile_trans.png", "packages/nzbfind/images/mtfile_trans.png")
 
 def home(resp):
     resp.htmlFile("packages/nzbfind/home.html", "container")
@@ -30,14 +31,14 @@ def search(resp, query, cat):
         return
 
     dlist = []
-    config_list = mt.config.get("mbrowser/downloaded/nzb")
+    config_list = mt.config.get("nzbfind/downloaded/nzb")
     for item in config_list:
         dlist.append(item["id"])
 
     results = engine.search(query, cat)
     formatted_results = []
     for r in results:
-        formatted_results.append({"id": r.id, "name": r.name, "size": r.size, "downloaded": str(r.id in dlist)})
+        formatted_results.append({"id": r.id, "name": r.name, "size": r.size, "downloaded": str(str(r.id) in dlist)})
     
     resp.js("nzbfind.data(" + str(formatted_results) + ");")
 
@@ -46,14 +47,14 @@ def download(resp, id):
 
     # generate a list of files from the known library
     found = False
-    config_list = mt.config.get("nzbfind/downloaded/file")
+    config_list = mt.config.get("nzbfind/downloaded/nzb")
     for item in config_list:
-        if ( item["id"] == id ): found = True
+        if ( item["id"] == str(id) ): found = True
     
     if ( not found ):
         element = mt.config.ConfigItem("")
-        element["id"] = id
-        mt.config.add(element, "nzbfind/downloaded/file", "packages/nzbfind/downloaded.cfg")
+        element["id"] = str(id)
+        mt.config.add(element, "nzbfind/downloaded/nzb", "packages/nzbfind/downloaded.cfg")
         mt.config.save("packages/nzbfind/downloaded.cfg")
 
     resp.js("nzbfind.dl_complete()")
