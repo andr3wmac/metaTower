@@ -1,11 +1,12 @@
 .dlmanager_icon {
     float: left;
+    margin-left: -50px;
 }
 
 .dlmanager_item { 
     border: 0px;
-    padding-bottom: 5px;
-    line-height: 1.2em;  
+    padding-bottom: 5px 5px 5px 50px;
+    line-height: 1.2em;
 }
 
 .dlmanager_item_menu {
