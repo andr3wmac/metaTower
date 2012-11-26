@@ -7,6 +7,7 @@ def onLoad():
     
     cfg = mt.config
     cfg.load("packages/nzbfind/sources.cfg")
+    cfg.load("packages/nzbfind/downloaded.cfg", True)
 
     save_to = cfg["nzbfind/save_to"]
 
@@ -28,15 +29,33 @@ def search(resp, query, cat):
         resp.js("nzbfind.data({})")
         return
 
+    dlist = []
+    config_list = mt.config.get("mbrowser/downloaded/nzb")
+    for item in config_list:
+        dlist.append(item["id"])
+
     results = engine.search(query, cat)
     formatted_results = []
     for r in results:
-        formatted_results.append({"id": r.id, "name": r.name, "size": r.size})
-
+        formatted_results.append({"id": r.id, "name": r.name, "size": r.size, "downloaded": str(r.id in dlist)})
+    
     resp.js("nzbfind.data(" + str(formatted_results) + ");")
 
 def download(resp, id):
     global engine
+
+    # generate a list of files from the known library
+    found = False
+    config_list = mt.config.get("nzbfind/downloaded/file")
+    for item in config_list:
+        if ( item["id"] == id ): found = True
+    
+    if ( not found ):
+        element = mt.config.ConfigItem("")
+        element["id"] = id
+        mt.config.add(element, "nzbfind/downloaded/file", "packages/nzbfind/downloaded.cfg")
+        mt.config.save("packages/nzbfind/downloaded.cfg")
+
     resp.js("nzbfind.dl_complete()")
     if ( not engine ): return
     engine.download(id)
