@@ -4,6 +4,12 @@
     padding: 0;
 }
 
+#dlmanager_content { 
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0;
+}
+
 .dlmanager_icon {
     float: left;
     margin-left: -50px;
