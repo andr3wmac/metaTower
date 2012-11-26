@@ -126,9 +126,9 @@ var mbrowser = {
     {
         var id = item["id"];
 
-        var html = "<li class='video' id='" + id + "'>";
-        html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='icon' src='mbrowser/images/mtfile.png'>";
-        html += "<div class='name'><a id='" + id + "_file' target='_blank' href='mbrowser/f/" + item["path"] + "'>" + item["name"] + "</a></div>";
+        var html = "<li class='mbrowser_video' id='" + id + "'>";
+        html += "<img onclick=\"mbrowser.toggleInfo('" + item["id"] + "')\" class='mbrowser_icon' src='mbrowser/images/mtfile.png'>";
+        html += "<span class='mbrowser_name'><a id='" + id + "_file' target='_blank' href='mbrowser/f/" + item["path"] + "'>" + item["name"] + "</a></span>";
 
         var f_args = item["path"].split("/");
         var f = f_args[f_args.length-1];
@@ -143,15 +143,15 @@ var mbrowser = {
     
         // Should it be visible?
         if ( visible )
-            html += "<div id='" + id + "_info' class='info' style='display: block;'><ul>";
+            html += "<div id='" + id + "_info' class='mbrowser_info' style='display: block;'><ul>";
         else
-            html += "<div id='" + id + "_info' class='info' style='display: none;'><ul>";
+            html += "<div id='" + id + "_info' class='mbrowser_info' style='display: none;'><ul>";
 
         // Rename
         if ( file )
         {
             html += "<li id='" + id + "_renametoggle'><a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Rename</a></li>";
-            html += "<li id='" + id + "_rename' style='display: none;'><input id='" + id + "_renameinp' class='rename_input' type='text' name='lastname' value='" + file + "'/>";
+            html += "<li id='" + id + "_rename' style='display: none;'><input id='" + id + "_renameinp' class='mbrowser_rename' type='text' name='lastname' value='" + file + "'/>";
             html += "<a href='#' onclick='mbrowser.rename(\"" + id + "\");'>Save</a> | <a href='#' onclick='mbrowser.toggleRename(\"" + id + "\")'>Hide</a></li>";
         }
 
@@ -210,7 +210,7 @@ mbrowser.tvShows = function(shows)
     for (var i = 0; i < shows.length; i++)
     {
         var show = shows[i];
-        html += "<li class='show'><a href='#' onclick='mbrowser.tv(\"" + show + "\");'>" + show + "</a></li>";
+        html += "<li class='mbrowser_show'><a href='#' onclick='mbrowser.tv(\"" + show + "\");'>" + show + "</a></li>";
     }
     mt.html("mbrowser_main", html, true);
 };
@@ -222,7 +222,7 @@ mbrowser.tvSeasons = function(show, seasons)
     for (var i = 0; i < seasons.length; i++)
     {
         var season = seasons[i];
-        html += "<li class='season'><a href='#' onclick='mbrowser.tv(\"" + show + "\", \"" + season + "\"');\">" + show + " - Season " + season + "</a></li>";
+        html += "<li class='mbrowser_season'><a href='#' onclick='mbrowser.tv(\"" + show + "\", \"" + season + "\"');\">" + show + " - Season " + season + "</a></li>";
     }
     mt.html("mbrowser_main", html, true);
 };

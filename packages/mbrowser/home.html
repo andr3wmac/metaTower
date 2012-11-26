@@ -5,7 +5,7 @@
     <div class="window_mask leftmenu">
         <div class="window_body">
             <div class="window_main">
-                <p id="mbrowser_main"></p>
+                <ul id="mbrowser_main"></ul>
             </div>            
             <div id="mbrowser_menu" class="window_menu">
                 <li class="cat">Audio</li>
@@ -17,7 +17,7 @@
                 <li><a href="#!" onclick="mbrowser.tv()">TV Shows</a></li>
                 <li><a href="#!" onclick="mbrowser.newVideo()">Newest</a></li>
                 <li><a href="#!" onclick="mbrowser.unviewedVideo()">Unviewed</a></li>
-                <li class="refresh"><a href="#!" onclick="mbrowser.refresh()">Refresh Library</a></li>
+                <li id="mbrowser_refresh"><a href="#!" onclick="mbrowser.refresh()">Refresh Library</a></li>
 
                 <div id="mbrowser_statusbar" style="display: none;">
                     <div id="mbrowser_status"><a href='#' onclick="mt('mbrowser.stopConvert()');">Click to Stop</a></div>

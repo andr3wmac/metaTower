@@ -1,13 +1,13 @@
 body {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	width: 100%;
-	background: #61676F;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    width: 100%;
+    background: #61676F;
     font-family: Arial, Helvetica, sans-serif;
     color: white; 
-	min-width: 600px;
-	font-size: 100%;
+    min-width: 600px;
+    font-size: 100%;
 }
 
 a {
@@ -22,18 +22,29 @@ a:hover {
     font-weight: bold;
 }
 
+li, ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
 #container {
-	padding-top: 35px;
+    padding-top: 35px;
 }
 
 /* Window */
 
 .window {
     margin: 10px;
-	padding: 20px;
-	background-repeat: repeat;
-	background-image: url('images/content_bg.png');
-	color: white; 
+    padding: 20px;
+    background-repeat: repeat;
+    background-image: url('images/content_bg.png');
+    color: white; 
     border-radius: 10px; 
     -moz-border-radius: 10px; 
     -webkit-border-radius: 10px; 
@@ -41,63 +52,63 @@ a:hover {
 
 /* Window : Header */
 .header {
-	clear:both;
-	padding: 5px 0px 20px 20px;
+    clear:both;
+    padding: 5px 0px 20px 20px;
     font-size: 1.2em;
     border-bottom: 1px solid #444;
 }
 
 /* Window : Body Mask */
 .window_mask {
-	position:relative;	/* This fixes the IE7 overflow hidden bug */
-	clear:both;
-	float:left;
-	width:100%;			/* width of whole page */
-	overflow:hidden;		/* This chops off any overhanging divs */
+    position:relative;    /* This fixes the IE7 overflow hidden bug */
+    clear:both;
+    float:left;
+    width:100%;            /* width of whole page */
+    overflow:hidden;        /* This chops off any overhanging divs */
 }
 
 /* Window : Body */
 .window_body {
-	float:left;
-	width:100%;
-	position:relative;
+    float:left;
+    width:100%;
+    position:relative;
 }
 
 /* Window : Main & Menu (Left Column) */
 .window_main
 {
-    margin-top: 20px;
-    float:left;
-	position:relative;
-	padding:0 0 1em 0;
-	overflow:hidden;
+    margin-top: 40px;
+    float: left;
+    position: relative;
+    padding: 0 0 1em 0;
+    overflow: hidden;
 }
 .window_menu
 {
-	float:left;
-	position:relative;
-	padding:0 0 1em 0;
-	overflow:hidden;
+    float:left;
+    position:relative;
+    padding:0 0 1em 0;
+    overflow:hidden;
 }
 
 /* Window : Left Menu */
 .leftmenu {
-	/*background:#fff;          right column background colour */
+    /*background:#fff;          right column background colour */
 }
 .leftmenu .window_body {
-	right:75%;
-	/*background: #f4f4f4;	    left column background colour */
+    right:75%;
+    /*background: #f4f4f4;        left column background colour */
 }
 .leftmenu .window_main {
-	width:71%;			/* right column content width */
-	left:102%;			/* 100% plus left column left padding */
+    width:71%;            /* right column content width */
+    left:102%;            /* 100% plus left column left padding */
     vertical-align: top;
     text-align: left;
 }
 
 .leftmenu .window_menu {
-	width: 21%;
-	left: 6%;
+    width: 21%;
+    left: 6%;
     border-right: 1px solid #444;
     text-align: right;
     vertical-align: top;
@@ -114,12 +125,12 @@ a:hover {
 
 /* Window : Progress Bar */
 .window .progressBar {
-	background: #222;
+    background: #222;
     height: 10px;
 }
 
 .window .progressBar_progress {
-	background: #39F;
+    background: #39F;
     height: 10px;
 }
 
@@ -127,10 +138,10 @@ a:hover {
 .footer {
     padding: 20px 20px 0px 20px;
     border-top: 1px solid #444;
-	clear:both;
+    clear:both;
 }
 
 .hidden_footer {
     padding: 0px;
-	clear:both;
+    clear:both;
 }

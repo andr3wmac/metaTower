@@ -1,4 +1,4 @@
-#mbrowser_menu .refresh { 
+#mbrowser_refresh { 
     font-weight: bold; 
 }
 
@@ -7,71 +7,50 @@
 }
 
 #mbrowser_status { 
-    padding-top: 50px; 
+    padding: 50px; 
     text-align: left; 
 }
 
-#mbrowser_main { 
-    list-style-type: none; 
-}
-
-#mbrowser_main li { 
-    border: 0px; 
-    margin: 3px; 
-    padding: 5px; 
-}
-
-#mbrowser_main .menu { 
-    cursor: pointer; 
-    font-weight: bold; 
-}
-
-#mbrowser_main .audio { 
+.mbrowser_audio { 
     background-image: url('mbrowser/images/mtfile.png'); 
     background-repeat:no-repeat; 
     background-position: 5px 3px;  
     padding-left: 25px; 
 }
 
-#mbrowser_main .video { }
+.mbrowser_video {
+    padding: 5px;
+}
 
-#mbrowser_main .show { 
-    cursor: pointer; 
+.mbrowser_show,
+.mbrowser_season { 
     background-image: url('mbrowser/images/mtfolder.png'); 
     background-repeat:no-repeat; 
     background-position: 5px 3px;  
-    padding-left: 25px; 
+    padding: 4px 0px 5px 25px; 
 }
 
-#mbrowser_main .season { 
-    cursor: pointer; 
-    background-image: url('mbrowser/images/mtfolder.png'); 
-    background-repeat:no-repeat; 
-    background-position: 5px 3px;  
-    padding-left: 25px; 
-}
-
-#mbrowser_main .icon {
+.mbrowser_icon {
     float: left;
 }
-#mbrowser_main .name {
-    padding-left: 25px;
-    cursor: pointer;
+
+.mbrowser_name {
+    padding-left: 10px;
 }
 
-#mbrowser_main .info {
+.mbrowser_info {
     background: #222;
     padding: 2px;
     margin: 10px;
 }
 
-#mbrowser_main .info li {
+.mbrowser_info li {
     list-style-type: none;
     padding: 3px;
     margin: 0px;
 }
 
-#mbrowser_main .rename_input {
+.mbrowser_rename {
     border: 1px solid #DBDADA;
     width: 350px;
     margin-right: 10px;

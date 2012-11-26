@@ -84,7 +84,7 @@ var dlmanager = {
         // Check if its been removed.
         if ( state == -1 )
         {
-		    if ( torrent_elementt )
+		    if ( torrent_element )
 		    {
 		        var parent = torrent_element.parentNode;
 		        parent.removeChild(torrent_element);
