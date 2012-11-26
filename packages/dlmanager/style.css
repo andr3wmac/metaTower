@@ -1,3 +1,7 @@
+#dlmanager_content img {
+    float: left;
+}
+
 .dlmanager_icon {
     float: left;
 }
