@@ -1,6 +1,6 @@
 import mt, os, re
 
-def process(item):
+def process_nzb(item):
     # attempt to par2.
     par2_result = par2Folder(item.save_to)
     if ( par2_result == False ): item.par2_results = "No par2 files found."
