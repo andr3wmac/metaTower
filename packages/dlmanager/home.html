@@ -9,9 +9,10 @@
             </div>
 
             <div id="dlmanager_menu" class="window_menu">
-                <li class="cat">Show Only</li>
-                <li><a href="#!" onclick="dlmanager.allVideo()">NZBs</a></li>
-                <li><a href="#!" onclick="dlmanager.movies()">Torrents</a></li>
+                <li class="cat">Show</li>
+                <li><a id="dlmanager_showall" href="#!" onclick="dlmanager.show(true, true)">All</a></li>                
+                <li><a id="dlmanager_shownzbs"href="#!" onclick="dlmanager.show(true, false)">NZBs</a></li>
+                <li><a id="dlmanager_showtorrents" href="#!" onclick="dlmanager.show(false, true)">Torrents</a></li>
 
                 <li class="cat">Add NZB/Torrent</li>
                 <li>

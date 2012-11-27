@@ -1,8 +1,13 @@
 
 var dlmanager = {
     completed: [],
+    showNZBs: true,
+    showTorrents: true,
+
 	nzb: function(id, filename, state, args)
 	{
+        if ( !showNZBs ) return;
+
 		// the actual output
 		var nzb_element = document.getElementById(id);
 
@@ -78,6 +83,8 @@ var dlmanager = {
 
 	torrent: function(id, filename, state, args)
 	{
+        if ( !showTorrents ) return;
+
 		// the actual output
 		var torrent_element = document.getElementById(id);
 
@@ -165,6 +172,30 @@ var dlmanager = {
     removeCompleted: function()
     {
         mt("dlmanager.remove_completed()");
+    },
+
+    show: function(nzb, torrent)
+    {
+        var e1 = document.getElementById("dlmanager_showall");
+        if ( nzb && torrent )
+            e1.style.fontWeight = "bold";
+        else
+            e1.style.fontWeight = "normal";        
+
+        var e2 = document.getElementById("dlmanager_shownzbs");
+        if ( nzb && !torrent )
+            e2.style.fontWeight = "bold";
+        else
+            e2.style.fontWeight = "normal";
+        
+        var e3 = document.getElementById("dlmanager_showtorrents");
+        if ( !nzb && torrent )
+            e3.style.fontWeight = "bold";
+        else
+            e3.style.fontWeight = "normal";
+
+        dlmanager.showNZBs = nzb;
+        dlmanager.showTorrents = torrent;
     }
 };
 
