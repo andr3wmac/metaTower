@@ -19,7 +19,6 @@ def process_nzb(item):
         ext = os.path.splitext(f)[1]        
         if ( ext.lower() in save_exts ):
             mt.utils.move(os.path.join(item.save_to, f), os.path.join(save_to, f))
-            print "Moved file: " + f
 
 def getLastLine(text):
     args = text.splitlines()
@@ -61,7 +60,7 @@ def unrarFolder(path):
     # Now we actually extract them, only the last result will be shown.
     for rar_file in rar_files:
         mt.log.info("Extracting RAR file: " + rar_file)
-        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file.replace("'", "\\'")])
+        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file.replace("'", "\\'"), path])
         last_line = getLastLine(output)
 
         if ( results.has_key(last_line) ):
