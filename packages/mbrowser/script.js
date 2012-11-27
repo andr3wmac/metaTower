@@ -76,6 +76,7 @@ var mbrowser = {
     {
         mt("mbrowser.getExternalLink('" + id + "')");
     },
+
     externalLink: function(id, elink)
     {
         var e = document.getElementById(id + "_elink");
@@ -90,6 +91,7 @@ var mbrowser = {
         e.innerHTML = "Play Web Video";
         e.setAttribute("onclick", "mbrowser.openWebVideo('" + weblink + "')");
     },
+
     webConvert: function(id)
     {
         mt("mbrowser.convertToWeb('" + id + "')");
@@ -101,6 +103,7 @@ var mbrowser = {
         mt("mbrowser.refreshLibrary()");
         return false;
     },
+
     refreshComplete: function()
     {
         mbrowser.status("Refresh Complete.", 100);
@@ -112,6 +115,7 @@ var mbrowser = {
         if ( percent < 100 )
             setTimeout("mt(\"mbrowser.status()\")", 500);
     },
+
     status: function(msg, progress)
     {
         mbrowser.showStatus()
@@ -137,6 +141,7 @@ var mbrowser = {
         html += "</li>";
         return html;
     },
+
     getInfoHTML: function(id, file, elink, webvid, visible)
     {
         var html = "";
@@ -218,11 +223,11 @@ mbrowser.tvShows = function(shows)
 mbrowser.tvSeasons = function(show, seasons)
 {
     document.getElementById("mbrowser_main").innerHTML = "";
-    var html = "<div class='tv_crumbs'><a href='#' onclick=\"mbrowser.tv();\">TV Shows</a></div>";
+    var html = "<div class='tv_crumbs'><a href='#' onclick='mbrowser.tv();'>TV Shows</a></div>";
     for (var i = 0; i < seasons.length; i++)
     {
         var season = seasons[i];
-        html += "<li class='mbrowser_season'><a href='#' onclick='mbrowser.tv(\"" + show + "\", \"" + season + "\"');\">" + show + " - Season " + season + "</a></li>";
+        html += "<li class='mbrowser_season'><a href='#' onclick='mbrowser.tv(\"" + show + "\", \"" + season + "\");'>" + show + " - Season " + season + "</a></li>";
     }
     mt.html("mbrowser_main", html, true);
 };
