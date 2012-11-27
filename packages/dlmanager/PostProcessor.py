@@ -1,5 +1,19 @@
 import mt, os, re
 
+def process(item):
+    # attempt to par2.
+    par2_result = par2Folder(item.save_to)
+    if ( par2_result == False ): item.par2_results = "No par2 files found."
+    else: item.par2_results = par2_result
+
+    # attempt to unrar.
+    item.unrar_results = "Decompressing files.."
+    unrar_result = unrarFolder(item.save_to)
+    if ( unrar_result == False ): item.unrar_results = "No rar files found."
+    else: item.unrar_results = unrar_result
+
+    print "Procesing complete."
+
 def getLastLine(text):
     args = text.splitlines()
     for x in range(len(args)-1, -1, -1):

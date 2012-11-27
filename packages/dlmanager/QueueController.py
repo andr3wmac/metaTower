@@ -1,6 +1,5 @@
-import os, commands, shutil, mt, time
+import os, commands, shutil, mt, time, PostProcessor
 from NZB.NZBClient import NZBClient
-from NZB import Extractor
 from mt import threads
 
 libtorrent_enabled = False
@@ -188,16 +187,7 @@ class QueueController(threads.Thread):
                         if ( queue_item.completed ) and ( not queue_item.error ): self.nzbComplete(queue_item)
 
     def nzbComplete(self, queue_item):
-        # attempt to par2.
-        par2_result = Extractor.par2Folder(queue_item.save_to)
-        if ( par2_result == False ): queue_item.par2_results = "No par2 files found."
-        else: queue_item.par2_results = par2_result
-
-        # attempt to unrar.
-        queue_item.unrar_results = "Decompressing files.."
-        unrar_result = Extractor.unrarFolder(queue_item.save_to)
-        if ( unrar_result == False ): queue_item.unrar_results = "No rar files found."
-        else: queue_item.unrar_results = unrar_result
+        PostProcessor.process_nzb(queue_item)
 
     def tick(self):
         try:
