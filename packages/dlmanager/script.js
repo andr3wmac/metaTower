@@ -6,7 +6,7 @@ var dlmanager = {
 
 	nzb: function(id, filename, state, args)
 	{
-        if ( !showNZBs ) return;
+        if ( !dlmanager.showNZBs ) return;
 
 		// the actual output
 		var nzb_element = document.getElementById(id);
@@ -83,7 +83,7 @@ var dlmanager = {
 
 	torrent: function(id, filename, state, args)
 	{
-        if ( !showTorrents ) return;
+        if ( !dlmanager.showTorrents ) return;
 
 		// the actual output
 		var torrent_element = document.getElementById(id);
@@ -196,6 +196,8 @@ var dlmanager = {
 
         dlmanager.showNZBs = nzb;
         dlmanager.showTorrents = torrent;
+
+        mt.html("dlmanager_content", "", false);
     }
 };
 
