@@ -188,5 +188,5 @@ class ConfigManager:
                     f.write(prettyxml)
                     f.close()
                 except Exception as inst:
-                    mt.log.error("Could not save config file: " + tre + ", Reason: " + str(inst.args))                    
+                    mt.log.error("Could not save config file: " + tree + ", Reason: " + str(inst.args))                    
                     pass

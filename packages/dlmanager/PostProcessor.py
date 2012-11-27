@@ -18,7 +18,8 @@ def process_nzb(item):
     for f in os.listdir(item.save_to):
         ext = os.path.splitext(f)[1]        
         if ( ext.lower() in save_exts ):
-            mt.utils.move(os.path.join(item.save_to, f), save_to)
+            mt.utils.move(os.path.join(item.save_to, f), os.path.join(save_to, f))
+            print "Moved file: " + f
 
 def getLastLine(text):
     args = text.splitlines()
