@@ -12,7 +12,13 @@ def process_nzb(item):
     if ( unrar_result == False ): item.unrar_results = "No rar files found."
     else: item.unrar_results = unrar_result
 
-    print "Procesing complete."
+    # scan directory for files we wish to keep.
+    save_to = mt.config["dlmanager/nzb/save_to"]
+    save_exts = mt.config["dlmanager/save_files"].lower()    
+    for f in os.listdir(item.save_to):
+        ext = os.path.splitext(f)[1]        
+        if ( ext.lower() in save_exts ):
+            mt.utils.move(os.path.join(item.save_to, f), save_to)
 
 def getLastLine(text):
     args = text.splitlines()
@@ -54,7 +60,7 @@ def unrarFolder(path):
     # Now we actually extract them, only the last result will be shown.
     for rar_file in rar_files:
         mt.log.info("Extracting RAR file: " + rar_file)
-        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file.replace("'", "\\'"), mt.config["dlmanager/nzb/save_to"]])
+        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file.replace("'", "\\'")])
         last_line = getLastLine(output)
 
         if ( results.has_key(last_line) ):
