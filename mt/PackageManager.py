@@ -55,7 +55,6 @@ class PackageManager:
 
             self.list[package_name] = mod
             setattr(self, package_name, mod)
-            if ( hasattr(mod, "onLoad") ): mod.onLoad()
 
         return mod
 
@@ -113,6 +112,11 @@ class PackageManager:
                     package = self.load(f, path)
                 
         self.listPackages()        
+        
+        # after packages are listed, called their load function
+        for packid in self.list:
+            package = self.list[packid]
+            if ( hasattr(package, "onLoad") ): package.onLoad()
     
     def listPackages(self):
         print "Packages: "
