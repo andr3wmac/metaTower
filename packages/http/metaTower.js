@@ -1,15 +1,3 @@
-"""
- * metaTower v0.4.5
- * http://www.metatower.com
- *
- * Copyright 2012, Andrew Mac
- * http://www.andrewmac.ca
- * Licensed under GPL v3.
- * See license.txt 
- *  or http://www.metatower.com/license.txt
-"""
-# contains the metaTower.js file, this way it can be compiled into the program.
-content = """
 mt = function(url, target_override)
 {
 	if ( !url ) { return; }
@@ -217,4 +205,3 @@ mt.error = function(err)
 {
     alert("An error occured." + err);
 };
-"""

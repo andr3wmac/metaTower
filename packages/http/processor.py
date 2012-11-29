@@ -10,10 +10,10 @@
 """
 
 import thread, os, time, sys, Cookie, uuid, hashlib, mimetypes
-import mt
+import mt, sessions
 
-def processRequest(httpIn):
-    output = mt.http.HTTPOut(httpIn.session)
+def processRequest(httpIn, httpOut):
+    #output = http.HTTPOut(httpIn.session)
     
     # Special functions.
     processed = False    
@@ -34,58 +34,55 @@ def processRequest(httpIn):
 
         # Execute a command.
         elif ( httpIn.path[1] == "!" ):
-            output = processCommand(httpIn.path, httpIn.session)
+            processCommand(httpIn, httpOut)
             processed = True
 
         # Request a file.
         # The ':' tells metaTower the file search can be anywhere.
         elif ( httpIn.path[1] == ":" ):
             file_parts = os.path.split(httpIn.path[2:])
-            output.file(os.path.join(file_parts[0], file_parts[1]))
+            httpOut.file(os.path.join(file_parts[0], file_parts[1]))
             processed = True
 
         # metaTower.js is kept internal in js.py
         # we output it at request.
         elif ( httpIn.path[1:].lower() == "metatower.js" ):
-            js_file = mt.js.content
-            output.headers["Content-Type"] = "application/javascript"
-            output.headers["Content-Length"] = len(js_file)
-            output.text_entry = js_file
+            httpOut.file("packages/http/metaTower.js")
             processed = True
     
     # if it wasn't a special fucntion send it off
     # to request processor.     
     if ( not processed ):
-        mt.requests.process(httpIn, output)
+        mt.events.trigger("HTTP GET " + httpIn.path, httpIn, httpOut)
 
-    return output
+    # still not processed? 404.
+    if ( not processed ):
+        httpOut.status = "404 Not Found"
 
 # Processes a command, often from a package.
-def processCommand(path, session):
-    cmds = path[2:].split("\n")
+def processCommand(httpIn, httpOut):
+    cmds = httpIn.path[2:].split("\n")
     for cmd in cmds:
         try:
 
             # HTTPOut contains all the functions needed to output data to 
             # the javascript side. Response is included by default on all
             # executed commands.
-            response = mt.http.HTTPOut(session)
 
             # here we 'inject' the response variable into the parms of the
             # command.
             o = cmd.find("(")
-            cmd = cmd[:o+1] + "response," + cmd[o+1:]
+            cmd = cmd[:o+1] + "httpOut," + cmd[o+1:]
 
             # execute and return.
             exec("mt.packages." + cmd)
-            return response
 
         except Exception as inst:
-            mt.log.error("Executing command " + path + ": " + str(inst.args))
+            mt.log.error("Executing command " + httpIn.path + ": " + str(inst.args))
             return None
 
 # Process login from a client.
-def processLogin(client_socket, httpIn):
+def processLogin(client_socket, httpIn, httpOut):
     path = httpIn.path
     auth_line = httpIn.auth_line
 
@@ -118,7 +115,7 @@ def processLogin(client_socket, httpIn):
     #   - Prompt user for a username/password if not specific.
     if ( security == 1 ):
         user = verifyUser(login_username, login_password, local_client)
-        resp = showLoginForm()
+        showLoginForm(httpIn, httpOut)
 
     # Level 2 Security
     #   - Requires the proper auth key from a third party
@@ -135,26 +132,28 @@ def processLogin(client_socket, httpIn):
     # If the user variable is set, login was successful.
     if ( user != None ):
         # Create  new session.
-        sesh = mt.sessions.new()
+        sesh = sessions.new()
         sesh.user = user
         sesh.IP = client_addr[0]
         sesh.local = local_client
         mt.log.info(user.name + " has logged in.")
 
         # Create a response variable and
-        resp = mt.http.HTTPOut(sesh)
-        resp.cookies["session"] = sesh.auth_key
+        #resp = mt.http.HTTPOut(sesh)
+        httpOut.cookies["session"] = sesh.auth_key
         httpIn.session = sesh
+        httpOut.session = sesh
 
         # Trigger any login events.
-        mt.packages.onLogin(resp)
+        #mt.packages.onLogin(httpOut)
         
         # A proper login can still have a request on the end of it.
         # For instance with a local, no security auto-login.
         # Therefore if the URL contains any commands, we'll pass it
         # back around for execution.
         #if ( path == "/" ):
-        resp.append(processRequest(httpIn))
+        #resp.append(processRequest(httpIn))
+        processRequest(httpIn, httpOut)        
         #elif ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
             #resp.append(processRequest(httpIn))
         #else:
@@ -163,11 +162,11 @@ def processLogin(client_socket, httpIn):
             #resp = sesh.cleanRedirect(resp)
     
     # If resp is None at this point, all login attempts have failed.
-    if ( resp == None ):
-        resp = mt.http.HTTPOut()
-        resp.text("Access denied.")
+    #if ( resp == None ):
+    #    resp = mt.http.HTTPOut()
+    #    resp.text("Access denied.")
 
-    return resp
+    #return resp
 
 # This function will take the relevant information and see
 # if it all matches up. Username/Password(MD5) it will also

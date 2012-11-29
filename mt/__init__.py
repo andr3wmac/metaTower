@@ -10,20 +10,19 @@
 """
 
 import ConfigParser, os, sys, logging, hashlib, time, inspect, urllib
-import ConfigManager, EventManager, PackageManager, RequestManager
-import auth, http, utils, log, sessions, js, threads
+import ConfigManager, EventManager, PackageManager
+import auth, utils, log, threads
 
 restart = False
 config = None
 events = None
-requests = None
 packages = None
 users = {}
 
 login_tickets = {}
 
 def start(version, log_level, profiling):
-    global running, config, requests, users, packages, events, http_running
+    global running, config, users, packages, events
 
     # intro
     print "metaTower v" + version + "\n"
@@ -35,8 +34,6 @@ def start(version, log_level, profiling):
     log.clearLogs()
     log.setLevel(log_level)
     log.alias("mtAuth", "auth")
-    log.alias("mtHTTPServer", "network")
-    log.alias("mtHTTPProcessor", "network")
 
     # load initial configurations
     config = ConfigManager.ConfigManager()
@@ -67,33 +64,14 @@ def start(version, log_level, profiling):
     # events
     events = EventManager.EventManager()
 
-    # requests
-    requests = RequestManager.RequestManager()
-
     # packages
     packages = PackageManager.PackageManager()
     packages.loadDirectory("packages")
 
-    if ( http.start() ):
-        # determine ip addresses.
-        print "\nHit enter at anytime to shutdown."
-        print "You can connect to your tower at:"
-
-        #  - local
-        config["local_ip"] = utils.getLocalIP()
-        if ( not config["local_ip"].startswith("127.") ): print " http://127.0.0.1:" + config["port"] + "/"
-        print " http://" + config["local_ip"] + ":" + config["port"] + "/"
-
-        auth.start()
-    else:
-        print "\nCould not start HTTP Server."
-        stop()
-        return False
-
     return True
         
 def stop():
-    global running, config, packages, http_running
+    global running, config, packages
     print "Shutting down.."
     packages.unloadAll()
     config.save()

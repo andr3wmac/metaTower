@@ -11,8 +11,7 @@ convert_output = ""
 this_year = int(time.strftime('%Y'))
 
 def onLoad():
-    #mt.requests.addFunction("GET", "/mbrowser/f/", getRawIndex)
-    #mt.requests.addFunction("GET", "/mbrowser/f/newest/", getRawNewest)
+    mt.events.register("HTTP GET /mbrowser/showcase/", getRawNewest)
 
     mt.config.load("packages/mbrowser/mbrowser.cfg")
     mt.config.load("packages/mbrowser/viewed.cfg", True)
@@ -20,19 +19,17 @@ def onLoad():
     scan()
 
 def setupFileRequests():
-    mt.requests.clearFileRequests()
-
     global items
+    if ( mt.packages.http ):
+        http = mt.packages.http
+        http.addFile("/mbrowser/images/mtfile.png", "packages/mbrowser/images/mtfile.png")
+        http.addFile("/mbrowser/images/mtfolder.png", "packages/mbrowser/images/mtfolder.png")
 
-    mt.requests.addFile("GET", "/mbrowser/images/mtfile.png", "packages/mbrowser/images/mtfile.png")
-    mt.requests.addFile("GET", "/mbrowser/images/mtfolder.png", "packages/mbrowser/images/mtfolder.png")
-
-    for key in items:
-        item = items[key]
-        mt.requests.addFunction("GET", "/mbrowser/f/" + item["path"], getFile)
-        #mt.requests.addFile("GET", "/mbrowser/f/" + item["path"], item["path"])
+        for key in items:
+            item = items[key]
+            mt.events.register("HTTP GET /mbrowser/f/" + item["path"], getFile)
     
-def getFile(resp, httpIn):
+def getFile(httpIn, httpOut):
     global items
 
     path = httpIn.path.replace("/mbrowser/f/", "")
@@ -51,43 +48,48 @@ def getFile(resp, httpIn):
     
     f = items[path]
     if ( f ):
-        resp.file(path)
+        httpOut.file(path)
 
 def onUnload():
-    mt.requests.clearFileRequests()
     ffmpeg.stop()
 
-def home(resp):
-    resp.htmlFile("packages/mbrowser/home.html", "container")
-    resp.jsFile("packages/mbrowser/script.js")
-    resp.cssFile("packages/mbrowser/style.css")
+def home(httpOut):
+    httpOut.htmlFile("packages/mbrowser/home.html", "container")
+    httpOut.jsFile("packages/mbrowser/script.js")
+    httpOut.cssFile("packages/mbrowser/style.css")
 
-def getRawIndex(resp):
-    resp.headers["Content-Type"] = "text/html"
-    resp.text("<a href='#'>Audio - All</a><br>")
-    resp.text("<a href='#'>Audio - Newest</a><br>")
-    resp.text("<a href='#'>Video - All</a><br>")
-    resp.text("<a href='#'>Video - Movies</a><br>")
-    resp.text("<a href='#'>Video - TV Shows</a><br>")
-    resp.text("<a href='newest/'>Video - Newest</a><br>")
-    resp.text("<a href='#'>Refresh Library</a>")
+def getRawIndex(httpIn, httpOut):
+    httpOut.headers["Content-Type"] = "text/html"
+    httpOut.text("<html><head></head><body>")
+    httpOut.text("<a href='#'>Audio - All</a><br>")
+    httpOut.text("<a href='#'>Audio - Newest</a><br>")
+    httpOut.text("<a href='#'>Video - All</a><br>")
+    httpOut.text("<a href='#'>Video - Movies</a><br>")
+    httpOut.text("<a href='#'>Video - TV Shows</a><br>")
+    httpOut.text("<a href='newest/'>Video - Newest</a><br>")
+    httpOut.text("<a href='#'>Refresh Library</a>")
+    httpOut.text("</body></html>")
 
-def getRawNewest(resp):
+def getRawNewest(httpIn, httpOut):
     lib_results = searchLibrary({'type': 'video'})
     result = {}
     for item in lib_results: result[item["time"]] = item
     sorted_keys = sorted(result)
     
     count = 0    
-    output = "<a href='The Julianne Show S01E03.avi'>The Julianne Show S01E03.avi</a>"
+    output = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">'
+    output += "<html><head><title>Index of /</title></head><body><h1>Index of /</h1>"
+    output += '<table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>'    
     for key in sorted_keys:
         if ( count >= 50 ): break
 
         item = result[key]
-        output += "<a href='" + item["path"] + "'>" + item["name"] + "</a><br>"
+        base = os.path.basename(item["path"])
+        output += '<tr><td valign="top"><img src="/icons/movie.gif" alt="[VID]"></td><td><a href="' + base + '">' + base + '</a></td><td align="right">28-Nov-2012 16:19  </td><td align="right">169M</td><td>&nbsp;</td></tr>'
 
-    resp.headers["Content-Type"] = "text/html"
-    resp.text(output)    
+    output += "</table><address>Apache/2.2.22 (Debian) Server at 192.168.0.5 Port 80</address></body></html>"
+    httpOut.headers["Content-Type"] = "text/html;charset=UTF-8"
+    httpOut.text(output)    
 
 def getFileList(path):
     results = []
@@ -166,11 +168,11 @@ def refresh():
     items = {}
     scan()
 
-def refreshLibrary(resp):
+def refreshLibrary(httpOut):
     refresh()
-    resp.js("mbrowser.refreshComplete();")
+    httpOut.js("mbrowser.refreshComplete();")
 
-def tvQuery(resp, name = "", season = ""):
+def tvQuery(httpOut, name = "", season = ""):
     if ( name == "" ):
         parms = {"vidtype": "tv"}
         lib_results = searchLibrary(parms)
@@ -180,7 +182,7 @@ def tvQuery(resp, name = "", season = ""):
         shows = mt.utils.removeDuplicates(shows)
         shows.sort()
 
-        resp.js("mbrowser.tvShows(" + str(shows) + ");")
+        httpOut.js("mbrowser.tvShows(" + str(shows) + ");")
 
     elif ( season == "" ):
         parms = {"vidtype": "tv", "tv_name": name}
@@ -191,7 +193,7 @@ def tvQuery(resp, name = "", season = ""):
         seasons = mt.utils.removeDuplicates(seasons)
         seasons.sort()
 
-        resp.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")
+        httpOut.js("mbrowser.tvSeasons('" + name + "'," + str(seasons) + ");")
 
     else:
         parms = {"vidtype": "tv", "tv_name": name, "tv_season": season}
@@ -209,9 +211,9 @@ def tvQuery(resp, name = "", season = ""):
             if ( item.has_key("external") ):
                 output += ", 'external': '" + item["external"] + "'"
             output += "}"
-        resp.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
+        httpOut.js("mbrowser.tvData('" + name + "', [" + output[2:] + "]);")
 
-def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
+def query(httpOut, args, newest = False, limit = 10000, unviewed_only = False):
     lib_results = searchLibrary(args)
 
     result = {}
@@ -249,7 +251,7 @@ def query(resp, args, newest = False, limit = 10000, unviewed_only = False):
             output += ", 'external': '" + item["external"] + "'"
         output += "}"
         count += 1
-    resp.js("mbrowser.data([" + output[2:] + "]);")
+    httpOut.js("mbrowser.data([" + output[2:] + "]);")
 
 def searchLibrary(parms):
     results = []
@@ -268,11 +270,11 @@ def findItemById(id):
         if ( i.has_key("id") ) and ( i["id"] == id ): return i
     return None
         
-def getExternalLink(resp, id):
+def getExternalLink(httpOut, id):
     item = findItemById(id)
     if ( item != None ):
-        item["external"] = resp.session.generateFileKey(item["path"])
-        resp.js("mbrowser.externalLink('" + id + "', '" + item["external"] + "');")
+        item["external"] = httpOut.session.generateFileKey(item["path"])
+        httpOut.js("mbrowser.externalLink('" + id + "', '" + item["external"] + "');")
 
 def convertStatus(f, prog):
     global converting, convert_success, convert_output
@@ -288,7 +290,7 @@ def convertStatus(f, prog):
     else:
         setStatus("Converting.. (click to stop)", prog)
 
-def convertToWeb(resp, id):
+def convertToWeb(httpOut, id):
     global converting, convert_id, convert_success
     if ( converting ):
         return
@@ -300,9 +302,9 @@ def convertToWeb(resp, id):
         converting = True
         convert_id = id
         convert_success = False
-        status(resp)
+        status(httpIn, httpOut)
 
-def stopConvert(resp):
+def stopConvert(httpOut):
     global converting
     ffmpeg.stop()
     converting = False
@@ -313,14 +315,14 @@ def setStatus(msg, progress):
     status_msg = msg
     status_prog = progress
 
-def status(resp):
+def status(httpOut):
     global status_msg, status_prog, convert_success, convert_id, convert_output
-    resp.js("mbrowser.statusUpdate(\"" + status_msg + "\", " + str(status_prog) + ");")
+    httpOut.js("mbrowser.statusUpdate(\"" + status_msg + "\", " + str(status_prog) + ");")
 
     if ( status_prog == 100 ) and ( convert_success ):
-        resp.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
+        httpOut.js("mbrowser.webVideo('" + convert_id + "', '" + convert_output + "');")
 
-def rename(resp, id, new):
+def rename(httpOut, id, new):
     global items
     item = findItemById(id)
     if ( item ):
@@ -341,5 +343,5 @@ def rename(resp, id, new):
 
         values = {'name': new_item["name"], 'path': new_item["path"]}
         if ( new_item.has_key("web") ): values["web"] = new_item["web"]
-        resp.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
+        httpOut.js("mbrowser.updateFile('" + id + "', " + str(values) + ");")
 

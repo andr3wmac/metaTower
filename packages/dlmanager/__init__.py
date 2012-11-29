@@ -15,12 +15,13 @@ def onLoad():
     QueueControl = QueueController()
     QueueControl.start()
 
-    # register http requests
-    mt.requests.addFunction("POST", "/packages/dlmanager/queue/", onUpload)
-    mt.requests.addFile("GET", "/dlmanager/images/nzb.png", "packages/dlmanager/images/nzb.png")
-    mt.requests.addFile("GET", "/dlmanager/images/par2.png", "packages/dlmanager/images/par2.png")
-    mt.requests.addFile("GET", "/dlmanager/images/torrent.png", "packages/dlmanager/images/torrent.png")
-    mt.requests.addFile("GET", "/dlmanager/images/unrar.png", "packages/dlmanager/images/unrar.png")    
+    if ( mt.packages.http ):        
+        mt.events.register("HTTP POST /packages/dlmanager/queue/", onUpload)
+        http = mt.packages.http
+        http.addFile("/dlmanager/images/nzb.png", "packages/dlmanager/images/nzb.png")
+        http.addFile("/dlmanager/images/par2.png", "packages/dlmanager/images/par2.png")
+        http.addFile("/dlmanager/images/torrent.png", "packages/dlmanager/images/torrent.png")
+        http.addFile("/dlmanager/images/unrar.png", "packages/dlmanager/images/unrar.png")    
 
 def onUnload():
     global QueueControl

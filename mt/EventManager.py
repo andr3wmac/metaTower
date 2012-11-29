@@ -40,12 +40,16 @@ class EventManager:
             if e.source != source: new_list.append(e)
         self.events = new_list
 
-    def trigger(self, event, resp = None, args = {}):
+    def trigger(self, event, *args):
+        #print "Triggering event: " + event + " with " + str(len(args)) + " arg(s)"
         result = None
         for e in self.events:
             if e.event == event:
                 arg_count = len(inspect.getargspec(e.function).args)
                 if ( arg_count == 0 ) : result = e.function()
-                if ( arg_count == 1 ) : result = e.function(resp)
-                if ( arg_count == 2 ) and ( len(args) > 0 ) : result = e.function(resp, args)
+                if ( arg_count > 0 ):
+                    if ( arg_count == len(args) ):
+                        result = e.function(*args)
+                    if ( arg_count < len(args) ):
+                        result = e.function(*args[:(arg_count-len(args))])
         return result
