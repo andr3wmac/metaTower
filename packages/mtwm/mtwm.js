@@ -65,36 +65,45 @@ mtwm.home = {
 
     update: function(version, packages, quickbar, free_space)
     {
+        // Header.
         var header = document.getElementById("home_header");
         header.innerHTML = "metaTower v" + version;
         
-        var quickbar_list = {};
+        // 
         var plist_html = "";
         var plist = document.getElementById("home_packagelist");
         if ( plist )
         {
+            // Package list.
             for(var package_name in packages)
             {
                 var args = packages[package_name];             
                 if ( args[1] )
                 {
-                    var package_html = "<li><a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
-                    if ( args[2] )
-                    {
-                        quickbar_list[args[0]] = args[1]; 
-                        package_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'><img src='mtwm/images/pin.png' /></a></li>";
-                    }
-                    else
-                        package_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'><img src='mtwm/images/pin_trans.png' /></a></li>";            
-                    plist_html += package_html;                
+                    var img_html = (args[2]) ? "<img src='mtwm/images/pin.png' />" : "<img src='mtwm/images/pin_trans.png' />";
+                    plist_html += "<li><a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
+                    plist_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'>" + img_html + "</a></li>";                
                 }
                 else
                     plist_html += "<li>" + args[0] + "<img src='mtwm/images/pin_trans.png' /></li>";
             }
             mt.html("home_packagelist", plist_html, false);
-            mtwm.quickbar(quickbar_list);               
+                           
+            // Load quickbar.            
+            if ( quickbar )
+            {
+                var quickbar_list = {};
+                for(var i = 0; i < quickbar.length; i++)
+                {                
+                    var pack_name = quickbar[i];
+                    var pack = packages[pack_name];
+                    quickbar_list[pack[0]] = pack[1];
+                }
+                mtwm.quickbar(quickbar_list);
+            }
         }
-
+        
+        // widget
         mt.html("home_main", "<p>Free Space: " + free_space + "</p>", false);
     }
 };

@@ -31,8 +31,10 @@ def home(resp):
     updateHome(resp)
 
 def updateHome(resp):
-    # output packages.
+    # output quickbar.
     qbar_list = mt.config["mtwm/quickbar"].split(",")
+
+    # output packages.
     plist = {}
     for package in mt.packages.list:
         if ( mt.config[package + "/hidden"] ):
@@ -42,9 +44,11 @@ def updateHome(resp):
         func = ""
         if ( hasattr(mod, "home") ): func = "mt('" + package + ".home()');"
         plist[package] = [mod.name, func, package in qbar_list]
-        
-    # output quickbar.
+
+    # widget.
     free_space = mt.utils.convert_bytes(mt.utils.get_free_space())
+
+    # function.    
     resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list, free_space)
 
 def togglePin(httpOut, package_name):
