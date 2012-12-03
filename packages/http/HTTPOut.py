@@ -23,6 +23,7 @@ class HTTPOut():
         self.binary_start = 0;
         self.binary_end = 0;
         
+    # CSS
     def cssFile(self, filename): self.css(self._getFileContents(filename))
     def css(self, data):
         newEntry = HTTPOut.mtEntry()
@@ -30,13 +31,25 @@ class HTTPOut():
         newEntry.css = True
         self.mt_entrys.append(newEntry)
         
-    def jsFile(self, filename): self.js(self._getFileContents(filename))
+    # Javascript
+    def jsFunction(self, funcName, *args):
+        processed_args = []
+        for arg in args:
+            if ( isinstance(arg, basestring) ): processed_args.append("\"" + arg.replace("\"", "\\\"") + "\"")
+            elif ( isinstance(arg, list) or isinstance(arg, dict) ): processed_args.append(str(arg))
+            else: processed_args.append(str(arg))
+        self.js(funcName + "(" + ", ".join(processed_args) + ");")
+
+    def jsFile(self, filename): 
+        self.js(self._getFileContents(filename))
+
     def js(self, data):
         newEntry = HTTPOut.mtEntry()
         newEntry.data = data
         newEntry.js = True
         self.mt_entrys.append(newEntry)
         
+    # HTML
     def htmlFile(self, filename, target="", append=False): self.html(self._getFileContents(filename), target, append)
     def html(self, data, target="", append = False):
         newEntry = HTTPOut.mtEntry()

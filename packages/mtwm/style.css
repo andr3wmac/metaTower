@@ -145,3 +145,7 @@ p {
     padding: 0px;
     clear:both;
 }
+
+#home_packagelist img {
+    padding-left: 10px;
+}

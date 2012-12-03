@@ -1,6 +1,8 @@
 import time, mt
 
-def onLoad():    
+def onLoad():   
+    mt.config.load("packages/mtwm/mtwm.cfg")
+ 
     if ( mt.packages.http ):
         mt.events.register("HTTP GET /", onIndex)
 
@@ -12,6 +14,8 @@ def onLoad():
         http.addFile("/mtwm/images/menu_bg.png", "packages/mtwm/images/menu_bg.png")
         http.addFile("/mtwm/images/tower.png", "packages/mtwm/images/tower.png") 
         http.addFile("/mtwm/images/content_bg.png", "packages/mtwm/images/content_bg.png") 
+        http.addFile("/mtwm/images/pin.png", "packages/mtwm/images/pin.png")
+        http.addFile("/mtwm/images/pin_trans.png", "packages/mtwm/images/pin_trans.png")
 
 #def onUnload():
 #    mt.events.clear(onIndex)
@@ -27,8 +31,9 @@ def home(resp):
     updateHome(resp)
 
 def updateHome(resp):
-    plist_out = "{}"
-    plist = []
+    # output packages.
+    qbar_list = mt.config["mtwm/quickbar"].split(",")
+    plist = {}
     for package in mt.packages.list:
         if ( mt.config[package + "/hidden"] ):
             continue
@@ -36,12 +41,22 @@ def updateHome(resp):
         mod = mt.packages.list[package]
         func = ""
         if ( hasattr(mod, "home") ): func = "mt('" + package + ".home()');"
-        plist.append("\"" + mod.name + "\": \"" + func + "\"")
-    plist_out = "{" + ",".join(plist) + "}"
-    
+        plist[package] = [mod.name, func, package in qbar_list]
+        
+    # output quickbar.
     free_space = mt.utils.convert_bytes(mt.utils.get_free_space())
-    resp.js("mtwm.home.update(\"0.5\", " + plist_out + ", \"" + free_space + "\");")
+    resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list, free_space)
 
+def togglePin(httpOut, package_name):
+    qbar_list = mt.config["mtwm/quickbar"].split(",")
+
+    if ( package_name in qbar_list ):
+        qbar_list.remove(package_name)
+    else:
+        qbar_list.append(package_name)
+
+    mt.config["mtwm/quickbar"] = ",".join(qbar_list)
+    updateHome(httpOut)
 
 class MenuEntry:
     caption = ""

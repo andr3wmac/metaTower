@@ -35,61 +35,22 @@ var mtwm = {
         }
     },
 
-    window: function(e, args)
+    quickbar: function(items)
     {
-        if ( e )
+        var html = "<li><span class='icon' onClick='mtwm.home.show()'></span></li>";
+        for(var item_name in items)
         {
-            e.className = "window";
-
-            if ( args.header )
-            {
-                var e_header = document.getElementById(args.header);
-                e_header.className = "header";
-            }
-
-            if ( args.footer )
-            {
-                var e_footer = document.getElementById(args.footer);
-                e_footer.className = "footer";
-            }
+            func = items[item_name];
+            html += "<li><a href='#!' onClick=\"" + func + "\">" + item_name + "</a></li>";
         }
+        mt.html("mtwm_quickbar", html, false); 
     },
 
-    spread: function(target, args)
+    togglePin: function(package_name)
     {
-        if ( !args.columns ) return;
-        var container = target.parentNode;
-
-        var table = document.createElement("table");
-        table.id = target.id;
-        table.className = target.className;
-        //mt.cloneAttributes(target, table);
-
-        var tr = document.createElement("tr");
-        table.appendChild(tr);
-
-        for(var a = 0; a < args.columns.length; a++)
-        {
-            var e = document.getElementById(args.columns[a]);
-            var parent = e.parentNode;
-            var td = document.createElement("td");
-            
-            //mt.cloneAttributes(e, td);
-            td.id = e.id;
-            td.className = e.className;
-            td.innerHTML = e.innerHTML;
-            
-            parent.removeChild(e);
-            tr.appendChild(td);
-        };
-
-        container.insertBefore(table, target);
-        container.removeChild(target);
+        mt("mtwm.togglePin(\"" + package_name + "\")");
     }
 };
-
-mt.addLayout("window", mtwm.window);
-mt.addLayout("spread", mtwm.spread);
 
 mtwm.home = {
     show: function()
@@ -102,27 +63,38 @@ mtwm.home = {
         // nothing yet.
     },
 
-    update: function(version, packages, free_space)
+    update: function(version, packages, quickbar, free_space)
     {
         var header = document.getElementById("home_header");
         header.innerHTML = "metaTower v" + version;
-
+        
+        var quickbar_list = {};
+        var plist_html = "";
         var plist = document.getElementById("home_packagelist");
         if ( plist )
         {
-            var plistHTML = "";
-            for(var name in packages)
+            for(var package_name in packages)
             {
-                var func = packages[name];
-                if ( func )
-                    plistHTML += "<li><a href='#' onClick=\"" + func + "\">" + name + "</a></li>";
+                var args = packages[package_name];             
+                if ( args[1] )
+                {
+                    var package_html = "<li><a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
+                    if ( args[2] )
+                    {
+                        quickbar_list[args[0]] = args[1]; 
+                        package_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'><img src='mtwm/images/pin.png' /></a></li>";
+                    }
+                    else
+                        package_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'><img src='mtwm/images/pin_trans.png' /></a></li>";            
+                    plist_html += package_html;                
+                }
                 else
-                    plistHTML += "<li>" + name + "</li>";
+                    plist_html += "<li>" + args[0] + "<img src='mtwm/images/pin_trans.png' /></li>";
             }
-            plist.innerHTML = plistHTML;
+            mt.html("home_packagelist", plist_html, false);
+            mtwm.quickbar(quickbar_list);               
         }
 
-        var main = document.getElementById("home_main");
-        main.innerHTML = "<p>Free Space: " + free_space + "</p>";
+        mt.html("home_main", "<p>Free Space: " + free_space + "</p>", false);
     }
 };

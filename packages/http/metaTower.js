@@ -1,3 +1,7 @@
+// Python conversions.
+var True = true;
+var False = false;
+
 mt = function(url, target_override)
 {
 	if ( !url ) { return; }
