@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import inspect, uuid, commands, socket, os, errno, shutil, hashlib, platform, ctypes
+import inspect, uuid, commands, socket, os, errno, shutil, hashlib, platform, ctypes, re
 import ExecuteThread, ProfileTicket
 
 profile_enabled = False
@@ -138,12 +138,40 @@ def convert_bytes(bytes):
         size = '%.2fb' % bytes
     return size
 
-def get_free_space():
+def get_hdds():
     folder = "."
     if platform.system() == 'Windows':
         free_bytes = ctypes.c_ulonglong(0)
         ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(folder), None, None, ctypes.pointer(free_bytes))
-        return free_bytes.value
+        return [["C", free_bytes.value]]
     else:
-        s = os.statvfs(folder	)
-        return s.f_bsize * s.f_bavail
+        hdds = []
+        lines = commands.getoutput("df -BG").split("\n")
+        for line in lines:
+            if ( not line.startswith("/dev/") ): continue            
+
+            line_args = []
+            arg = ""
+            for letter in line:
+                if ( letter == " " ): 
+                    if ( arg != "" ): line_args.append(arg)
+                    arg = ""                    
+                    continue
+                else:
+                    arg += letter
+
+            hdd = {}
+            if ( len(line_args) == 5 ):
+                hdd["name"] = line_args[0]
+                hdd["available"] = int(re.search('\d+', line_args[2]).group())
+                hdd["used"] = int(re.search('\d+', line_args[3]).group())
+                hdd["percent-used"] = line_args[4]
+                hdd["total"] = hdd["available"] + hdd["used"]
+                hdds.append(hdd)                 
+              
+        return hdds
+
+        #if ( arg.startswith("addr:") ): ip = arg.split(":")[1]
+        #s = os.statvfs(folder)
+        #return s.f_bsize * s.f_bavail
+    return []

@@ -13,6 +13,7 @@ def onLoad():
         http.addFile("/mtwm/mtwm.js", "packages/mtwm/mtwm.js")
         http.addFile("/mtwm/images/menu_bg.png", "packages/mtwm/images/menu_bg.png")
         http.addFile("/mtwm/images/tower.png", "packages/mtwm/images/tower.png") 
+        http.addFile("/mtwm/images/hdd.png", "packages/mtwm/images/hdd.png") 
         http.addFile("/mtwm/images/content_bg.png", "packages/mtwm/images/content_bg.png") 
         http.addFile("/mtwm/images/pin.png", "packages/mtwm/images/pin.png")
         http.addFile("/mtwm/images/pin_trans.png", "packages/mtwm/images/pin_trans.png")
@@ -45,11 +46,12 @@ def updateHome(resp):
         if ( hasattr(mod, "home") ): func = "mt('" + package + ".home()');"
         plist[package] = [mod.name, func, package in qbar_list]
 
-    # widget.
-    free_space = mt.utils.convert_bytes(mt.utils.get_free_space())
+    # HDD widget.
+    hdds = mt.utils.get_hdds()
+    resp.jsFunction("mtwm.home.updateHDDWidget", hdds)
 
     # function.    
-    resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list, free_space)
+    resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list)
 
 def togglePin(httpOut, package_name):
     qbar_list = mt.config["mtwm/quickbar"].split(",")
@@ -60,7 +62,9 @@ def togglePin(httpOut, package_name):
         qbar_list.append(package_name)
 
     mt.config["mtwm/quickbar"] = ",".join(qbar_list)
-    updateHome(httpOut)
+    
+    updateHome(httpOut)    
+    mt.config.save("packages/mtwm/mtwm.cfg")
 
 class MenuEntry:
     caption = ""

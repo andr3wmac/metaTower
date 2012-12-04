@@ -63,7 +63,7 @@ mtwm.home = {
         // nothing yet.
     },
 
-    update: function(version, packages, quickbar, free_space)
+    update: function(version, packages, quickbar)
     {
         // Header.
         var header = document.getElementById("home_header");
@@ -102,8 +102,17 @@ mtwm.home = {
                 mtwm.quickbar(quickbar_list);
             }
         }
-        
-        // widget
-        mt.html("home_main", "<p>Free Space: " + free_space + "</p>", false);
+    },
+
+    updateHDDWidget: function(hdds)
+    {
+        var hdd_widget_html = "<div class='mtwm_widget mtwm_hdd'>"
+        for(var i = 0; i < hdds.length; i++)
+        {
+            var hdd = hdds[i];
+            hdd_widget_html += hdd["name"] + " : " + hdd["used"] + "/" + hdd["total"] + " GB<br>";
+        }
+        hdd_widget_html += "</div>";
+        mt.html("home_main", hdd_widget_html, false);
     }
 };

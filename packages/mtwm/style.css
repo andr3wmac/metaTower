@@ -149,3 +149,16 @@ p {
 #home_packagelist img {
     padding-left: 10px;
 }
+
+/* Window: Widgets */
+.mtwm_widget {
+    padding: 5px 0px 5px 0px;
+    border: 1px dashed #777;
+    width: 200px;
+}
+.mtwm_hdd {
+    padding-left: 64px;
+    background-image: url('images/hdd.png');
+    background-repeat: no-repeat;
+    height: 54px;
+}
