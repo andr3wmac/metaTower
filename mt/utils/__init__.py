@@ -146,7 +146,7 @@ def get_hdds():
         return [["C", free_bytes.value]]
     else:
         hdds = []
-        lines = commands.getoutput("df -BG").split("\n")
+        lines = commands.getoutput("/bin/df -BG").split("\n")
         for line in lines:
             if ( not line.startswith("/dev/") ): continue            
 
