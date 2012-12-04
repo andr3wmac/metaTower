@@ -96,6 +96,7 @@ mtwm.home = {
                 for(var i = 0; i < quickbar.length; i++)
                 {                
                     var pack_name = quickbar[i];
+                    if ( pack_name == "" ) continue;
                     var pack = packages[pack_name];
                     quickbar_list[pack[0]] = pack[1];
                 }
