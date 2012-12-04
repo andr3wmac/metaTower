@@ -111,7 +111,7 @@ mtwm.home = {
         for(var i = 0; i < hdds.length; i++)
         {
             var hdd = hdds[i];
-            hdd_widget_html += hdd["name"] + " : " + hdd["used"] + "/" + hdd["total"] + " GB<br>";
+            hdd_widget_html += hdd["name"] + " : " + hdd["used"] + " / " + hdd["total"] + " GB<br>";
         }
         hdd_widget_html += "</div>";
         mt.html("home_main", hdd_widget_html, false);

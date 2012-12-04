@@ -163,8 +163,8 @@ def get_hdds():
             hdd = {}
             if ( len(line_args) == 5 ):
                 hdd["name"] = line_args[0]
-                hdd["available"] = int(re.search('\d+', line_args[2]).group())
-                hdd["used"] = int(re.search('\d+', line_args[3]).group())
+                hdd["used"] = int(re.search('\d+', line_args[2]).group())
+                hdd["available"] = int(re.search('\d+', line_args[3]).group())
                 hdd["percent-used"] = line_args[4]
                 hdd["total"] = hdd["available"] + hdd["used"]
                 hdds.append(hdd)                 
