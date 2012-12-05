@@ -159,7 +159,7 @@ p {
     margin: 0px 10px 10px 0px;
     border: 1px dashed #777;
     width: 200px;
-    display: inline-block;
+    float: left;
 }
 .mtwm_hdd {
     padding-left: 69px;
