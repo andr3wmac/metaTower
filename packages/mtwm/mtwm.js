@@ -1,4 +1,6 @@
 var mtwm = {
+    packages: {},
+
     menu_items: [],
     MenuItem: function()
     {
@@ -53,6 +55,7 @@ var mtwm = {
 };
 
 mtwm.home = {
+
     show: function()
     {
         mt("mtwm.home()");
@@ -82,13 +85,13 @@ mtwm.home = {
                 {
                     var img_html = (args[2]) ? "<img src='mtwm/images/pin.png' />" : "<img src='mtwm/images/pin_trans.png' />";
                     plist_html += "<li><a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
-                    plist_html += "<a href='#!' onClick='mtwm.togglePin(\"" + package_name + "\")'>" + img_html + "</a></li>";                
+                    plist_html += "<a href='#!' style='display: none;' id='mtwm_pin_" + package_name + "' onClick='mtwm.togglePin(\"" + package_name + "\")'>" + img_html + "</a></li>";                
                 }
                 else
                     plist_html += "<li>" + args[0] + "<img src='mtwm/images/pin_trans.png' /></li>";
             }
             mt.html("home_packagelist", plist_html, false);
-                           
+
             // Load quickbar.            
             if ( quickbar )
             {
@@ -102,7 +105,28 @@ mtwm.home = {
                 }
                 mtwm.quickbar(quickbar_list);
             }
+
+            mtwm.packages = packages;
         }
+    },
+
+    editQuickbar: function()
+    {
+        var e = document.getElementById("mtwm_edit_quickbar");
+        var show = (e.innerHTML == "Edit Quickbar");        
+        if ( show )
+            e.innerHTML = "Finish"
+        else
+            e.innerHTML = "Edit Quickbar"
+
+        for(var package_name in mtwm.packages)
+        {
+            var pin = document.getElementById("mtwm_pin_" + package_name);
+            if ( show )
+                pin.style.display = "inline";
+            else
+                pin.style.display = "none";
+        }  
     },
 
     updateHDDWidget: function(hdds)
@@ -115,5 +139,17 @@ mtwm.home = {
         }
         hdd_widget_html += "</div>";
         mt.html("home_main", hdd_widget_html, false);
+    },
+
+    updateCPUWidget: function(cpu_usage)
+    {
+        var cpu_widget_html = "<div class='mtwm_widget mtwm_cpu'>CPU Usage: " + cpu_usage + "%</div>";
+        mt.html("home_main", cpu_widget_html, true);
+    },
+
+    updateRAMWidget: function(ram_info)
+    {
+        var ram_widget_html = "<div class='mtwm_widget mtwm_ram'>Memory: " + ram_info["used"] + " / " + ram_info["total"] + " MB</div>";
+        mt.html("home_main", ram_widget_html, true);
     }
 };

@@ -175,3 +175,32 @@ def get_hdds():
         #s = os.statvfs(folder)
         #return s.f_bsize * s.f_bavail
     return []
+
+def getCPUUsage():
+    cpu_usage = -1.0
+    if platform.system() == 'Windows':
+        cpu_usage = -1 # placeholder
+    else:
+        lines = commands.getoutput("/usr/bin/top -b -n1").split("\n")
+        for line in lines:
+            # Cpu(s):  0.4%us,  0.1%sy,  0.0%ni, 99.4%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+            if ( line.startswith("%Cpu(s):") ):
+                regex = '([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)|([0-9]+)'
+                cpu_usage = float(re.search(regex, line).group())
+    return cpu_usage
+
+def getRAMInfo():
+    ram_info = {"total": -1, "free": -1, "used:": -1}
+    if platform.system() == 'Windows':
+        cpu_usage = -1 # placeholder
+    else:
+        lines = commands.getoutput("/usr/bin/free -m").split("\n")
+        for line in lines:
+            # -/+ buffers/cache:        324       1683
+            if ( line.startswith("-/+ buffers/cache:") ):
+                info = re.findall("([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)|([0-9]+)", line)
+                # output = [('', '', '324'), ('', '', '1683')]
+                ram_info["used"] = int(info[0][2])
+                ram_info["free"] = int(info[1][2])
+                ram_info["total"] = ram_info["used"] + ram_info["free"]
+    return ram_info

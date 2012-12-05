@@ -14,6 +14,8 @@ def onLoad():
         http.addFile("/mtwm/images/menu_bg.png", "packages/mtwm/images/menu_bg.png")
         http.addFile("/mtwm/images/tower.png", "packages/mtwm/images/tower.png") 
         http.addFile("/mtwm/images/hdd.png", "packages/mtwm/images/hdd.png") 
+        http.addFile("/mtwm/images/cpu.png", "packages/mtwm/images/cpu.png") 
+        http.addFile("/mtwm/images/ram.png", "packages/mtwm/images/ram.png")
         http.addFile("/mtwm/images/content_bg.png", "packages/mtwm/images/content_bg.png") 
         http.addFile("/mtwm/images/pin.png", "packages/mtwm/images/pin.png")
         http.addFile("/mtwm/images/pin_trans.png", "packages/mtwm/images/pin_trans.png")
@@ -49,6 +51,12 @@ def updateHome(resp):
     # HDD widget.
     hdds = mt.utils.get_hdds()
     resp.jsFunction("mtwm.home.updateHDDWidget", hdds)
+    # CPU widget.
+    cpu_usage = mt.utils.getCPUUsage()
+    resp.jsFunction("mtwm.home.updateCPUWidget", cpu_usage)
+    # RAM widget.
+    ram_info = mt.utils.getRAMInfo()
+    resp.jsFunction("mtwm.home.updateRAMWidget", ram_info)
 
     # function.    
     resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list)

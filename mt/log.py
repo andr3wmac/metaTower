@@ -19,9 +19,10 @@ class LogItem:
         self.pid = pid
 
 class LogThread(threads.Thread):
-    def __init__(self, log_dir):
+    def __init__(self, log_dir, main_pid):
         threads.Thread.__init__(self)
         self.daemon = True
+        self.main_pid = main_pid
         self.queue = multiprocessing.Queue()
         self.log_dir = log_dir
 
@@ -31,9 +32,15 @@ class LogThread(threads.Thread):
             while self.running:
                 try:
                     item = self.queue.get_nowait()
-                    f_name = item.source + "." + str(item.pid) + ".log"
+
+                    # only put PID in filename is different from main pid.
+                    f_name = item.source + ".log"
+                    if ( item.pid != self.main_pid ):
+                        f_name = item.source + "." + str(item.pid) + ".log"
+
                     if ( not file_handles.has_key(f_name) ):
                         file_handles[f_name] = open(os.path.join(self.log_dir, f_name), "w")
+
                     file_handles[f_name].write(item.level + ": " + item.data + "\n")
                     file_handles[f_name].flush()
                 except:
@@ -56,16 +63,17 @@ class LogThread(threads.Thread):
 log_level = 0
 log_dir = "logs"
 log_pid = 0
+main_pid = 0
 log_thread = None
 names = {};
 
 def addItem(name, level, text):
-    global log_thread, log_pid, log_dir
+    global log_thread, log_pid, log_dir, main_pid
 
     pid = os.getpid()
     if ( log_pid != pid ) or ( log_thread == None ):
         log_pid = pid
-        log_thread = LogThread(log_dir)
+        log_thread = LogThread(log_dir, main_pid)
         log_thread.start()
     
     log_thread.addItem(name, level, text, pid)
@@ -74,6 +82,27 @@ def clearLogs():
     global log_dir
     utils.rmdir(log_dir)
     utils.mkdir(log_dir)
+
+def startNewSession():
+    global main_pid, log_dir
+
+    if ( os.path.isdir(log_dir) ):
+        # check if old logs already exists
+        old_log_dir = log_dir + ".old/"
+        if ( log_dir[-1] == "/" ): log_dir = log_dir[:-1] + ".old/"
+        if ( os.path.isdir(old_log_dir) ):
+            utils.rmdir(old_log_dir)
+        utils.mkdir(old_log_dir)
+
+        files = os.listdir(log_dir)
+        for f in files:
+            path = os.path.join(log_dir, f)            
+            if ( os.path.isdir(path) ): continue            
+            os.rename(path, os.path.join(old_log_dir, f))
+    else:
+        utils.mkdir(log_dir)
+
+    main_pid = os.getpid()
 
 def setLevel(value):
     global log_level

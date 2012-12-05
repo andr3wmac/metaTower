@@ -153,12 +153,26 @@ p {
 /* Window: Widgets */
 .mtwm_widget {
     padding: 5px 0px 5px 0px;
+    margin: 0px 10px 10px 0px;
     border: 1px dashed #777;
     width: 200px;
+    display: inline-block;
 }
 .mtwm_hdd {
     padding-left: 64px;
     background-image: url('images/hdd.png');
+    background-repeat: no-repeat;
+    height: 54px;
+}
+.mtwm_cpu {
+    padding-left: 68px;
+    background-image: url('images/cpu.png');
+    background-repeat: no-repeat;
+    height: 54px;
+}
+.mtwm_ram {
+    padding-left: 68px;
+    background-image: url('images/ram.png');
     background-repeat: no-repeat;
     height: 54px;
 }
