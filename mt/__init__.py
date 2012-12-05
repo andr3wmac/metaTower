@@ -31,8 +31,7 @@ def start(version, log_level, profiling):
     utils.setProfiling(profiling)
 
     # logging system
-    log.startNewSession()
-    log.setLevel(log_level)
+    log.start(log_level)
     log.alias("mtAuth", "auth")
 
     # load initial configurations

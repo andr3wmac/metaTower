@@ -50,6 +50,16 @@ var mtwm = {
 
     togglePin: function(package_name)
     {
+        var e = document.getElementById("mtwm_pin_" + package_name);
+        if ( e )
+        {
+            var img = e.getElementsByTagName("img")[0];
+            if ( img.src.search("mtwm/images/pin_trans.png") > -1 )
+                img.src = "mtwm/images/pin.png";
+            else
+                img.src = "mtwm/images/pin_trans.png";
+        }
+    
         mt("mtwm.togglePin(\"" + package_name + "\")");
     }
 };
@@ -73,24 +83,31 @@ mtwm.home = {
         header.innerHTML = "metaTower v" + version;
         
         // 
-        var plist_html = "";
         var plist = document.getElementById("home_packagelist");
         if ( plist )
         {
             // Package list.
             for(var package_name in packages)
             {
-                var args = packages[package_name];             
+                var pkg_list_item = document.getElementById("mtwm_pkglist_" + package_name); 
+                if ( pkg_list_item ) continue;
+
+                var args = packages[package_name]; 
+                var html = ""; 
                 if ( args[1] )
                 {
-                    var img_html = (args[2]) ? "<img src='mtwm/images/pin.png' />" : "<img src='mtwm/images/pin_trans.png' />";
-                    plist_html += "<li><a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
-                    plist_html += "<a href='#!' style='display: none;' id='mtwm_pin_" + package_name + "' onClick='mtwm.togglePin(\"" + package_name + "\")'>" + img_html + "</a></li>";                
+                    html += "<li id='mtwm_pkglist_" + package_name + "'>"
+                    html += "<a href='#!' onClick=\"" + args[1] + "\">" + args[0] + "</a>";
+                    
+                    img_html = (args[2]) ? "<img src='mtwm/images/pin.png' />" : "<img src='mtwm/images/pin_trans.png' />";
+                    html += "<a href='#!' style='display: none;' id='mtwm_pin_" + package_name + "' onClick='mtwm.togglePin(\"" + package_name + "\")'>" + img_html + "</a>"; 
+                    html += "</li>";              
                 }
                 else
-                    plist_html += "<li>" + args[0] + "<img src='mtwm/images/pin_trans.png' /></li>";
+                    html += "<li>" + args[0] + "<img src='mtwm/images/pin_trans.png' /></li>";
+
+                mt.html("home_packagelist", html, true);
             }
-            mt.html("home_packagelist", plist_html, false);
 
             // Load quickbar.            
             if ( quickbar )
@@ -114,18 +131,17 @@ mtwm.home = {
     {
         var e = document.getElementById("mtwm_edit_quickbar");
         var show = (e.innerHTML == "Edit Quickbar");        
-        if ( show )
-            e.innerHTML = "Finish"
-        else
-            e.innerHTML = "Edit Quickbar"
+        if ( show ) e.innerHTML = "Finish"
+        else e.innerHTML = "Edit Quickbar" 
 
         for(var package_name in mtwm.packages)
         {
             var pin = document.getElementById("mtwm_pin_" + package_name);
-            if ( show )
-                pin.style.display = "inline";
-            else
-                pin.style.display = "none";
+            if ( pin )
+            {
+                if ( show ) pin.style.display = "inline";
+                else pin.style.display = "none";
+            }
         }  
     },
 

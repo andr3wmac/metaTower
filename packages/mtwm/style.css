@@ -149,6 +149,9 @@ p {
 #home_packagelist img {
     padding-left: 10px;
 }
+#home_options {
+    margin-top: 30px;
+}
 
 /* Window: Widgets */
 .mtwm_widget {
@@ -159,20 +162,25 @@ p {
     display: inline-block;
 }
 .mtwm_hdd {
-    padding-left: 64px;
+    padding-left: 69px;
     background-image: url('images/hdd.png');
     background-repeat: no-repeat;
     height: 54px;
+    background-position: 5px 0px;
 }
 .mtwm_cpu {
-    padding-left: 68px;
+    padding-left: 73px;
     background-image: url('images/cpu.png');
     background-repeat: no-repeat;
     height: 54px;
+    background-position: 5px 0px;
 }
 .mtwm_ram {
-    padding-left: 68px;
+    padding-left: 73px;
     background-image: url('images/ram.png');
     background-repeat: no-repeat;
     height: 54px;
+    background-position: 5px 0px;
 }
+
+

@@ -78,30 +78,30 @@ def addItem(name, level, text):
     
     log_thread.addItem(name, level, text, pid)
 
-def clearLogs():
-    global log_dir
-    utils.rmdir(log_dir)
-    utils.mkdir(log_dir)
-
-def startNewSession():
+def start(log_level = 0):
     global main_pid, log_dir
 
-    if ( os.path.isdir(log_dir) ):
-        # check if old logs already exists
-        old_log_dir = log_dir + ".old/"
-        if ( log_dir[-1] == "/" ): log_dir = log_dir[:-1] + ".old/"
-        if ( os.path.isdir(old_log_dir) ):
-            utils.rmdir(old_log_dir)
-        utils.mkdir(old_log_dir)
+    # log level
+    if ( log_level != 0 ): setLevel(log_level)
 
+    # check for old logs
+    if ( os.path.isdir(log_dir) ):
         files = os.listdir(log_dir)
-        for f in files:
-            path = os.path.join(log_dir, f)            
-            if ( os.path.isdir(path) ): continue            
-            os.rename(path, os.path.join(old_log_dir, f))
+        if ( len(files) > 0 ):
+
+            # check if old logs already exists
+            old_log_dir = os.path.join(log_dir, "old")
+            if ( os.path.isdir(old_log_dir) ): utils.rmdir(old_log_dir)
+            utils.mkdir(old_log_dir)
+            
+            for f in files:
+                path = os.path.join(log_dir, f)            
+                if ( os.path.isdir(path) ): continue            
+                os.rename(path, os.path.join(old_log_dir, f))
     else:
         utils.mkdir(log_dir)
 
+    # set the main process id so we know where it began.
     main_pid = os.getpid()
 
 def setLevel(value):
