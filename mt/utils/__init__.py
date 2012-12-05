@@ -184,7 +184,7 @@ def getCPUUsage():
         lines = commands.getoutput("/usr/bin/top -b -n1").split("\n")
         for line in lines:
             # Cpu(s):  0.4%us,  0.1%sy,  0.0%ni, 99.4%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
-            if ( line.startswith("%Cpu(s):") ):
+            if ( line.startswith("%Cpu(s):") or line.startswith("Cpu(s):") ):
                 regex = '([0-9]+\\.[0-9]*)|([0-9]*\\.[0-9]+)|([0-9]+)'
                 cpu_usage = float(re.search(regex, line).group())
     return cpu_usage
