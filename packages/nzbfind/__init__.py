@@ -1,6 +1,7 @@
-import mt, nzbmatrix
+import mt, binsearch
 
 engine = None
+last_search = ""
 
 def onLoad():
     global engine
@@ -10,11 +11,7 @@ def onLoad():
     cfg.load("packages/nzbfind/downloaded.cfg", True)
 
     save_to = cfg["nzbfind/save_to"]
-
-    if ( cfg["nzbfind/sources/nzbmatrix/username"] ):
-        user = cfg["nzbfind/sources/nzbmatrix/username"]
-        api = cfg["nzbfind/sources/nzbmatrix/api-key"]
-        engine = nzbmatrix.NZBMatrix(user, api, save_to)
+    engine = binsearch.Binsearch(save_to)
 
     if ( mt.packages.http ):
         http = mt.packages.http
@@ -27,7 +24,9 @@ def home(resp):
     resp.cssFile("packages/nzbfind/style.css")
 
 def search(resp, query, cat):
-    global engine
+    global engine, last_search
+    last_search = query
+
     if ( not engine ): 
         resp.js("nzbfind.data({})")
         return
@@ -37,7 +36,7 @@ def search(resp, query, cat):
     for item in config_list:
         dlist.append(item["id"])
 
-    results = engine.search(query, cat)
+    results = engine.search(query)
     formatted_results = []
     for r in results:
         formatted_results.append({"id": r.id, "name": r.name, "size": r.size, "downloaded": str(str(r.id) in dlist)})
@@ -45,7 +44,7 @@ def search(resp, query, cat):
     resp.js("nzbfind.data(" + str(formatted_results) + ");")
 
 def download(resp, id):
-    global engine
+    global engine, last_search
 
     # generate a list of files from the known library
     found = False
@@ -61,4 +60,4 @@ def download(resp, id):
 
     resp.js("nzbfind.dl_complete()")
     if ( not engine ): return
-    engine.download(id)
+    engine.download(id, last_search + ".nzb")
