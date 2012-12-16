@@ -14,7 +14,6 @@ from HTTPServer import HTTPServer
 
 def onLoad():
     mt.events.register("HTTP GET /", getIndex)
-    addScript("metaTower.js")
 
     if ( start() ):
         mt.log.info("Started on port " + mt.config["port"])
@@ -24,7 +23,7 @@ def onLoad():
 #def onUnload():
 #    running = False 
 
-scripts = []
+scripts = ["metaTower.js"]
 def addScript(path):
     global scripts
     if ( not path in scripts ): scripts.append(path)    
