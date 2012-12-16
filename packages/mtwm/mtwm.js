@@ -1,3 +1,8 @@
+mt.load = function()
+{
+    mtwm.home.show();
+};
+
 var mtwm = {
     packages: {},
 
@@ -78,10 +83,6 @@ mtwm.home = {
 
     update: function(version, packages, quickbar)
     {
-        // Header.
-        var header = document.getElementById("home_header");
-        header.innerHTML = "metaTower v" + version;
-        
         // 
         var plist = document.getElementById("home_packagelist");
         if ( plist )
@@ -145,27 +146,16 @@ mtwm.home = {
         }  
     },
 
-    updateHDDWidget: function(hdds)
+    updateSystemMonitor: function(cpu, ram, hdd)
     {
-        var hdd_widget_html = "<div class='mtwm_widget mtwm_hdd'>"
-        for(var i = 0; i < hdds.length; i++)
-        {
-            var hdd = hdds[i];
-            hdd_widget_html += hdd["name"] + " : " + hdd["used"] + " / " + hdd["total"] + " GB<br>";
-        }
+        var hdd_widget_html = "<div class='mtwm_widget mtwm_cpu'>"
+        hdd_widget_html += "Harddrive: " + hdd["used"] + " / " + hdd["total"] + " GB<div id='mtwm_hdd_progress'></div><br>";
+        hdd_widget_html += "CPU: " + cpu + "%<div id='mtwm_cpu_progress'></div><br>";
+        hdd_widget_html += "Memory: " + ram["used"] + " / " + ram["total"] + " MB<div id='mtwm_ram_progress'></div>";
         hdd_widget_html += "</div>";
         mt.html("home_main", hdd_widget_html, false);
-    },
-
-    updateCPUWidget: function(cpu_usage)
-    {
-        var cpu_widget_html = "<div class='mtwm_widget mtwm_cpu'>CPU Usage: " + cpu_usage + "%</div>";
-        mt.html("home_main", cpu_widget_html, true);
-    },
-
-    updateRAMWidget: function(ram_info)
-    {
-        var ram_widget_html = "<div class='mtwm_widget mtwm_ram'>Memory: " + ram_info["used"] + " / " + ram_info["total"] + " MB</div>";
-        mt.html("home_main", ram_widget_html, true);
+        mt.progress('mtwm_hdd_progress', (hdd["used"]/hdd["total"] * 100));        
+        mt.progress('mtwm_cpu_progress', cpu);
+        mt.progress('mtwm_ram_progress', (ram["used"]/ram["total"] * 100));
     }
 };

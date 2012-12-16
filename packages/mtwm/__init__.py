@@ -1,41 +1,59 @@
-import time, mt
+import time, mt, DefaultWidgets
 
 def onLoad():   
     mt.config.load("packages/mtwm/mtwm.cfg")
  
-    if ( mt.packages.http ):
-        mt.events.register("HTTP GET /", onIndex)
+    if not mt.packages.isLoaded("http"): return
+    http = mt.packages.http
+    http.addScript("mtwm/mtwm.js")
+    http.addStyles([
+        "mtwm/style.css",
+        "mtwm/quickbar.css",
+        "mtwm/theme.css"
+    ])
+    http.addFiles({
+        "/mtwm/quickbar.css":           "packages/mtwm/quickbar.css",    
+        "/mtwm/style.css":              "packages/mtwm/style.css",
+        "/mtwm/theme.css":              "packages/mtwm/theme.css",
+        "/mtwm/mtwm.js":                "packages/mtwm/mtwm.js",
+        "/mtwm/script.js":              "packages/mtwm/script.js",
+        "/mtwm/images/home.png":        "packages/mtwm/images/home.png",
+        "/mtwm/images/menu_bg.png":     "packages/mtwm/images/menu_bg.png",
+        "/mtwm/images/tower.png":       "packages/mtwm/images/tower.png", 
+        "/mtwm/images/hdd.png":         "packages/mtwm/images/hdd.png", 
+        "/mtwm/images/cpu.png":         "packages/mtwm/images/cpu.png", 
+        "/mtwm/images/ram.png":         "packages/mtwm/images/ram.png",
+        "/mtwm/images/content_bg.png":  "packages/mtwm/images/content_bg.png", 
+        "/mtwm/images/pin.png":         "packages/mtwm/images/pin.png",
+        "/mtwm/images/pin_trans.png":   "packages/mtwm/images/pin_trans.png"
+    })
 
-        http = mt.packages.http       
-        http.addFile("/mtwm/quickbar.css", "packages/mtwm/quickbar.css")    
-        http.addFile("/mtwm/style.css", "packages/mtwm/style.css")
-        http.addFile("/mtwm/theme.css", "packages/mtwm/theme.css")
-        http.addFile("/mtwm/mtwm.js", "packages/mtwm/mtwm.js")
-        http.addFile("/mtwm/images/menu_bg.png", "packages/mtwm/images/menu_bg.png")
-        http.addFile("/mtwm/images/tower.png", "packages/mtwm/images/tower.png") 
-        http.addFile("/mtwm/images/hdd.png", "packages/mtwm/images/hdd.png") 
-        http.addFile("/mtwm/images/cpu.png", "packages/mtwm/images/cpu.png") 
-        http.addFile("/mtwm/images/ram.png", "packages/mtwm/images/ram.png")
-        http.addFile("/mtwm/images/content_bg.png", "packages/mtwm/images/content_bg.png") 
-        http.addFile("/mtwm/images/pin.png", "packages/mtwm/images/pin.png")
-        http.addFile("/mtwm/images/pin_trans.png", "packages/mtwm/images/pin_trans.png")
+    addWidget(DefaultWidgets.SystemMonitor())
 
-#def onUnload():
-#    mt.events.clear(onIndex)
-#    mt.events.clear(home) 
+widgets = {}
+def addWidget(widget):
+    global widgets
+    widgets[widget.name] = widget    
 
-def onIndex(httpIn, httpOut):
-    httpIn.session.mtwm_menu = []
-    httpOut.file("packages/mtwm/index.html")
+def home(httpOut):
+    httpOut.htmlFile("packages/mtwm/home.html", "body")
+    
+    # process widgets
+    for name in widgets:
+        widget = widgets[name]
+        widget.home(httpOut)
 
-def home(resp):
-    resp.htmlFile("packages/mtwm/home.html", "container")
-    resp.jsFile("packages/mtwm/script.js")
-    updateHome(resp)
+    # fill in the data.
+    update(httpOut)
 
-def updateHome(resp):
+def update(httpOut):
+    global widgets
+
     # output quickbar.
-    qbar_list = mt.config["mtwm/quickbar"].split(",")
+    qbar_list = []    
+    config_list = mt.config.get("mtwm/quickbar/item")
+    for item in config_list:
+        qbar_list.append(item["package_name"])
 
     # output packages.
     plist = {}
@@ -47,39 +65,29 @@ def updateHome(resp):
         func = ""
         if ( hasattr(mod, "home") ): func = "mt('" + package + ".home()');"
         plist[package] = [mod.name, func, package in qbar_list]
-
-    # HDD widget.
-    hdds = mt.utils.get_hdds()
-    resp.jsFunction("mtwm.home.updateHDDWidget", hdds)
-    # CPU widget.
-    cpu_usage = mt.utils.getCPUUsage()
-    resp.jsFunction("mtwm.home.updateCPUWidget", cpu_usage)
-    # RAM widget.
-    ram_info = mt.utils.getRAMInfo()
-    resp.jsFunction("mtwm.home.updateRAMWidget", ram_info)
-
-    # function.    
-    resp.jsFunction("mtwm.home.update", 0.5, plist, qbar_list)
+ 
+    httpOut.jsFunction("mtwm.home.update", 0.5, plist, qbar_list)
+    
+    # update widgets
+    for name in widgets:
+        widget = widgets[name]
+        widget.update(httpOut)    
 
 def togglePin(httpOut, package_name):
-    qbar_list = mt.config["mtwm/quickbar"].split(",")
+    found = False
 
-    if ( package_name in qbar_list ):
-        qbar_list.remove(package_name)
-    else:
-        qbar_list.append(package_name)
-
-    mt.config["mtwm/quickbar"] = ",".join(qbar_list)
+    config_list = mt.config.get("mtwm/quickbar/item")
+    mt.config.clear("mtwm/quickbar")
+    for item in config_list:
+        if ( item["package_name"] == package_name ): 
+            found = True
+        else:
+            mt.config.add(item, "mtwm/quickbar/item", "packages/mtwm/mtwm.cfg")    
     
-    updateHome(httpOut)    
+    if ( not found ):
+        element = mt.config.ConfigItem("")
+        element["package_name"] = package_name
+        mt.config.add(element, "mtwm/quickbar/item", "packages/mtwm/mtwm.cfg")
+
     mt.config.save("packages/mtwm/mtwm.cfg")
-
-class MenuEntry:
-    caption = ""
-    package_name = ""
-
-def menu(session, caption, package_name):
-    new_menu_entry = MenuEntry()
-    new_menu_entry.caption = caption
-    new_menu_entry.package_name = package_name
-    session.mtwm_menu.append(new_menu_entry)
+    update(httpOut)    

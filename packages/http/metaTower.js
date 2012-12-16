@@ -24,8 +24,7 @@ mt = function(url, target_override)
 
 mt.load = function()
 {
-	mt("pageLoaded()");
-    //window.onerror = mt.error;
+	document.write("metaTower HTTP Working!");
 };
 
 mt.timed = function(url, time, target_override)
@@ -148,9 +147,8 @@ mt.progress = function(id, progress)
 	{
 		var shell = document.getElementById(id);
 		shell.className = "progressBar";
-		prog = document.createElement("div");
+		prog = document.createElement("span");
 		prog.id = id + "_progress";
-		prog.className = "progressBar_progress";
 		shell.appendChild(prog);
 	}	
 	prog.style.width = Math.round(progress) + "%";

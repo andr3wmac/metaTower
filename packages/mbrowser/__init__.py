@@ -24,6 +24,7 @@ def setupFileRequests():
         http = mt.packages.http
         http.addFile("/mbrowser/images/mtfile.png", "packages/mbrowser/images/mtfile.png")
         http.addFile("/mbrowser/images/mtfolder.png", "packages/mbrowser/images/mtfolder.png")
+        http.addFile("/mbrowser/images/icon.png", "packages/mbrowser/images/icon.png")
 
         for key in items:
             item = items[key]

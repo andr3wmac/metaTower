@@ -13,13 +13,30 @@ import mt, socket
 from HTTPServer import HTTPServer
 
 def onLoad():
+    mt.events.register("HTTP GET /", getIndex)
+    addScript("metaTower.js")
+
     if ( start() ):
-        print "HTTP started."
+        mt.log.info("Started on port " + mt.config["port"])
     else:
-        print "HTTP failed to start."
+        mt.log.error("Could not start on port " + mt.config["port"])
 
 #def onUnload():
 #    running = False 
+
+scripts = []
+def addScript(path):
+    global scripts
+    if ( not path in scripts ): scripts.append(path)    
+def addScripts(scriptlist):
+    for s in scriptlist: addScript(s)
+
+styles = []
+def addStyle(path):
+    global styles
+    if ( not path in styles ): styles.append(path)
+def addStyles(stylelist):
+    for s in stylelist: addStyle(s)
 
 files = {}
 def addFile(request, filepath):
@@ -27,11 +44,33 @@ def addFile(request, filepath):
     files[request] = filepath
     mt.events.register("HTTP GET " + request, getFile)
     mt.events.register("HTTP HEAD " + request, getFile)
+def addFiles(filelist):
+    for f in filelist: addFile(f, filelist[f])
 
 def getFile(httpIn, httpOut):
     global files
     if ( files.has_key(httpIn.path) ):    
         httpOut.file(files[httpIn.path])    
+
+def getIndex(httpIn, httpOut):
+    global scripts, styles
+
+    httpOut.headers["Content-Type"] = "text/html"
+    httpOut.text("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n")
+    httpOut.text("<html>\n")
+    httpOut.text("<head>\n")
+    httpOut.text("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />")
+    httpOut.text("<title>metaTower</title>")
+
+    for style in styles:
+        httpOut.text("<link href=\"" + style + "\" rel=\"stylesheet\" type=\"text/css\" />\n")
+
+    for script in scripts:
+        httpOut.text("<script type=\"text/javascript\" src=\"" + script + "\"></script>")
+
+    httpOut.text("</head>")
+    httpOut.text("<body onLoad=\"mt.load();\"></body>")
+    httpOut.text("</html>")
 
 def start():
     global http_thread

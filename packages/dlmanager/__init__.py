@@ -21,7 +21,8 @@ def onLoad():
         http.addFile("/dlmanager/images/nzb.png", "packages/dlmanager/images/nzb.png")
         http.addFile("/dlmanager/images/par2.png", "packages/dlmanager/images/par2.png")
         http.addFile("/dlmanager/images/torrent.png", "packages/dlmanager/images/torrent.png")
-        http.addFile("/dlmanager/images/unrar.png", "packages/dlmanager/images/unrar.png")    
+        http.addFile("/dlmanager/images/unrar.png", "packages/dlmanager/images/unrar.png")   
+        http.addFile("/dlmanager/images/icon.png", "packages/dlmanager/images/icon.png") 
 
 def onUnload():
     global QueueControl

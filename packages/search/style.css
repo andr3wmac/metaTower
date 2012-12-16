@@ -1,37 +1,44 @@
-#nzbfind_results
+#search_header {
+    background-image: url('search/images/icon.png');
+    background-repeat: no-repeat; 
+    background-position: 10px 0px;    
+    padding-left: 56px;
+}
+
+#search_results
 {
     list-style: none;
     padding: 10px 0px 0px 0px;
 }
 
-#nzbfind_results .nzb 
+#search_results .nzb 
 { 
-    background-image: url('nzbfind/images/mtfile.png'); 
+    background-image: url('search/images/mtfile.png'); 
     background-repeat: no-repeat; 
     background-position: 2px 5px;  
     padding-left: 25px; 
 }
 
-#nzbfind_results .nzb_downloaded 
+#search_results .nzb_downloaded 
 { 
-    background-image: url('nzbfind/images/mtfile_trans.png'); 
+    background-image: url('search/images/mtfile_trans.png'); 
     background-repeat: no-repeat; 
     background-position: 2px 5px;  
     padding-left: 25px; 
     color: #AAA;
 }
 
-#nzbfind_results .nzb_downloaded a
+#search_results .nzb_downloaded a
 {
     color: #AAA;
 }
 
-#nzbfind_results li 
+#search_results li 
 {
     padding: 5px; 
 }
 
-#nzbfind_statusbar 
+#search_statusbar 
 { 
     display: none; 
     padding: 5px; 
@@ -39,7 +46,7 @@
     margin: 20px 10px 0px 0px; 
 }
 
-#nzbfind_query 
+#search_query 
 { 
     border: 1px solid black; 
     padding: 3px; 

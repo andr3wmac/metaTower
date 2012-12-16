@@ -20,6 +20,9 @@ class PackageManager:
         if ( self.list.has_key(package_name) ): return self.list[package_name]
         return None
 
+    def isLoaded(self, package_name):
+        return hasattr(self, package_name)
+
     def load(self, package_name, path = ""):
         # if the package is already a module, we'll just use it.
         # this could indicate it was disabled.
@@ -123,6 +126,7 @@ class PackageManager:
         for packid in self.list:
             package = self.list[packid]
             print " - " + package.name + " (" + package.id + " v" + package.version + ")"
+        print ""
 
     def event(self, resp, event, args = {}):
         mt.events.trigger(event, resp, args)

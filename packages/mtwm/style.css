@@ -123,7 +123,7 @@ p {
     border-bottom: 1px solid #888;
 }
 
-/* Window : Progress Bar */
+/* Window : Progress Bar
 .window .progressBar {
     background: #222;
     height: 10px;
@@ -132,7 +132,7 @@ p {
 .window .progressBar_progress {
     background: #39F;
     height: 10px;
-}
+}*/
 
 /* Window: Footer */
 .footer {
@@ -146,6 +146,13 @@ p {
     clear:both;
 }
 
+#home_header {
+    background-image: url('images/home.png');
+    background-repeat: no-repeat; 
+    background-position: 10px 0px;    
+    padding-left: 56px;
+}
+
 #home_packagelist img {
     padding-left: 10px;
 }
@@ -155,32 +162,57 @@ p {
 
 /* Window: Widgets */
 .mtwm_widget {
-    padding: 5px 0px 5px 0px;
+    padding: 5px 5px 5px 5px;
     margin: 0px 10px 10px 0px;
     border: 1px dashed #777;
-    width: 200px;
-    float: left;
-}
-.mtwm_hdd {
-    padding-left: 69px;
-    background-image: url('images/hdd.png');
-    background-repeat: no-repeat;
-    height: 54px;
-    background-position: 5px 0px;
 }
 .mtwm_cpu {
     padding-left: 73px;
     background-image: url('images/cpu.png');
     background-repeat: no-repeat;
-    height: 54px;
-    background-position: 5px 0px;
-}
-.mtwm_ram {
-    padding-left: 73px;
-    background-image: url('images/ram.png');
-    background-repeat: no-repeat;
-    height: 54px;
-    background-position: 5px 0px;
+    background-position: 5px 40px;
 }
 
+/* Gradient Progress */
+.progressBar { 
+	height: 10px;
+	position: relative;
+	background: #555;
+	padding: 2px;
+}
+.progressBar > span {
+	display: block;
+	height: 100%;
+	background-color: #39F;
+	position: relative;
+	overflow: hidden;
+}
+.progressBar > span:after {
+	content: "";
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	background-image: 
+	   -webkit-gradient(linear, 0 0, 100% 100%, 
+	      color-stop(.25, rgba(255, 255, 255, .2)), 
+	      color-stop(.25, transparent), color-stop(.5, transparent), 
+	      color-stop(.5, rgba(255, 255, 255, .2)), 
+	      color-stop(.75, rgba(255, 255, 255, .2)), 
+	      color-stop(.75, transparent), to(transparent)
+	   );
+	background-image: 
+		-moz-linear-gradient(
+		  -45deg, 
+	      rgba(255, 255, 255, .2) 25%, 
+	      transparent 25%, 
+	      transparent 50%, 
+	      rgba(255, 255, 255, .2) 50%, 
+	      rgba(255, 255, 255, .2) 75%, 
+	      transparent 75%, 
+	      transparent
+	   );
+	z-index: 1;
+	-webkit-background-size: 50px 50px;
+	-moz-background-size: 50px 50px;
+	overflow: hidden;
+}
 

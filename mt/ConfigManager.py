@@ -73,10 +73,11 @@ class ConfigManager:
         except Exception as inst:
             # if its not expendable we'll raise an error.
             if ( not expendable ):
-                mt.log.error("Could not load config file: " + filename + ", Reason: " + str(inst.args))
                 if ( os.path.isfile(default) ):
-                    mt.log.info("Using default cfg file: " + default)
+                    mt.log.debug("Using default cfg file: " + default)
                     self.load(default)
+                else:
+                    mt.log.error("Could not load config file: " + filename + ", Reason: " + str(inst.args))
 
     def loadString(self, data, filename = ""):
         newTree = ElementTree.fromstring(data)

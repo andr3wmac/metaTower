@@ -2,6 +2,13 @@
     font-weight: bold; 
 }
 
+#mbrowser_header {
+    background-image: url('mbrowser/images/icon.png');
+    background-repeat: no-repeat; 
+    background-position: 10px 0px;    
+    padding-left: 56px;
+}
+
 #mbrowser_statusbar {
     margin-right: 20px;
 }

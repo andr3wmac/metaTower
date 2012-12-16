@@ -80,3 +80,7 @@ def restart():
     global restart
     stop()
     restart = True
+
+def echo(text):
+    src = utils.getSource()
+    print "[" + src + "] " + text

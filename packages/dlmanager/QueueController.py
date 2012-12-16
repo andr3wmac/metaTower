@@ -7,7 +7,7 @@ try:
     import libtorrent as lt
     libtorrent_enabled = True
 except:
-    mt.log.error("libtorrent import failed. If you're using linux install the package 'python-libtorrent'. If you're on windows ensure libtorrent.pyd is present in the dlmanager directory.")
+    pass
 
 class QueueController(threads.Thread):
     class NZBQueueItem():
@@ -54,13 +54,14 @@ class QueueController(threads.Thread):
         config = mt.config
         self.nzb_enabled = ( config["dlmanager/nzb/server"] != "" )
         if ( not self.nzb_enabled ):
-            mt.log.info("NZB downloader disabled, no configuration found.")
+            mt.log.warning("Usenet downloading disabled, no configuration found.")
 
         if ( libtorrent_enabled ):
             self.torrent_enabled = ( config["dlmanager/torrent/save_to"] != "" )
             if ( not self.torrent_enabled ):
-                mt.log.info("Torrent downloader disabled, no configuration found.")
+                mt.log.warning("Torrent downloading disabled, no configuration found.")
         else:
+            mt.log.warning("Torrent downloading disabled, python-libtorrent not found.")
             self.torrent_enabled = False
 
         if ( self.nzb_enabled ):

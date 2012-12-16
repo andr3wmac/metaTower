@@ -67,8 +67,15 @@ main_pid = 0
 log_thread = None
 names = {};
 
-def addItem(name, level, text):
+def addItem(name, level, text, level_num):
     global log_thread, log_pid, log_dir, main_pid
+
+    if ( level_num > 10 ):
+        color = "\033[92m"
+        if ( level_num > 20 ): color = "\033[93m"
+        if ( level_num > 30 ): color = "\033[91m"
+
+        print "[" + color + name + "\033[0m] " + text
 
     pid = os.getpid()
     if ( log_pid != pid ) or ( log_thread == None ):
@@ -118,28 +125,28 @@ def getName():
 def debug(text):
     global log_level
     if ( log_level > 10 ): return
-    addItem(getName(), "DEBUG", text)
+    addItem(getName(), "DEBUG", text, 10)
 
 def info(text):
     global log_level
     if ( log_level > 20 ): return
-    addItem(getName(), "INFO", text)
+    addItem(getName(), "INFO", text, 20)
 
 def warning(text):
     global log_level
     if ( log_level > 30 ): return
-    addItem(getName(), "WARNING", text)
+    addItem(getName(), "WARNING", text, 30)
 
 def error(text):
     global log_level
     if ( log_level > 40 ): return
-    addItem(getName(), "ERROR", text)
+    addItem(getName(), "ERROR", text, 40)
 
 def critical(text):
-    addItem(getName(), "CRITICAL", text)
+    addItem(getName(), "CRITICAL", text, 50)
 
 def fatal(text):
-    addItem(getName(), "FATAL", text)
+    addItem(getName(), "FATAL", text, 50)
 
 def profile(text):
     addItem("profile", "PROFILE", text)

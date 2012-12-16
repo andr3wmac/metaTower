@@ -1,17 +1,23 @@
-<div id="home" class="window">
-    <div id="home_header" class="header"></div>
-    <div id="home_contents" class="window_mask leftmenu">
-        <div class="window_body">
-            <div id="home_main" class="window_main"></div>            
-            <div id="home_menu" class="window_menu">
-                <li class="cat">Packages</li>
-                <ul id="home_packagelist">
-
-                </ul>
-                <li class="cat" id="home_options">Options</li>
-                <li><a href="#!" id="mtwm_edit_quickbar" onclick="mtwm.home.editQuickbar()">Edit Quickbar</a></li>
-            </div>            
-        </div>    
-    </div>
-    <div id="home_footer" class="footer">metaTower v0.5, mtwm v0.6</div>
-</div>
+        <p style="display: none"><iframe id="hiddenFrame"></iframe></p>
+        <ul id="mtwm_quickbar">
+            <li>
+                <span class="icon" onClick="mtwm.home.show()"></span>
+            </li>
+        </ul>
+        <div id="container">
+            <div id="home" class="window">
+                <div id="home_header" class="header">metaTower Home</div>
+                <div id="home_contents" class="window_mask leftmenu">
+                    <div class="window_body">
+                        <div id="home_main" class="window_main"></div>            
+                        <div id="home_menu" class="window_menu">
+                            <li class="cat">Packages</li>
+                            <ul id="home_packagelist"></ul>
+                            <li class="cat" id="home_options">Options</li>
+                            <li><a href="#!" id="mtwm_edit_quickbar" onclick="mtwm.home.editQuickbar()">Edit Quickbar</a></li>
+                        </div>            
+                    </div>    
+                </div>
+                <div class="hidden_footer"></div>
+            </div>
+        </div>
