@@ -120,7 +120,9 @@ class HTTPHandler(threads.Thread):
 
                             # check for a dirty url ( login when a cookie exists )
                             if ( httpIn.path.startswith("/?") ):
-                                output.append(httpIn.session.cleanRedirect())
+                                output.status = "302 Found"
+                                output.headers["Location"] = "http://" + httpIn.host + "/"
+                                output.headers["Content-Length"] = "0"
                             else:
                                 processor.processRequest(httpIn, output)
                 except Exception as inst:
