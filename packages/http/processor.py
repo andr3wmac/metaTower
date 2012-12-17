@@ -95,7 +95,7 @@ def processLogin(client_socket, httpIn, httpOut):
         login_data = args[1].split(":")
         login["username"] = login_data[0]
         login["password"] = login_data[1]
-        cleanRedirect = True
+        clean_redirectdirect = True
 
     # Set security level based on config.
     security = int(mt.config["http/security"])
@@ -133,8 +133,8 @@ def processLogin(client_socket, httpIn, httpOut):
         httpOut.cookies["session"] = sesh.key
         httpOut.session = sesh
 
-        #resp = sesh.cleanRedirect(resp)
-        if ( cleanRedirect ):
+        #resp = sesh.clean_redirectdirect(resp)
+        if ( clean_redirectdirect ):
             httpOut.status = "302 Found"
             httpOut.headers["Location"] = "http://" + httpIn.host + "/"
             httpOut.headers["Content-Length"] = "0"
