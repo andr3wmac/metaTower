@@ -1,5 +1,4 @@
-import mt, gzip, urllib, urllib2, os
-from StringIO import StringIO
+import mt, os, urllib
 
 save_to = ""
 
@@ -10,25 +9,10 @@ def onLoad():
     cfg.load("packages/search-binsearch/settings.cfg")
     cfg.load("packages/search-binsearch/downloaded.cfg", True)
 
-    save_to = cfg["search/save_to"]
+    save_to = cfg["search-binsearch/save_to"]
 
     if mt.packages.search:
         mt.packages.search.addEngine("binsearch.info", search, save)
-
-def openURL(url, data = None):
-    request = urllib2.Request(url, data)
-    request.add_header('Accept-encoding', 'gzip')
-    response = urllib2.urlopen(request)
-    
-    data = ""
-    if response.info().get('Content-Encoding') == 'gzip':
-        buf = StringIO( response.read())
-        f = gzip.GzipFile(fileobj=buf)
-        data = f.read()    
-    else:
-        data = response.read()
-    
-    return data
 
 def search(query):
     global last_search
@@ -36,13 +20,13 @@ def search(query):
 
     query_string = urllib.urlencode({"q": query, "max": "50"})        
     url = "http://binsearch.info/?" + query_string
-    data = openURL(url)
+    data = mt.utils.openURL(url)
 
     result_list = []
     data = data.split("<td><input type=\"checkbox\" name=\"")
 
     dlist = []
-    config_list = mt.config.get("search/downloaded/nzb")
+    config_list = mt.config.get("search-binsearch/downloaded/nzb")
     for item in config_list:
         dlist.append(item["id"])
 
@@ -71,7 +55,7 @@ def save(query_id):
 
     url = "http://binsearch.info/fcgi/nzb.fcgi"
     post_data = str(query_id) + "=on&action=nzb"    
-    data = openURL(url, post_data)
+    data = mt.utils.openURL(url, post_data)
 
     f = open(os.path.join(save_to, last_search + ".nzb"), "w")
     f.write(data)

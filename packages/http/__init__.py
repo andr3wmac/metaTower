@@ -1,42 +1,56 @@
-"""
- * metaTower v0.4.5
- * http://www.metatower.com
- *
- * Copyright 2012, Andrew Mac
- * http://www.andrewmac.ca
- * Licensed under GPL v3.
- * See license.txt 
- *  or http://www.metatower.com/license.txt
-"""
-
 import mt, socket
 from HTTPServer import HTTPServer
 
 def onLoad():
     mt.events.register("HTTP GET /", getIndex)
 
+    # load config file and users.
+    mt.config.load("packages/http/http.cfg")
+    user_list = mt.config.get("http/users/user")
+    for user in user_list:
+        addUser(user["username"], user["password"])
+
     if ( start() ):
-        mt.log.info("Started on port " + mt.config["port"])
+        mt.log.info("Started on port " + mt.config["http/port"])
     else:
-        mt.log.error("Could not start on port " + mt.config["port"])
+        mt.log.error("Could not start on port " + mt.config["http/port"])
 
-#def onUnload():
-#    running = False 
+# Users
+users = {}
+class User:
+    def __init__(self, name, password, key = ""):
+        self.name = name
+        self.password = password
+        self.key = key
 
+def addUser(name, password, key = ""):
+    global users
+    users[name] = User(name, password, key)
+
+def getUser(name):
+    global users
+    if users.has_key(name): return users[name]
+    return None
+
+# Scripts to be loaded on index.
 scripts = ["metaTower.js"]
 def addScript(path):
     global scripts
     if ( not path in scripts ): scripts.append(path)    
+
 def addScripts(scriptlist):
     for s in scriptlist: addScript(s)
 
+# Stylesheets.
 styles = []
 def addStyle(path):
     global styles
     if ( not path in styles ): styles.append(path)
+
 def addStyles(stylelist):
     for s in stylelist: addStyle(s)
 
+# File Requests
 files = {}
 def addFile(request, filepath):
     global files
@@ -51,6 +65,7 @@ def getFile(httpIn, httpOut):
     if ( files.has_key(httpIn.path) ):    
         httpOut.file(files[httpIn.path])    
 
+# Empty shell html, to be filled by a window manager.
 def getIndex(httpIn, httpOut):
     global scripts, styles
 
@@ -71,10 +86,11 @@ def getIndex(httpIn, httpOut):
     httpOut.text("<body onLoad=\"mt.load();\"></body>")
     httpOut.text("</html>")
 
+# Runs the HTTP server.
 def start():
     global http_thread
     try:
-        addr = ("", int(mt.config["port"]))
+        addr = ("", int(mt.config["http/port"]))
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(addr)
@@ -89,4 +105,3 @@ def start():
         pass
 
     return False
-

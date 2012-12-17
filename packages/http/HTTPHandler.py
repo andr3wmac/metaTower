@@ -1,4 +1,4 @@
-import mt, processor, sessions
+import mt, processor, sessions, urllib
 from mt import threads
 from HTTPIn import HTTPIn
 from HTTPOut import HTTPOut
@@ -60,6 +60,9 @@ class HTTPHandler(threads.Thread):
                     if ( args[0] == "User-Agent:" ):
                         httpIn.user_agent = " ".join(args[1:])
 
+                    if ( args[0] == "Host:" ):
+                        httpIn.host = args[1]
+
                     if ( args[0] == "Content-Type:" ):
                         if ( args[1] == "multipart/form-data;" ):
                             boundary_args = args[2].split("=")
@@ -91,12 +94,8 @@ class HTTPHandler(threads.Thread):
                     if ( args[0] == "" ):
                         break
 
-                # clean the path
-                httpIn.path = httpIn.path.replace("%20", " ")
-                httpIn.path = httpIn.path.replace("%22", '"')
-                httpIn.path = httpIn.path.replace("%27", "'")
-                httpIn.path = httpIn.path.replace("%7B", "{")
-                httpIn.path = httpIn.path.replace("%7D", "}")
+                # clean the path of url garbage
+                httpIn.path = urllib.unquote(httpIn.path)
 
                 # check to see if we have a session cookie and if its valid.    
                 try:    

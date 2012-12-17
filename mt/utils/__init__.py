@@ -10,7 +10,9 @@
 """
 
 import inspect, uuid, commands, socket, os, errno, shutil, hashlib, platform, ctypes, re
+import gzip, urllib, urllib2
 import ExecuteThread, ProfileTicket
+from StringIO import StringIO
 
 profile_enabled = False
 def setProfiling(value):
@@ -27,6 +29,21 @@ def uid():
 
 def md5(string):
     return hashlib.md5(string).hexdigest()
+
+def openURL(url, data = None):
+    request = urllib2.Request(url, data)
+    request.add_header('Accept-encoding', 'gzip')
+    response = urllib2.urlopen(request)
+    
+    data = ""
+    if response.info().get('Content-Encoding') == 'gzip':
+        buf = StringIO( response.read())
+        f = gzip.GzipFile(fileobj=buf)
+        data = f.read()    
+    else:
+        data = response.read()
+    
+    return data
 
 def getSource(depth=2):
     try:

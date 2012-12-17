@@ -8,3 +8,4 @@ class HTTPIn():
         self.auth_line = ""
         self.user_agent = ""
         self.session = None
+        self.host = "127.0.0.1"

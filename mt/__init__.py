@@ -11,7 +11,7 @@
 
 import ConfigParser, os, sys, logging, hashlib, time, inspect, urllib
 import ConfigManager, EventManager, PackageManager
-import auth, utils, log, threads
+import utils, log, threads
 
 restart = False
 config = None
@@ -32,33 +32,9 @@ def start(version, log_level, profiling):
 
     # logging system
     log.start(log_level)
-    log.alias("mtAuth", "auth")
 
     # load initial configurations
     config = ConfigManager.ConfigManager()
-    config.load("metaTower.cfg")
-    config.load("users.cfg")
-    
-    # load users.
-    users_list = config.get("users/user")
-    for user in users_list:
-        un = user["name"]
-        users[un] = auth.User()
-        users[un].name = un
-        users[un].password = user["password"]
-        users[un].password_md5 = user["password-md5"]
-
-        # convert text pass to md5.
-        if ( users[un].password != "" ):
-            users[un].password_md5 = mt.utils.md5(users[un].password)
-
-        # load the homedir, and create it if it doesn't exist.
-        users[un].homedir = user["home"]
-        utils.mkdir(users[un].homedir)
-
-        users[un].windowmanager = user["windowmanager"]
-        users[un].auth_url = user["auth_url"]
-        if ( user["local_only"] != "" ): users[un].local_only = True
 
     # events
     events = EventManager.EventManager()

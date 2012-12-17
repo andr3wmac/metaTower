@@ -18,22 +18,9 @@ def processRequest(httpIn, httpOut):
     # Special functions.
     processed = False    
     if ( httpIn.method == "GET" and len(httpIn.path) > 1 ):
-        
-        # Change user.
-        if ( httpIn.path[1] == "@" ):
-            login_info = httpIn.path[2:].split(":")
-
-            new_user = None
-            if ( len(login_info) == 1 ):
-                new_user = verifyUser(httpIn.path[2:], "", httpIn.session.local)
-            if ( len(login_info) == 2 ):
-                new_user = verifyUser(login_info[0], login_info[1], httpIn.session.local)
-            
-            if ( new_user != None ): session.user = new_user
-            httpIn.path = "/"
 
         # Execute a command.
-        elif ( httpIn.path[1] == "!" ):
+        if ( httpIn.path[1] == "!" ):
             processCommand(httpIn, httpOut)
             processed = True
 
@@ -43,15 +30,13 @@ def processRequest(httpIn, httpOut):
             file_parts = os.path.split(httpIn.path[2:])
             httpOut.file(os.path.join(file_parts[0], file_parts[1]))
             processed = True
-
-        # metaTower.js is kept internal in js.py
-        # we output it at request.
+        
+        # metaTower.js
         elif ( httpIn.path[1:].lower() == "metatower.js" ):
             httpOut.file("packages/http/metaTower.js")
             processed = True
     
-    # if it wasn't a special fucntion send it off
-    # to request processor.     
+    # if it wasn't a special function send it off to request processor.     
     if ( not processed ):
         mt.events.trigger("HTTP GET " + httpIn.path, httpIn, httpOut)
 
@@ -84,110 +69,91 @@ def processCommand(httpIn, httpOut):
 # Process login from a client.
 def processLogin(client_socket, httpIn, httpOut):
     path = httpIn.path
-    auth_line = httpIn.auth_line
-
-    config = mt.config
-    user = None
-    resp = None
-    login_username = ""
-    login_password = ""
+    allow_login = False
+    clean_redirect = False
+    login = {
+        "username": "",
+        "password": "",
+        "key": "",
+        "local": False
+    }
 
     # determine if the packet is local or remote.
     client_addr = client_socket.getpeername()
-    local_client = mt.utils.isLocalIP(client_addr[0])
+    login["local"] = mt.utils.isLocalIP(client_addr[0])
     
     # Check for an auth line that would have came from a POST.
-    if ( auth_line != "" ):
-        args = auth_line.split(":")
-        login_username = args[0]
-        login_password = str(hashlib.md5(args[1]).hexdigest())
+    if ( httpIn.auth_line != "" ):
+        args = httpIn.auth_line.split(":")
+        login["username"] = args[0]
+        login["password"] = str(hashlib.md5(args[1]).hexdigest())
 
-    # Set security level based on local/remote setting.
-    if ( local_client ): security = int(config["local_security"])
-    else: security = int(config["remote_security"])
+    # Check if we have a login path
+    if ( len(path) > 2 ) and ( path[1] == "?" ):
+        args = path.split("@")
+        login["key"] = args[0][2:]
+        login_data = args[1].split(":")
+        login["username"] = login_data[0]
+        login["password"] = login_data[1]
+        cleanRedirect = True
+
+    # Set security level based on config.
+    security = int(mt.config["http/security"])
+
+    if ( security < 2 and login["local"] ):
+        allowLogin = True
 
     # Level 0 Security
-    #   - Just use default user, no authentication required.
+    #   - Allow all logins.
     if ( security == 0 ):
-        user = mt.users[config["default_user"]]
+        allowLogin = True
 
     # Level 1 Security
-    #   - Prompt user for a username/password if not specific.
+    #   - All local client allows, username/password for remote.
     if ( security == 1 ):
-        user = verifyUser(login_username, login_password, local_client)
-        showLoginForm(httpIn, httpOut)
+        if login["local"]:
+            allowLogin = True
+        else:
+            allowLogin = verifyUser(login)
 
     # Level 2 Security
-    #   - Requires the proper auth key from a third party
-    #   - Requires a proper username/password for a local user.
+    #   - Requires the proper login from both.
     if ( security == 2 ):
-        if ( len(path) > 2 ) and ( path[1] == "?" ):
-            args = path.split("@")
-            key = args[0][2:]
-            if ( key == mt.config["auth_key"] ) and ( len(args) > 1 ):
-                user_login = args[1].split(":")
-                user = mt.users[user_login[0]]
-                if (( user != None ) and ( user.password_md5[16:] != user_login[1] )): user = None
-        
-    # If the user variable is set, login was successful.
-    if ( user != None ):
+        allowLogin = verifyUser(login)
+
+    # If we're allowed to login:
+    if allowLogin:
         # Create  new session.
         sesh = sessions.new()
-        sesh.user = user
         sesh.IP = client_addr[0]
-        sesh.local = local_client
-        mt.log.info(user.name + " has logged in.")
+        sesh.local = login["local"]
 
         # Create a response variable and
-        #resp = mt.http.HTTPOut(sesh)
-        httpOut.cookies["session"] = sesh.auth_key
         httpIn.session = sesh
+        httpOut.cookies["session"] = sesh.key
         httpOut.session = sesh
 
-        # Trigger any login events.
-        #mt.packages.onLogin(httpOut)
-        
-        # A proper login can still have a request on the end of it.
-        # For instance with a local, no security auto-login.
-        # Therefore if the URL contains any commands, we'll pass it
-        # back around for execution.
-        #if ( path == "/" ):
-        #resp.append(processRequest(httpIn))
-        processRequest(httpIn, httpOut)        
-        #elif ( len(path) > 1 ) and (( path[1] == "!" ) or ( path[1] == "@" ) or ( path[1] == "-" ) or ( path[1] == ":" )):
-            #resp.append(processRequest(httpIn))
-        #else:
-            # Clean redirect will remove the auth_key from the URL,
-            # it's rather unsightly for the user.
-            #resp = sesh.cleanRedirect(resp)
+        #resp = sesh.cleanRedirect(resp)
+        if ( cleanRedirect ):
+            httpOut.status = "302 Found"
+            httpOut.headers["Location"] = "http://" + httpIn.host + "/"
+            httpOut.headers["Content-Length"] = "0"
+        else:
+            processRequest(httpIn, httpOut)
+    else:
+        httpOut.text("Access denied.")
     
-    # If resp is None at this point, all login attempts have failed.
-    #if ( resp == None ):
-    #    resp = mt.http.HTTPOut()
-    #    resp.text("Access denied.")
-
-    #return resp
-
 # This function will take the relevant information and see
 # if it all matches up. Username/Password(MD5) it will also
 # enforce local_only flag on users.
-def verifyUser(username, password, local):
-    if ( username == None ) or ( username == "" ): return None
-
-    mt.log.info("Login attempt from: " + username)
-    if ( mt.users.has_key(username) ):
-        user = mt.users[username]
-        if ( user.local_only ) and ( not local ): return None
-        if ( user.password_md5 == "" ): return user
-        if ( mt.users[username].password_md5 == password ): return user
-    return None
+def verifyUser(login):
+    user = mt.packages.http.getUser(login["username"])
+    if ( not user == None ):
+        if ( user.password == login["password"] and user.key == login["key"] ):
+            return True
+    return False
 
 # this will cause a username/password dialog to popup.
-def showLoginForm(key = ""):
-    if ( key != "" ): key = "!" + key
-
-    resp = mt.http.HTTPOut()
-    resp.status = "401 Forbidden"
-    resp.headers["WWW-Authenticate"] = "Basic realm=\"metaTower\""
-    return resp
-
+def showLoginForm(httpOut):
+    httpOut.status = "401 Forbidden"
+    httpOut.headers["WWW-Authenticate"] = "Basic realm=\"metaTower\""

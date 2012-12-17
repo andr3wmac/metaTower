@@ -15,35 +15,16 @@ session_list = []
 file_keys = {}
 
 class Session():
-    auth_key = ""
+    key = ""
     last_activity = 0
     events = None
     local = False
     IP = "127.0.0.1"
     
     def __init__(self):
-        self.auth_key = hashlib.sha256(mt.utils.uid()).hexdigest()
+        self.key = hashlib.sha256(mt.utils.uid()).hexdigest()
         self.last_activity = time.time()
         
-    def out(self):
-        sout = mt.http.HTTPOut()
-        return sout
-
-    def cleanRedirect(self, packet = None):
-        if ( self.local ): 
-            if ( self.IP.startswith("127.") ):
-                server_addr = self.IP
-            else:
-                server_addr = mt.config["local_ip"]
-        else: 
-            server_addr = mt.config["remote_ip"]
-
-        if ( packet == None ): packet = mt.http.HTTPOut()
-        packet.status = "302 Found"
-        packet.headers["Location"] = "http://" + server_addr + ":" + mt.config["port"] + "/"
-        packet.headers["Content-Length"] = "0"
-        return packet
-
     def generateFileKey(self, path):
         global file_keys
         for key in file_keys:
@@ -61,7 +42,7 @@ def new():
 
 def find(key):
     for session in session_list:
-        if ( session.auth_key == key ):
+        if ( session.key == key ):
             return session
     return None
 

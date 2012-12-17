@@ -9,7 +9,7 @@
  *  or http://www.metatower.com/license.txt
 """
 
-import os, sys, types, threading, inspect, imp
+import os, sys, types, threading, inspect, imp, operator
 import mt
 
 class PackageManager:
@@ -50,12 +50,18 @@ class PackageManager:
 
         # load config files if they aren't already.
         if ( not mt.config.contains(package_name) ):
-            mt.config.load(os.path.join(path, package_name, "package.cfg"))
+            package_path = os.path.join(path, package_name)
+            mt.config.load(os.path.join(package_path, "package.cfg"))
             mod.name = mt.config[package_name + "/name"]
             mod.path = path
             mod.id = package_name
             mod.version = mt.config[package_name + "/version"]
 
+            # Load Order, lower numbers get loaded first, 0 is default.
+            mod.load_order = mt.config[package_name + "/load_order"]
+            if ( not mod.load_order ): mod.load_order = "0"
+            mod.load_order = int(mod.load_order)
+    
             self.list[package_name] = mod
             setattr(self, package_name, mod)
 
@@ -99,6 +105,7 @@ class PackageManager:
         files = os.listdir(path)
         if len(files) == 0: return
 
+        load_order = {}
         for f in files:
             package_path = os.path.join(path,f)
             if ( os.path.isdir(package_path) ):
@@ -113,19 +120,27 @@ class PackageManager:
 
                 if ( has_init ) and ( has_cfg ):
                     package = self.load(f, path)
+                    load_order[package.id] = int(package.load_order)
                 
         self.listPackages()        
         
-        # after packages are listed, called their load function
-        for packid in self.list:
-            package = self.list[packid]
+        # after packages are listed, call their load function based on load_order
+        sorted_lo = sorted(load_order.iteritems(), key=operator.itemgetter(1))       
+        for package_id in sorted_lo:
+            package = self.list[package_id[0]]
             if ( hasattr(package, "onLoad") ): package.onLoad()
     
     def listPackages(self):
         print "Packages: "
+        output_list = {}
         for packid in self.list:
             package = self.list[packid]
-            print " - " + package.name + " (" + package.id + " v" + package.version + ")"
+            output_list[package.name] = " - " + package.name + " (" + package.id + " v" + package.version + ")"
+        
+        # may as well out put them in alphabetical order, looks nice.
+        sorted_list = sorted(output_list)
+        for key in sorted_list:
+            print output_list[key]
         print ""
 
     def event(self, resp, event, args = {}):

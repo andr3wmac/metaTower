@@ -3,10 +3,7 @@ var search = {
     {
         list_html = "";
         for(var x = 0; x < list.length; x++)
-        {
-            var engine = list[x];
-            list_html += "<li>" + engine + "</li>";
-        }
+            list_html += "<li>" + list[x] + "</li>";
         mt.html("search_engines", list_html, false);
     },
 
