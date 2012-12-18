@@ -87,8 +87,6 @@ class QueueController(threads.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
-            self.torrent_engine = lt.session()
-            self.torrent_engine.listen_on(6881, 6891)
 
     def remove(self, uid):
         for nzb in self.nzb_queue:
@@ -143,8 +141,17 @@ class QueueController(threads.Thread):
                         f = open(torrent.filename)
                         magnet = f.read()
                         f.close()
+
+                        self.torrent_engine = lt.session()
+                        self.torrent_engine.start_dht()
+                        self.torrent_engine.add_dht_router("router.bittorrent.com", 6881)
+                        self.torrent_engine.add_dht_router("router.utorrent.com", 6881)
+                        self.torrent_engine.add_dht_router("router.bitcomet.com", 6881)
+                        self.torrent_engine.listen_on(6881, 6891)
                         torrent.lt_entry = self.torrent_engine.add_torrent({'url': magnet, 'save_path': torrent.save_to})
                     else:
+                        self.torrent_engine = lt.session()
+                        self.torrent_engine.listen_on(6881, 6891)
                         info = lt.torrent_info(torrent.filename)
                         torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
                 except:
