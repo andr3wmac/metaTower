@@ -178,6 +178,7 @@ class QueueController(threads.Thread):
                     self.torrent_engine = lt.session()
                     self.torrent_engine.listen_on(6881, 6891)
                     torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                    print "Got here"
 
     def nzbUpdate(self):
         if ( not self.nzb_enabled ): return
