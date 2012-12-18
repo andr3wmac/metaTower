@@ -158,6 +158,13 @@ class QueueController(threads.Thread):
                     mt.log.error("Could not add torrent: " + torrent.filename)
                     pass
 
+            if ( torrent.lt_entry ):
+                if torrent.lt_entry.has_metadata():                    
+		            info = torrent.lt_entry.get_torrent_info()
+                    self.torrent_engine = lt.session()
+                    self.torrent_engine.listen_on(6881, 6891)
+                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+
     def nzbUpdate(self):
         if ( not self.nzb_enabled ): return
 
