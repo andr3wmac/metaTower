@@ -143,11 +143,6 @@ class QueueController(threads.Thread):
                         f.close()
 
                         ses = lt.session()
-                        ses.listen_on(6881, 6891)
-                        ses.start_dht()
-                        ses.add_dht_router("router.bittorrent.com", 6881)
-                        ses.add_dht_router("router.utorrent.com", 6881)
-                        ses.add_dht_router("router.bitcomet.com", 6881)
                         parms = {
                             'url': magnet,
                             'save_path': torrent.save_to,
@@ -175,7 +170,6 @@ class QueueController(threads.Thread):
                 if torrent.lt_entry.has_metadata():
                     print "metadata found!"                    
                     info = torrent.lt_entry.get_torrent_info()
-                    self.torrent_engine = lt.session()
                     self.torrent_engine.listen_on(6881, 6891)
                     torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
                     print "Got here"
