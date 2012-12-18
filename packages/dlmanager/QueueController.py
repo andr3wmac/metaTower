@@ -137,24 +137,27 @@ class QueueController(threads.Thread):
         for torrent in self.torrent_queue:
             if ( torrent.lt_entry == None ) and ( not torrent.removed ):
                 try:
+                    self.torrent_engine = lt.session()
+                    self.torrent_engine.listen_on(6881, 6891)
                     if torrent.filename.lower().endswith(".magnet"):
                         f = open(torrent.filename)
                         magnet = f.read()
                         f.close()
-
-                        self.torrent_engine = lt.session()
-                        self.torrent_engine.start_dht()
-                        self.torrent_engine.add_dht_router("router.bittorrent.com", 6881)
-                        self.torrent_engine.add_dht_router("router.utorrent.com", 6881)
-                        self.torrent_engine.add_dht_router("router.bitcomet.com", 6881)
-                        self.torrent_engine.listen_on(6881, 6891)
-                        torrent.lt_entry = self.torrent_engine.add_torrent({'url': magnet, 'save_path': torrent.save_to})
+                        parms = {
+                            'url': magnet,
+                            'save_path': torrent.save_to,
+                            'duplicate_is_error': True,
+                            'storage_mode': lt.storage_mode_t(2),
+                            'paused': False,
+                            'auto_managed': True,
+                            'duplicate_is_error': True
+                        }
+                        torrent.lt_entry = self.torrent_engine.add_torrent(parms)
                     else:
-                        self.torrent_engine = lt.session()
-                        self.torrent_engine.listen_on(6881, 6891)
                         info = lt.torrent_info(torrent.filename)
                         torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
                 except:
+                    self.torrent_engine.pause()
                     mt.log.error("Could not add torrent: " + torrent.filename)
                     pass
 
@@ -251,4 +254,5 @@ class QueueController(threads.Thread):
             del self.nzb_engine
         
         if ( hasattr(self, "torrent_engine") ):
+            self.torrent_engine.pause()
             del self.torrent_engine
