@@ -88,7 +88,7 @@ class QueueController(threads.Thread):
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
                 self.torrent_engine = lt.session()
-                self.listen_on(6881, 6891)
+                self.torrent_engine.listen_on(6881, 6891)
 
     def remove(self, uid):
         for nzb in self.nzb_queue:
