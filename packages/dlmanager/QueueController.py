@@ -157,7 +157,8 @@ class QueueController(threads.Thread):
                             'auto_managed': True,
                             'duplicate_is_error': True
                         }
-                        torrent.lt_entry = ses.add_torrent(parms)   
+                        torrent.lt_entry = lt.add_magnet_uri(ses, magnet, parms)
+                        #ses.add_torrent(parms)   
                         self.torrent_engine = ses
                     else:
                         ses = lt.session()
