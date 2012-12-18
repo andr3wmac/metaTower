@@ -87,6 +87,8 @@ class QueueController(threads.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
+                self.torrent_engine = lt.session()
+                self.listen_on(6881, 6891)
 
     def remove(self, uid):
         for nzb in self.nzb_queue:
@@ -135,8 +137,6 @@ class QueueController(threads.Thread):
         f = open(torrent.filename)
         magnet = f.read()
         f.close()
-
-        ses = lt.session()
         parms = {
             'url': magnet,
             'save_path': torrent.save_to,
@@ -145,9 +145,8 @@ class QueueController(threads.Thread):
             'paused': False,
             'auto_managed': True,
             'duplicate_is_error': True
-        } 
-        self.torrent_engine = ses
-        return lt.add_magnet_uri(ses, magnet, parms)
+        }
+        return lt.add_magnet_uri(self.torrent_engine, magnet, parms)
 
     def torrentUpdate(self):
         # exit if disabled
@@ -166,15 +165,13 @@ class QueueController(threads.Thread):
 
                 # magnets 
                 if ( torrent.lt_entry ):
-                    if torrent.lt_entry.has_metadata():                
+                    if torrent.lt_entry.has_metadata():         
                         info = torrent.lt_entry.get_torrent_info()
+                        self.torrent_engine.remove_torrent(torrent.lt_entry)
                         
                 # if info set, start the torrent
                 if ( info ):
-                    ses = lt.session()
-                    ses.listen_on(6881, 6891)
-                    torrent.lt_entry = ses.add_torrent({'ti': info, 'save_path': torrent.save_to})
-                    self.torrent_engine = ses            
+                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
 
             except:
                 mt.log.error("Could not add torrent: " + torrent.filename)
