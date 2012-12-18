@@ -131,46 +131,54 @@ class QueueController(threads.Thread):
                 if ( f.endswith(".nzb") ): results.append(ff)
         return results
 
+    def startMagnet(self, torrent):
+        f = open(torrent.filename)
+        magnet = f.read()
+        f.close()
+
+        ses = lt.session()
+        parms = {
+            'url': magnet,
+            'save_path': torrent.save_to,
+            'duplicate_is_error': True,
+            'storage_mode': lt.storage_mode_t(2),
+            'paused': False,
+            'auto_managed': True,
+            'duplicate_is_error': True
+        }
+        torrent.lt_entry = lt.add_magnet_uri(ses, magnet, parms)
+        self.torrent_engine = ses
+
     def torrentUpdate(self):
+        # exit if disabled
         if ( not self.torrent_enabled ): return
 
         for torrent in self.torrent_queue:
-            if ( torrent.lt_entry == None ) and ( not torrent.removed ):
-                try:
+            try:
+                info = None
+                
+                # process torrent.
+                if ( torrent.lt_entry == None ) and ( not torrent.removed ):    
                     if torrent.filename.lower().endswith(".magnet"):
-                        f = open(torrent.filename)
-                        magnet = f.read()
-                        f.close()
-
-                        ses = lt.session()
-                        parms = {
-                            'url': magnet,
-                            'save_path': torrent.save_to,
-                            'duplicate_is_error': True,
-                            'storage_mode': lt.storage_mode_t(2),
-                            'paused': False,
-                            'auto_managed': True,
-                            'duplicate_is_error': True
-                        }
-                        torrent.lt_entry = lt.add_magnet_uri(ses, magnet, parms)
-                        self.torrent_engine = ses
+                        self.startMagnet(torrent)
                     else:
-                        ses = lt.session()
-                        ses.listen_on(6881, 6891)
                         info = lt.torrent_info(torrent.filename)
-                        torrent.lt_entry = ses.add_torrent({'ti': info, 'save_path': torrent.save_to})
-                        self.torrent_engine = ses
-                except:
-                    mt.log.error("Could not add torrent: " + torrent.filename)
-                    pass
 
-            if ( torrent.lt_entry ):
-                if torrent.lt_entry.has_metadata():                
-                    info = torrent.lt_entry.get_torrent_info()
-                    self.torrent_engine.listen_on(6881, 6891)
-                    print str(info)
-                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
-                    print "Got here"
+                # magnets 
+                if ( torrent.lt_entry ):
+                    if torrent.lt_entry.has_metadata():                
+                        info = torrent.lt_entry.get_torrent_info()
+                        
+                # if info set, start the torrent
+                if ( info ):
+                    ses = lt.session()
+                    ses.listen_on(6881, 6891)
+                    torrent.lt_entry = ses.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                    self.torrent_engine = ses            
+
+            except:
+                mt.log.error("Could not add torrent: " + torrent.filename)
+                pass
 
     def nzbUpdate(self):
         if ( not self.nzb_enabled ): return
