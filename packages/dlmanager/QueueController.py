@@ -153,7 +153,6 @@ class QueueController(threads.Thread):
                             'duplicate_is_error': True
                         }
                         torrent.lt_entry = lt.add_magnet_uri(ses, magnet, parms)
-                        #ses.add_torrent(parms)   
                         self.torrent_engine = ses
                     else:
                         ses = lt.session()
@@ -166,11 +165,10 @@ class QueueController(threads.Thread):
                     pass
 
             if ( torrent.lt_entry ):
-                print "Checking for metadata.."
-                if torrent.lt_entry.has_metadata():
-                    print "metadata found!"                    
+                if torrent.lt_entry.has_metadata():                
                     info = torrent.lt_entry.get_torrent_info()
                     self.torrent_engine.listen_on(6881, 6891)
+                    print str(info)
                     torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
                     print "Got here"
 
