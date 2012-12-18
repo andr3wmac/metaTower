@@ -145,9 +145,9 @@ class QueueController(threads.Thread):
             'paused': False,
             'auto_managed': True,
             'duplicate_is_error': True
-        }
-        torrent.lt_entry = lt.add_magnet_uri(ses, magnet, parms)
+        } 
         self.torrent_engine = ses
+        return lt.add_magnet_uri(ses, magnet, parms)
 
     def torrentUpdate(self):
         # exit if disabled
@@ -160,7 +160,7 @@ class QueueController(threads.Thread):
                 # process torrent.
                 if ( torrent.lt_entry == None ) and ( not torrent.removed ):    
                     if torrent.filename.lower().endswith(".magnet"):
-                        self.startMagnet(torrent)
+                        torrent.lt_entry = self.startMagnet(torrent)
                     else:
                         info = lt.torrent_info(torrent.filename)
 
