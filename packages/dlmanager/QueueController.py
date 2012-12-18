@@ -88,7 +88,6 @@ class QueueController(threads.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
-            print "Starting new session."
             self.torrent_engine = lt.session()
             self.torrent_engine.listen_on(6881, 6891)
 
@@ -136,7 +135,6 @@ class QueueController(threads.Thread):
         return results
 
     def startMagnet(self, torrent):
-        print "starting magnet download.."
         f = open(torrent.filename)
         magnet = f.read()
         f.close()
@@ -177,7 +175,6 @@ class QueueController(threads.Thread):
                         
                 # if info set, start the torrent
                 if ( info ):
-                    print "Adding torrent."
                     torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
 
             except:
@@ -241,7 +238,8 @@ class QueueController(threads.Thread):
                         new_item = self.NZBQueueItem()
                         new_item.filename = nzb
                         new_item.uid = mt.utils.uid()
-                        new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], os.path.basename(nzb).replace(".nzb", "")) + "/"
+                        save_folder = os.path.splitext(os.path.basename(nzb))[0]
+                        new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], save_folder) + "/"
                         self.nzb_queue.append(new_item)
                 self.nzbUpdate()
             
@@ -254,7 +252,8 @@ class QueueController(threads.Thread):
                         new_item = self.TorrentQueueItem()
                         new_item.filename = torrent
                         new_item.uid = mt.utils.uid()
-                        new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], os.path.basename(torrent)) + "/"
+                        save_folder = os.path.splitext(os.path.basename(torrent))[0]
+                        new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], save_folder) + "/"
                         self.torrent_queue.append(new_item)
                 self.torrentUpdate()
         except Exception as inst:
@@ -268,5 +267,5 @@ class QueueController(threads.Thread):
             del self.nzb_engine
         
         if ( hasattr(self, "torrent_engine") ):
-            self.torrent_engine.pause()
+            if ( self.torrent_engine ): self.torrent_engine.pause()
             del self.torrent_engine

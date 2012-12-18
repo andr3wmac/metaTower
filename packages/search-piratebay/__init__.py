@@ -37,12 +37,18 @@ def query(content):
     data = data.split("<div class=\"detName\">")
     if ( len(data) > 3 ):
         data = data[2:-1]
-        for torrent_data in data:
+        for raw_data in data:
             # process data
-            torrent_data = torrent_data.split("\">")
+            torrent_data = raw_data.split("\">")
             name = torrent_data[1].split("</a>")[0]           
             magnet = torrent_data[1].split("<a href=\"")[1].split("\" title=\"")[0]     
             torrent_id = mt.utils.md5(magnet)        
+
+            # attempt to get size
+            size = "0 MiB"
+            size_data = raw_data.split("Size ")
+            if len(size_data) > 1:
+                size = size_data[1].split(", UL")[0].replace("&nbsp;", " ") 
 
             # store torrent for later
             new_torrent = TorrentResult(torrent_id, name, magnet)
@@ -52,7 +58,7 @@ def query(content):
             result = {}
             result["id"] = torrent_id
             result["name"] = name
-            result["size"] = "0KB"
+            result["size"] = size
             result["downloaded"] = str(result["id"]) in dlist
             result_list.append(result)
 
