@@ -88,6 +88,7 @@ class QueueController(threads.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
+            print "Starting new session."
             self.torrent_engine = lt.session()
             self.torrent_engine.listen_on(6881, 6891)
 
@@ -135,6 +136,7 @@ class QueueController(threads.Thread):
         return results
 
     def startMagnet(self, torrent):
+        print "starting magnet download.."
         f = open(torrent.filename)
         magnet = f.read()
         f.close()
@@ -171,9 +173,11 @@ class QueueController(threads.Thread):
                     if torrent.lt_entry.has_metadata():         
                         info = torrent.lt_entry.get_torrent_info()
                         self.torrent_engine.remove_torrent(torrent.lt_entry)
+                        print "Removing torrent."
                         
                 # if info set, start the torrent
                 if ( info ):
+                    print "Adding torrent."
                     torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
 
             except:
