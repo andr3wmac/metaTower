@@ -32,6 +32,7 @@ class QueueController(threads.Thread):
         downloading = False
         last_update = 0
         uid = ""
+        downloading_magnet = False
 
         lt_entry = None
 
@@ -87,8 +88,8 @@ class QueueController(threads.Thread):
                 torrent.error = bool(int(item["error"]))
                 torrent.save_to = item["save_to"]
                 self.torrent_queue.append(torrent)
-                self.torrent_engine = lt.session()
-                self.torrent_engine.listen_on(6881, 6891)
+            self.torrent_engine = lt.session()
+            self.torrent_engine.listen_on(6881, 6891)
 
     def remove(self, uid):
         for nzb in self.nzb_queue:
@@ -153,18 +154,20 @@ class QueueController(threads.Thread):
         if ( not self.torrent_enabled ): return
 
         for torrent in self.torrent_queue:
+            if ( torrent.removed ): continue
             try:
                 info = None
                 
                 # process torrent.
-                if ( torrent.lt_entry == None ) and ( not torrent.removed ):    
+                if ( torrent.lt_entry == None ):    
                     if torrent.filename.lower().endswith(".magnet"):
                         torrent.lt_entry = self.startMagnet(torrent)
+                        torrent.downloading_magnet = True
                     else:
                         info = lt.torrent_info(torrent.filename)
 
                 # magnets 
-                if ( torrent.lt_entry ):
+                if ( torrent.lt_entry and torrent.downloading_magnet ):
                     if torrent.lt_entry.has_metadata():         
                         info = torrent.lt_entry.get_torrent_info()
                         self.torrent_engine.remove_torrent(torrent.lt_entry)
