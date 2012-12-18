@@ -7,7 +7,7 @@ class NZBResult:
         self.name = name
 
 def onLoad():
-    mt.config.load("packages/search-binsearch/settings.cfg")
+    mt.config.load("packages/search-binsearch/search-binsearch.cfg")
     mt.config.load("packages/search-binsearch/downloaded.cfg", True)
 
     if mt.packages.search:
