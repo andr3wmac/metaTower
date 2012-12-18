@@ -143,7 +143,7 @@ class QueueController(threads.Thread):
                         f = open(torrent.filename)
                         magnet = f.read()
                         f.close()
-                        self.torrent_engine.add_magnet_uri(magnet, {'save_path': torrent.save_to})
+                        torrent.lt_entry = self.torrent_engine.add_torrent({'url': magnet, 'save_path': torrent.save_to})
                     else:
                         info = lt.torrent_info(torrent.filename)
                         torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
