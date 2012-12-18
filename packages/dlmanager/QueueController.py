@@ -173,7 +173,7 @@ class QueueController(threads.Thread):
                     if torrent.lt_entry.has_metadata():         
                         info = torrent.lt_entry.get_torrent_info()
                         self.torrent_engine.remove_torrent(torrent.lt_entry)
-                        print "Removing torrent."
+                        torrent.downloading_magnet = False
                         
                 # if info set, start the torrent
                 if ( info ):
