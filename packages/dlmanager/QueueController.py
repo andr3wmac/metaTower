@@ -137,12 +137,17 @@ class QueueController(threads.Thread):
         for torrent in self.torrent_queue:
             if ( torrent.lt_entry == None ) and ( not torrent.removed ):
                 try:
-                    self.torrent_engine = lt.session()
-                    self.torrent_engine.listen_on(6881, 6891)
                     if torrent.filename.lower().endswith(".magnet"):
                         f = open(torrent.filename)
                         magnet = f.read()
                         f.close()
+
+                        ses = lt.session()
+                        ses.listen_on(6881, 6891)
+                        ses.start_dht()
+                        ses.add_dht_router("router.bittorrent.com", 6881)
+                        ses.add_dht_router("router.utorrent.com", 6881)
+                        ses.add_dht_router("router.bitcomet.com", 6881)
                         parms = {
                             'url': magnet,
                             'save_path': torrent.save_to,
@@ -152,12 +157,15 @@ class QueueController(threads.Thread):
                             'auto_managed': True,
                             'duplicate_is_error': True
                         }
-                        torrent.lt_entry = self.torrent_engine.add_torrent(parms)
+                        torrent.lt_entry = ses.add_torrent(parms)   
+                        self.torrent_engine = ses
                     else:
+                        ses = lt.session()
+                        ses.listen_on(6881, 6891)
                         info = lt.torrent_info(torrent.filename)
-                        torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                        torrent.lt_entry = ses.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                        self.torrent_engine = ses
                 except:
-                    self.torrent_engine.pause()
                     mt.log.error("Could not add torrent: " + torrent.filename)
                     pass
 
