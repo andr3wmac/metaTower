@@ -1,24 +1,23 @@
 import mt, os, urllib
 
-save_to = ""
+nzb_list = []
+class NZBResult:
+    def __init__(self, query_id, name):
+        self.query_id = query_id
+        self.name = name
 
 def onLoad():
-    global save_to
-
-    cfg = mt.config
-    cfg.load("packages/search-binsearch/settings.cfg")
-    cfg.load("packages/search-binsearch/downloaded.cfg", True)
-
-    save_to = cfg["search-binsearch/save_to"]
+    mt.config.load("packages/search-binsearch/settings.cfg")
+    mt.config.load("packages/search-binsearch/downloaded.cfg", True)
 
     if mt.packages.search:
-        mt.packages.search.addEngine("binsearch.info", search, save)
+        mt.packages.search.addEngine("binsearch.info", query, save)
 
-def search(query):
-    global last_search
-    last_search = query
+def query(content):
+    global nzb_list
+    nzb_list = []
 
-    query_string = urllib.urlencode({"q": query, "max": "50"})        
+    query_string = urllib.urlencode({"q": content, "max": "50"})        
     url = "http://binsearch.info/?" + query_string
     data = mt.utils.openURL(url)
 
@@ -37,7 +36,12 @@ def search(query):
             
             result = {}
             result["id"] = int(raw_nzb[0])
-            result["name"] = raw_nzb[1].split("</span>")[0]
+
+            # name of the result.
+            raw_name = raw_nzb[1].split("</span>")[0].split("&quot;")
+            clean_name = raw_name[0]            
+            if len(raw_name) > 1: clean_name = raw_name[1]
+            result["name"] = clean_name
 
             # try for size
             a = raw_nzb[1].split("size: ")
@@ -45,23 +49,30 @@ def search(query):
                 result["size"] = a[1].split(", parts")[0].replace("&nbsp;", " ")
 
             result["downloaded"] = str(result["id"]) in dlist
-
             result_list.append(result)
+            nzb_list.append(NZBResult(result["id"], result["name"]))
 
     return result_list
 
 def save(query_id):
-    global save_to, last_search
+    global nzb_list
 
+    # determine name of file.
+    nzb_name = str(query_id) + ".nzb"
+    for n in nzb_list:
+        if ( int(n.query_id) == int(query_id) ): nzb_name = n.name + ".nzb"
+
+    # fetch file.
     url = "http://binsearch.info/fcgi/nzb.fcgi"
     post_data = str(query_id) + "=on&action=nzb"    
     data = mt.utils.openURL(url, post_data)
 
-    f = open(os.path.join(save_to, last_search + ".nzb"), "w")
+    # save.
+    f = open(os.path.join(mt.config["search-binsearch/save_to"], nzb_name), "w")
     f.write(data)
     f.close()
 
-    # generate a list of files from the known library
+    # keep track of the ones we've downloaded already.
     found = False
     config_list = mt.config.get("search-binsearch/downloaded/nzb")
     for item in config_list:

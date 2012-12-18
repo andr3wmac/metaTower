@@ -13,15 +13,14 @@ def onLoad():
     global save_to
 
     cfg = mt.config
-    cfg.load("packages/search-piratebay/settings.cfg")
+    cfg.load("packages/search-piratebay/search-piratebay.cfg")
     cfg.load("packages/search-piratebay/downloaded.cfg", True)
-
     save_to = cfg["search-piratebay/save_to"]
 
     if mt.packages.search:
-        mt.packages.search.addEngine("thepiratebay.se", search, save)
+        mt.packages.search.addEngine("thepiratebay.se", query, save)
 
-def search(query):
+def query(content):
     global torrent_list
     torrent_list = []    
     result_list = []
@@ -33,7 +32,7 @@ def search(query):
         dlist.append(item["id"])
 
     # query the pirate bay.
-    query_string = urllib.urlencode({"": "query"})[1:]  
+    query_string = urllib.urlencode({"": content})[1:]  
     data = mt.utils.openURL('http://thepiratebay.se/search/' + query_string + '/0/99/0')    
     data = data.split("<div class=\"detName\">")
     if ( len(data) > 3 ):

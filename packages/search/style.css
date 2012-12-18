@@ -1,5 +1,5 @@
 #search_header {
-    background-image: url('search/images/icon.png');
+    background-image: url('images/icon.png');
     background-repeat: no-repeat; 
     background-position: 10px 0px;    
     padding-left: 56px;
@@ -13,7 +13,7 @@
 
 #search_results .nzb 
 { 
-    background-image: url('search/images/mtfile.png'); 
+    background-image: url('images/mtfile.png'); 
     background-repeat: no-repeat; 
     background-position: 2px 5px;  
     padding-left: 25px; 
@@ -21,7 +21,7 @@
 
 #search_results .nzb_downloaded 
 { 
-    background-image: url('search/images/mtfile_trans.png'); 
+    background-image: url('images/mtfile_trans.png'); 
     background-repeat: no-repeat; 
     background-position: 2px 5px;  
     padding-left: 25px; 

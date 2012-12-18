@@ -122,6 +122,7 @@ class QueueController(threads.Thread):
             ff = os.path.join(self.queue_folder, f)
             if os.path.isfile(ff):
                 if ( f.endswith(".torrent") ): results.append(ff)
+                if ( f.endswith(".magnet") ): results.append(ff)
         return results
 
     def nzbFiles(self):
@@ -138,10 +139,16 @@ class QueueController(threads.Thread):
         for torrent in self.torrent_queue:
             if ( torrent.lt_entry == None ) and ( not torrent.removed ):
                 try:
-                    info = lt.torrent_info(torrent.filename)
-                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                    if torrent.filename.lower().endswith(".magnet"):
+                        f = open(torrent.filename)
+                        magnet = f.read()
+                        f.close()
+                        self.torrent_engine.add_magnet_uri(magnet, {'save_path': torrent.save_to})
+                    else:
+                        info = lt.torrent_info(torrent.filename)
+                        torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
                 except:
-                    mt.log.error("Could not add torrent.")
+                    mt.log.error("Could not add torrent: " + torrent.filename)
                     pass
 
     def nzbUpdate(self):
