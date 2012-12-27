@@ -33,7 +33,7 @@ def query(content):
 
     # query the pirate bay.
     query_string = urllib.urlencode({"": content})[1:]  
-    data = mt.utils.openURL('http://thepiratebay.se/search/' + query_string + '/0/99/0')    
+    data = mt.utils.openURL('http://thepiratebay.se/search/' + query_string + '/0/7/0')    
     data = data.split("<div class=\"detName\">")
     if ( len(data) > 3 ):
         data = data[2:-1]
