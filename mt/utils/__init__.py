@@ -221,3 +221,15 @@ def getRAMInfo():
                 ram_info["free"] = int(info[1][2])
                 ram_info["total"] = ram_info["used"] + ram_info["free"]
     return ram_info
+
+def escapePath(path):
+    # (
+    result = path.replace("(", "\\(")
+    # )
+    result = result.replace(")", "\\)")
+    # '
+    result = result.replace("'", "\\'")
+    # "
+    result = result.replace("\"", "\\\"")
+
+    return result

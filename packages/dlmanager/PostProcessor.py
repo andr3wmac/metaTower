@@ -60,7 +60,8 @@ def unrarFolder(path):
     # Now we actually extract them, only the last result will be shown.
     for rar_file in rar_files:
         mt.log.info("Extracting RAR file: " + rar_file)
-        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file.replace("'", "\\'"), path])
+        rar_file = mt.utils.escapePath(rar_file)
+        output = mt.utils.execute([unrar, "e", "-o+", "-ts0", rar_file, path])
         last_line = getLastLine(output)
 
         if ( results.has_key(last_line) ):
@@ -111,7 +112,8 @@ def par2Folder(path):
     par2_files = getPAR2Files(path)
     for par2_file in par2_files:
         mt.log.info("Checking PAR2 file: " + par2_file)
-        output = mt.utils.execute([par2, "r", par2_file.replace("'", "\\'")])
+        par2_file = mt.utils.escapePath(par2_file)
+        output = mt.utils.execute([par2, "r", par2_file])
 
         last_line = getLastLine(output)
         if ( results.has_key(last_line) ):
