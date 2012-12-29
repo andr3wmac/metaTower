@@ -64,6 +64,8 @@ class NZBClient():
         self.speedTime = 0
         self.speedCounter = 0
 
+        return True
+
     def start(self):
         # keep track of running time.
         self.status.start_time = time.time()
