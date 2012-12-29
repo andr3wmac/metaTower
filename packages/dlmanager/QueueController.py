@@ -189,7 +189,9 @@ class QueueController(threads.Thread):
         if ( self.nzb_engine == None ):
             for queue_item in self.nzb_queue:
                 if ( not queue_item.downloading ) and ( not queue_item.completed ) and ( not queue_item.error ):
-                    if ( not os.path.isfile(queue_item.filename) ): continue                    
+                    if ( not os.path.isfile(queue_item.filename) ): 
+                        print "CANT FIND: " + queue_item.filename
+                        continue                    
                     try:
                         queue_item.downloading = True
 
