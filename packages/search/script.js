@@ -20,7 +20,7 @@ var searchpkg = {
 	query: function()
     {
         var query = document.getElementById("search_query").value;
-        mt("search.query('" + query + "', " + searchpkg.EngineList.selected + ")");
+        mt("search.query('" + query + "', " + searchpkg.EngineList.selected + ", '" + searchpkg.toggledFilters + "')");
         searchpkg.status("Searching...", 0);
     },
 
@@ -83,6 +83,22 @@ var searchpkg = {
     {
         var sBar = document.getElementById("search_statusbar");
         sBar.style.display = "none";
+    },
+
+    toggledFilters: "",
+    toggleFilter: function(num)
+    {
+        var e = document.getElementById("search_filter" + num);
+        if ( e.style.fontWeight == "bold" )
+        {
+            searchpkg.toggledFilters = searchpkg.toggledFilters.replace(num + ",", "");        
+            e.style.fontWeight = "normal";
+        }
+        else
+        {
+            e.style.fontWeight = "bold";
+            searchpkg.toggledFilters += num + ","; 
+        }
     }
 };
 

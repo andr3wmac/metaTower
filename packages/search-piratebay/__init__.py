@@ -20,7 +20,7 @@ def onLoad():
     if mt.packages.search:
         mt.packages.search.addEngine("thepiratebay.se", query, save)
 
-def query(content):
+def query(content, filters = ""):
     global torrent_list
     torrent_list = []    
     result_list = []

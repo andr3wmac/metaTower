@@ -13,11 +13,21 @@ def onLoad():
     if mt.packages.search:
         mt.packages.search.addEngine("binsearch.info", query, save)
 
-def query(content):
+def query(content, filters = ""):
     global nzb_list
     nzb_list = []
 
-    query_string = urllib.urlencode({"q": content, "max": "50"})        
+    query_parms = {"q": content, "max": "50", "adv_sort": "date"}
+
+    # filters
+    # 0 : Over 100mb
+    if ( "0," in filters ): query_parms["minsize"] = "100"
+    # 1 : Over 500mb
+    if ( "1," in filters ): query_parms["minsize"] = "500"
+    # 2 : Over 1GB
+    if ( "2," in filters ): query_parms["minsize"] = "1000"    
+
+    query_string = urllib.urlencode(query_parms)        
     url = "http://binsearch.info/?" + query_string
     data = mt.utils.openURL(url)
 

@@ -103,6 +103,10 @@ def getFileList(path):
 def scan():
     global items
 
+    library_path = mt.config["mbrowser/library/path"]
+    if ( not os.path.isdir(library_path) ):
+        return
+
     for f in getFileList(mt.config["mbrowser/library/path"]):
         if ( items.has_key(f) ): continue
         idata = processFile(f)

@@ -38,6 +38,7 @@ class HTTPHandler(threads.Thread):
                 output = HTTPOut()
 
                 for line in lines:
+                    #print line
                     args = line.split(" ")
 
                     if ( args[0] == "GET" ) or ( args[0] == "POST" ):
@@ -126,7 +127,7 @@ class HTTPHandler(threads.Thread):
                             else:
                                 processor.processRequest(httpIn, output)
                 except Exception as inst:
-                    raise
+                    #raise
                     mt.log.error("Login: " + str(inst.args))
                     keep_alive = False
 
@@ -148,6 +149,7 @@ class HTTPHandler(threads.Thread):
 
         except Exception as inst:
             mt.log.error("Socket error: " + str(inst.args))
+            raise
         finally:
             if ( self.client_socket ): self.client_socket.close()
 
