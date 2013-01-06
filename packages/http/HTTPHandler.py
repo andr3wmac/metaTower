@@ -1,4 +1,4 @@
-import mt, processor, sessions, urllib
+import mt, processor, sessions, urllib, time
 from mt import threads
 from HTTPIn import HTTPIn
 from HTTPOut import HTTPOut
@@ -17,16 +17,20 @@ class HTTPHandler(threads.Thread):
             mt.log.info("Connection opened by " + str(self.client_addr[0]))
 
             keep_alive = True
-            #self.client_socket.settimeout(15) # keep-alive timeout of 15 seconds.
-            while keep_alive and self.running:
-                self.client_socket.settimeout(0.1)
+            start_time = time.time()
 
-                # attempt to receive, it will timeout after 0.1 seconds.
+            while keep_alive and self.running:
+                # attempt to receive, it will timeout after 5 seconds.
                 try:
+                    self.client_socket.settimeout(0.1)
                     data = self.client_socket.recv(1024)
                 except:
+                    if ( time.time() - start_time > 5 ):
+                        mt.log.debug("Keep-Alive connection killed, 5 seconds with no data.")
+                        break
                     continue
 
+                mt.log.debug(data)
                 if (not data) or (not self.running): break
                 lines = data.rstrip().splitlines(False)
 
@@ -151,5 +155,6 @@ class HTTPHandler(threads.Thread):
             mt.log.error("Socket error: " + str(inst.args))
             raise
         finally:
+            mt.log.debug("Socket closed.")
             if ( self.client_socket ): self.client_socket.close()
 
