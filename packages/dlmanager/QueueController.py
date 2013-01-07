@@ -244,7 +244,7 @@ class QueueController(threads.Thread):
                         new_item.filename = nzb
                         new_item.uid = mt.utils.uid()
                         save_folder = os.path.splitext(os.path.basename(nzb))[0]
-                        new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], save_folder) + "/"
+                        new_item.save_to = os.path.join(mt.config["dlmanager/nzb/save_to"], save_folder) + ".download/"
                         self.nzb_queue.append(new_item)
                 self.nzbUpdate()
             
@@ -258,7 +258,7 @@ class QueueController(threads.Thread):
                         new_item.filename = torrent
                         new_item.uid = mt.utils.uid()
                         save_folder = os.path.splitext(os.path.basename(torrent))[0]
-                        new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], save_folder) + "/"
+                        new_item.save_to = os.path.join(mt.config["dlmanager/torrent/save_to"], save_folder) + ".download/"
                         self.torrent_queue.append(new_item)
                 self.torrentUpdate()
         except Exception as inst:
