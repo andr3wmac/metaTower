@@ -16,23 +16,27 @@ class HTTPHandler(threads.Thread):
             other_ip, other_port = self.client_socket.getsockname()
             mt.log.info("Connection opened by " + str(self.client_addr[0]))
 
+            data_finished = False
             keep_alive = True
-            start_time = time.time()
+            data = ""
+            data_time = time.time()
 
             while keep_alive and self.running:
                 # attempt to receive, it will timeout after 5 seconds.
                 try:
                     self.client_socket.settimeout(0.1)
-                    data = self.client_socket.recv(1024)
+                    data += self.client_socket.recv(1024)
+                    data_time = time.time()
                 except:
-                    if ( time.time() - start_time > 5 ):
+                    if ( time.time() - data_time > 5 ):
                         mt.log.debug("Keep-Alive connection killed, 5 seconds with no data.")
                         break
                     continue
 
-                mt.log.debug(data)
+                self.client_socket.settimeout(None)
+                mt.log.debug("DATA (" + str(len(data)) + "):" + data)
                 if (not data) or (not self.running): break
-                lines = data.rstrip().splitlines(False)
+                lines = data.splitlines(False)
 
                 # create a profile object to track execution time.
                 p = mt.utils.profile()
@@ -42,7 +46,6 @@ class HTTPHandler(threads.Thread):
                 output = HTTPOut()
 
                 for line in lines:
-                    #print line
                     args = line.split(" ")
 
                     if ( args[0] == "GET" ) or ( args[0] == "POST" ):
@@ -97,9 +100,15 @@ class HTTPHandler(threads.Thread):
                         httpIn.auth_line = base64.b64decode(args[2])
 
                     if ( args[0] == "" ):
+                        data_finished = True
                         break
 
-                # clean the path of url garbage
+                if ( not data_finished ):
+                    mt.log.debug("Data not finished. Waiting for more..")
+                    continue
+
+                # clean the path of url garbage and reset the data
+                data = ""
                 httpIn.path = urllib.unquote(httpIn.path)
 
                 # check to see if we have a session cookie and if its valid.    

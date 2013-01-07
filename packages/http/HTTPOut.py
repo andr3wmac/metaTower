@@ -166,7 +166,7 @@ class HTTPOut():
                 f.seek(self.binary_start)
 
                 while (self.binary_start <= self.binary_end):
-                    chunk_size = 1024
+                    chunk_size = 4096
                     if ( (self.binary_start+chunk_size) > (self.binary_end) ): chunk_size = (self.binary_end-self.binary_start)+1
 
                     chunk = f.read(chunk_size)
