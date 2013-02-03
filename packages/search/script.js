@@ -108,6 +108,9 @@ searchpkg.EngineList = {
 
     set: function(list)
     {
+        // reset search filters.
+        searchpkg.toggledFilters = "";
+
         list_html = "";
         searchpkg.EngineList.count = list.length;
 

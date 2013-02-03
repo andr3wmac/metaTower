@@ -13,19 +13,8 @@ def onLoad():
     if mt.packages.search:
         mt.packages.search.addEngine("binsearch.info", query, save)
 
-def query(content, filters = ""):
+def _queryBin(query_parms, downloaded):
     global nzb_list
-    nzb_list = []
-
-    query_parms = {"q": content, "max": "50", "adv_sort": "date"}
-
-    # filters
-    # 0 : Over 100mb
-    if ( "0," in filters ): query_parms["minsize"] = "100"
-    # 1 : Over 500mb
-    if ( "1," in filters ): query_parms["minsize"] = "500"
-    # 2 : Over 1GB
-    if ( "2," in filters ): query_parms["minsize"] = "1000"    
 
     query_string = urllib.urlencode(query_parms)        
     url = "http://binsearch.info/?" + query_string
@@ -33,11 +22,6 @@ def query(content, filters = ""):
 
     result_list = []
     data = data.split("<td><input type=\"checkbox\" name=\"")
-
-    dlist = []
-    config_list = mt.config.get("search-binsearch/downloaded/nzb")
-    for item in config_list:
-        dlist.append(item["id"])
 
     if ( len(data) > 3 ):
         data = data[2:-1]
@@ -58,11 +42,47 @@ def query(content, filters = ""):
             if ( len(a) > 1 ):
                 result["size"] = a[1].split(", parts")[0].replace("&nbsp;", " ")
 
-            result["downloaded"] = str(result["id"]) in dlist
+            result["downloaded"] = str(result["id"]) in downloaded
             result_list.append(result)
             nzb_list.append(NZBResult(result["id"], result["name"]))
 
     return result_list
+
+def query(content, filters = ""):
+    global nzb_list
+    nzb_list = []
+
+    # get list of previously downloaded nzbs
+    dlist = []
+    config_list = mt.config.get("search-binsearch/downloaded/nzb")
+    for item in config_list:
+        dlist.append(item["id"])
+
+    # filters and query parms
+    query_parms = {
+            "q": content, 
+            "max": "50", 
+            "adv_sort": "date"
+        }
+
+    # 0 : Over 100mb
+    if ( "0," in filters ): query_parms["minsize"] = "100"
+    # 1 : Over 500mb
+    if ( "1," in filters ): query_parms["minsize"] = "500"
+    # 2 : Over 1GB
+    if ( "2," in filters ): query_parms["minsize"] = "1000"    
+
+    results = []
+
+    # query server 2 (often better results)
+    query_parms["server"] = "2"
+    results += _queryBin(query_parms, dlist)
+    
+    # query server 1
+    query_parms["server"] = ""
+    results += _queryBin(query_parms, dlist)
+
+    return results
 
 def save(query_id):
     global nzb_list
