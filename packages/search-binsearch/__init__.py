@@ -2,9 +2,10 @@ import mt, os, urllib
 
 nzb_list = []
 class NZBResult:
-    def __init__(self, query_id, name):
+    def __init__(self, query_id, name, server = ""):
         self.query_id = query_id
         self.name = name
+        self.server = server
 
 def onLoad():
     mt.config.load("packages/search-binsearch/search-binsearch.cfg")
@@ -41,10 +42,12 @@ def _queryBin(query_parms, downloaded):
             a = raw_nzb[1].split("size: ")
             if ( len(a) > 1 ):
                 result["size"] = a[1].split(", parts")[0].replace("&nbsp;", " ")
+            else:
+                continue
 
             result["downloaded"] = str(result["id"]) in downloaded
             result_list.append(result)
-            nzb_list.append(NZBResult(result["id"], result["name"]))
+            nzb_list.append(NZBResult(result["id"], result["name"], query_parms["server"]))
 
     return result_list
 
@@ -89,11 +92,14 @@ def save(query_id):
 
     # determine name of file.
     nzb_name = str(query_id) + ".nzb"
+    server = ""
     for n in nzb_list:
-        if ( int(n.query_id) == int(query_id) ): nzb_name = n.name + ".nzb"
+        if ( int(n.query_id) == int(query_id) ): 
+            nzb_name = n.name + ".nzb"
+            server = n.server   
 
     # fetch file.
-    url = "http://binsearch.info/fcgi/nzb.fcgi"
+    url = "http://binsearch.info/fcgi/nzb.fcgi?server=" + server
     post_data = str(query_id) + "=on&action=nzb"    
     data = mt.utils.openURL(url, post_data)
 
