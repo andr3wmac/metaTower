@@ -84,7 +84,7 @@ def getLocalIP():
     return ip
 
 def isLocalIP(IP):
-    if ( IP[:7] == "192.168" ) or ( IP[:5] == "127.0" ) or ( IP[:5] == "10.0." ):
+    if ( IP[:7] == "192.168" ) or ( IP[:5] == "127.0" ) or ( IP[:3] == "10." ):
         return True
     return False
 
