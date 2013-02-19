@@ -1,4 +1,4 @@
-import os, re, time, string, ffmpeg, mt
+import os, re, time, string, mt
 
 items = {}
 
@@ -17,6 +17,9 @@ def onLoad():
     mt.config.load("packages/mbrowser/viewed.cfg", True)
 
     scan()
+
+def onUnload():
+    ffmpeg = None
 
 def setupFileRequests():
     global items
@@ -50,9 +53,6 @@ def getFile(httpIn, httpOut):
     f = items[path]
     if ( f ):
         httpOut.file(path)
-
-def onUnload():
-    ffmpeg.stop()
 
 def home(httpOut):
     httpOut.htmlFile("packages/mbrowser/home.html", "container")
@@ -300,6 +300,12 @@ def convertToWeb(httpOut, id):
     if ( converting ):
         return
 
+    ffmpeg = None
+    if ( mt.packages.ffmpeg ):
+        ffmpeg = mt.packages.ffmpeg
+    else:
+        return
+
     item = findItemById(id)
     if ( item != None ):
         ffmpeg.convertToFlash(item["path"], convertStatus)
@@ -307,10 +313,13 @@ def convertToWeb(httpOut, id):
         converting = True
         convert_id = id
         convert_success = False
-        status(httpIn, httpOut)
+        status(httpOut)
 
 def stopConvert(httpOut):
     global converting
+    ffmpeg = None
+    if ( mt.packages.ffmpeg ):
+        ffmpeg = mt.packages.ffmpeg
     ffmpeg.stop()
     converting = False
     setStatus("Cancelled.", 100)

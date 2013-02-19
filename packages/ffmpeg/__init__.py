@@ -68,6 +68,31 @@ def convertToFlash(f_in, s_callback, f_out = ""):
                         eofCallback = onEOF, 
                         matchCallback = onMatch)
 
+def convertToMP3(f_in, s_callback, f_out = ""):
+    global statusCallback, converting, output_file, input_file, execute_thread
+    if ( converting ): return
+
+    # if no output file specified we assume its the same name.
+    if ( f_out == "" ):
+        basename, ext = os.path.splitext(f_in)
+        f_out = f_in.replace(ext, ".mp3")
+
+    # store these for later
+    input_file = f_in.replace("'", "\\'").replace('"', '\\"')
+    output_file = f_out
+    statusCallback = s_callback
+
+    # grab our config settings.
+    cmd = [mt.config["mbrowser/ffmpeg/" + os.name], "-i", input_file]
+    cmd += ["-acodec", "libmp3lame"]
+    cmd += [output_file]
+
+    # execute command. this will work on windows or unix.
+    execute_thread = mt.utils.execute_async(cmd, 
+                        ["Duration:\s*([0-9\:\.]+),", "size=.*time=([0-9\:\.]+)"], 
+                        eofCallback = onEOF, 
+                        matchCallback = onMatch)
+
 def stop():
     global execute_thread
     if ( execute_thread ):

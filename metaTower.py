@@ -11,7 +11,7 @@
 import mt, sys, os, time
 
 VERSION = "0.5"
-LOG_LEVEL = 20
+LOG_LEVEL = 10
 PROFILING = False
 
 if mt.start(VERSION, LOG_LEVEL, PROFILING):

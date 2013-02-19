@@ -73,7 +73,8 @@ class ExecuteThread(threading.Thread):
         char = stdout.read(1)
         while ( char and self.running ):
             if ( char == '\r' or char == '\n' ):
-                if ( self.lineCallback ): self.lineCallback(line)
+                if ( self.lineCallback ): 
+                    self.lineCallback(line)
 
                 # if set, check for regex matche
                 if ( self.matchCallback ):

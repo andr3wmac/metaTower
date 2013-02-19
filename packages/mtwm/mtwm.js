@@ -50,6 +50,7 @@ var mtwm = {
             func = items[item_name];
             html += "<li><a href='#!' onClick=\"" + func + "\">" + item_name + "</a></li>";
         }
+        html += "<li style=\"float:right;\"><audio style=\"display: none; width: 300px; height: 33px;\" controls id=\"audio\" preload=\"auto\"></audio></li>";
         mt.html("mtwm_quickbar", html, false); 
     },
 

@@ -1,0 +1,25 @@
+<div id="musicplayer" class="window">
+    <div class="header" id="musicplayer_header">
+        Music Player
+    </div>
+    <div class="window_mask leftmenu">
+        <div class="window_body">
+            <div class="window_main">
+                <ul id="musicplayer_main"></ul>
+            </div>            
+            <div id="musicplayer_menu" class="window_menu">
+                <li class="cat">Playlists</li>
+                <li><a href="#!" onclick="musicplayer.allVideo()">Main</a></li>
+                <li class="cat">Library</li>
+                <li><a href="#!" onclick="musicplayer.allAudio()">All</a></li>
+                <li id="musicplayer_refresh"><a href="#!" onclick="musicplayer.refresh()">Refresh Library</a></li>
+
+                <div id="musicplayer_statusbar" style="display: none;">
+                    <div id="musicplayer_status"><a href='#' onclick="mt('musicplayer.stopConvert()');">Click to Stop</a></div>
+                    <div id="musicplayer_progress"></div>
+                </div>
+            </div>            
+        </div>    
+    </div>
+    <div class="hidden_footer"></div>
+</div>

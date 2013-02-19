@@ -1,0 +1,28 @@
+<div id="mp3extract" class="window">
+    <div class="header" id="mp3extract_header">
+        MP3 Extractor
+    </div>
+    <div class="window_mask leftmenu">
+        <div class="window_body">
+            <div class="window_main">
+                <ul id="mp3extract_content"></ul>
+            </div>
+
+            <div id="mp3extract_menu" class="window_menu">
+                <li class="cat">From Youtube</li>
+                <li>
+			        <input id="youtube_url" type="text" value="" />
+                    <button onclick="mp3extract.addYoutube();">Add URL</button>
+                </li>
+
+                <li class="refresh"><a href="#!" onclick="mp3extract.removeCompleted();">Clear Completed</a></li>
+
+                <div id="mp3extract_statusbar" style="display: none;">
+                    <div id="mp3extract_status"><a href='#!' onclick="mt('mp3extract.stopConvert()');">Click to Stop</a></div>
+                    <div id="mp3extract_progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hidden_footer"></div>
+</div>

@@ -1,0 +1,33 @@
+.mp3extract_icon {
+    float: left;
+    margin-left: -55px;
+}
+
+.mp3extract_item { 
+    border: 0px;
+    padding: 5px 0px 10px 55px;
+    line-height: 1.2em;
+}
+
+.mp3extract_item_menu {
+    background: #222;
+    padding: 2px;
+    margin: 10px;
+}
+
+.mp3extract_item_menu li {
+    list-style-type: none;
+    padding: 3px;
+    margin: 0px;
+}
+
+#mp3extract_fileinp { 
+    width: 150px; 
+}
+
+#mp3extract_header {
+    background-image: url('mp3extract/images/icon.png');
+    background-repeat: no-repeat; 
+    background-position: 10px 0px;    
+    padding-left: 56px;
+}

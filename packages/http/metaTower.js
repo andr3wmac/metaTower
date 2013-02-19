@@ -142,6 +142,12 @@ mt.css = function(data)
 
 mt.progress = function(id, progress)
 {
+    if ( progress < 0 )
+    {
+        var prog_bar = document.getElementById(id);
+        prog_bar.style.display = "none";
+    }
+
 	var prog = document.getElementById(id + "_progress");
 	if ( !prog )
 	{
