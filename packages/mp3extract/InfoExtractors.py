@@ -16,7 +16,7 @@ import xml.etree.ElementTree
 import random
 import math
 
-from youtube_dl.utils import *
+from utils import *
 
 class InfoExtractor(object):
     """Information Extractor class.

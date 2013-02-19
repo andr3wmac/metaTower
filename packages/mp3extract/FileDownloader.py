@@ -16,7 +16,7 @@ import traceback
 if os.name == 'nt':
     import ctypes
 
-from youtube_dl.utils import *
+from utils import *
 
 class FileDownloader(object):
     """File Downloader class.
