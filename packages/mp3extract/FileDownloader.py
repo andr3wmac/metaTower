@@ -16,7 +16,7 @@ import traceback
 if os.name == 'nt':
     import ctypes
 
-from utils import *
+from mp3extract.utils import *
 
 class FileDownloader(object):
     """File Downloader class.

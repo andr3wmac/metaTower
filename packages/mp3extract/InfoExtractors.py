@@ -16,7 +16,7 @@ import xml.etree.ElementTree
 import random
 import math
 
-from utils import *
+from mp3extract.utils import *
 
 class InfoExtractor(object):
     """Information Extractor class.
