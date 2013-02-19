@@ -1,0 +1,64 @@
+#musicplayer_refresh { 
+    font-weight: bold; 
+}
+
+#musicplayer_header {
+    background-image: url('musicplayer/images/icon.png');
+    background-repeat: no-repeat; 
+    background-position: 10px 0px;    
+    padding-left: 56px;
+}
+
+#musicplayer_statusbar {
+    margin-right: 20px;
+}
+
+#musicplayer_status { 
+    padding: 50px; 
+    text-align: left; 
+}
+
+.musicplayer_audio { 
+    background-image: url('musicplayer/images/mtfile.png'); 
+    background-repeat:no-repeat; 
+    background-position: 5px 3px;  
+    padding-left: 25px; 
+}
+
+.musicplayer_video {
+    padding: 5px;
+}
+
+.musicplayer_show,
+.musicplayer_season { 
+    background-image: url('musicplayer/images/mtfolder.png'); 
+    background-repeat:no-repeat; 
+    background-position: 5px 3px;  
+    padding: 4px 0px 5px 25px; 
+}
+
+.musicplayer_icon {
+    float: left;
+}
+
+.musicplayer_name {
+    padding-left: 10px;
+}
+
+.musicplayer_info {
+    background: #222;
+    padding: 2px;
+    margin: 10px;
+}
+
+.musicplayer_info li {
+    list-style-type: none;
+    padding: 3px;
+    margin: 0px;
+}
+
+.musicplayer_rename {
+    border: 1px solid #DBDADA;
+    width: 350px;
+    margin-right: 10px;
+}
