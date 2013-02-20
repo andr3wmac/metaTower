@@ -169,8 +169,8 @@ def processFile(f):
     return idata
             
 def refresh():
-    global items
-    items = {}
+    #global items
+    #items = {}
     scan()
 
 def refreshLibrary(httpOut):
