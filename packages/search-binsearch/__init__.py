@@ -42,6 +42,9 @@ def _queryBin(query_parms, downloaded):
             a = raw_nzb[1].split("size: ")
             if ( len(a) > 1 ):
                 result["size"] = a[1].split(", parts")[0].replace("&nbsp;", " ")
+                result_parts = result["size"].split(" ")
+                if ( result_parts[1] == "KB" ):
+                    result["size"] = str( round( float(result_parts[0])/1000, 2 ) ) + " MB"
             else:
                 continue
 
