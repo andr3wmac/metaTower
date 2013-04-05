@@ -35,14 +35,15 @@ def query(content, filters = ""):
     query_string = urllib.urlencode({"": content})[1:]  
     data = mt.utils.openURL('http://thepiratebay.se/search/' + query_string + '/0/7/0')    
     data = data.split("<div class=\"detName\">")
-    if ( len(data) > 3 ):
-        data = data[2:-1]
+    if ( len(data) > 1 ):
+        data = data[1:]
+
         for raw_data in data:
             # process data
             torrent_data = raw_data.split("\">")
             name = torrent_data[1].split("</a>")[0]           
             magnet = torrent_data[1].split("<a href=\"")[1].split("\" title=\"")[0]     
-            torrent_id = mt.utils.md5(magnet)        
+            torrent_id = mt.utils.md5(magnet)
 
             # attempt to get size
             size = "0 MiB"

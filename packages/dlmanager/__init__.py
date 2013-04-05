@@ -90,7 +90,13 @@ def onUpload(resp, httpIn):
 def remove(resp, uid):
     global QueueControl
 
-    QueueControl.remove(uid)
+    QueueControl.remove(uid, False)
+    update(resp)
+
+def removeAndDelete(resp, uid):
+    global QueueControl
+
+    QueueControl.remove(uid, True)
     update(resp)
 
 def remove_completed(resp):
@@ -159,6 +165,14 @@ def update(resp):
             # Torrent Removed.
             if ( torrent.removed ):
                 resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', -1);")
+
+            #Error Occured.
+            elif ( torrent.error ):
+                resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 2);")
+
+            # Torrent is completed.
+            elif ( torrent.completed ):
+                resp.js("dlmanager.torrent('" + torrent.uid + "', '" + os.path.basename(torrent.filename) + "', 3);")
 
             # Torrent is inactive.
             elif ( torrent.lt_entry == None ):

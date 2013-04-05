@@ -1,4 +1,4 @@
-import os, re, time, string, ffmpeg, mt
+import os, re, time, string, mt
 
 items = {}
 
@@ -48,9 +48,6 @@ def getFile(httpIn, httpOut):
     f = items[path]
     if ( f ):
         httpOut.file(path)
-
-def onUnload():
-    ffmpeg.stop()
 
 def home(httpOut):
     httpOut.htmlFile("packages/musicplayer/home.html", "container")

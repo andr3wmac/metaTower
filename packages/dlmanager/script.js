@@ -129,10 +129,17 @@ var dlmanager = {
 			    mt.progress("prog_" + id, args["progress"]);	
 		        break;
 
-            // Completed.
+            // Error.
 		    case 2:
 			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
-                mt.html(id + "_message", "Completed. Seeding.", false);
+                mt.html(id + "_message", "Error.", false);
+			    mt.progress("prog_" + id, 0);	
+                break;
+
+            // Completed.
+		    case 3:
+			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
+                mt.html(id + "_message", "Completed.", false);
 			    mt.progress("prog_" + id, 100);	
                 break;
     
@@ -151,6 +158,7 @@ var dlmanager = {
         {
             var html = "<div id='menu_" + id + "' class='dlmanager_item_menu'><ul>";
             html += "<li><a href='#' onclick='dlmanager.remove(\"" + id + "\");'>Remove</a></li>";
+            html += "<li><a href='#' onclick='dlmanager.removeAndDelete(\"" + id + "\");'>Remove & Delete</a></li>";
             html += "<li><a href='#'>Move to bottom</a></li>";
             html += "</ul>";
             mt.html(id, html, true);
@@ -167,6 +175,11 @@ var dlmanager = {
 	remove: function(id)
 	{
 		mt("dlmanager.remove('" + id + "')");
+	},
+
+	removeAndDelete: function(id)
+	{
+		mt("dlmanager.removeAndDelete('" + id + "')");
 	},
 
     removeCompleted: function()

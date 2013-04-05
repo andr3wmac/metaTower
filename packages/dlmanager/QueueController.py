@@ -91,7 +91,7 @@ class QueueController(threads.Thread):
             self.torrent_engine = lt.session()
             self.torrent_engine.listen_on(6881, 6891)
 
-    def remove(self, uid):
+    def remove(self, uid, delete):
         for nzb in self.nzb_queue:
             if ( nzb.uid == uid ):
                 if ( nzb.downloading ):
@@ -108,13 +108,15 @@ class QueueController(threads.Thread):
                     self.torrent_engine.remove_torrent(torrent.lt_entry)
                     torrent.lt_entry = None
                 os.remove(torrent.filename)
+                if ( delete ):
+                    mt.utils.rmdir(torrent.save_to)
                 torrent.removed = True
 
     def removeCompleted(self):
         for nzb in self.nzb_queue:
-            if ( not nzb.downloading ) and (( nzb.completed ) or ( nzb.error )):
+            if ( not nzb.downloading ) and ( nzb.completed or nzb.error ):
                 os.remove(nzb.filename)
-                mt.utils.rmdir(nzb.save_to)
+                mt.utils.rmdir(nzb.save_to, False)
                 nzb.removed = True
     
     def torrentFiles(self):
@@ -155,7 +157,7 @@ class QueueController(threads.Thread):
         if ( not self.torrent_enabled ): return
 
         for torrent in self.torrent_queue:
-            if ( torrent.removed ): continue
+            if ( torrent.removed or torrent.completed ): continue
             try:
                 info = None
                 
@@ -163,20 +165,16 @@ class QueueController(threads.Thread):
                 if ( torrent.lt_entry == None ):    
                     if torrent.filename.lower().endswith(".magnet"):
                         torrent.lt_entry = self.startMagnet(torrent)
-                        torrent.downloading_magnet = True
                     else:
                         info = lt.torrent_info(torrent.filename)
+                        torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
 
-                # magnets 
-                if ( torrent.lt_entry and torrent.downloading_magnet ):
-                    if torrent.lt_entry.has_metadata():         
-                        info = torrent.lt_entry.get_torrent_info()
+                else:
+                    status = torrent.lt_entry.status()
+                    if ( int(status.state) == 5 ):
                         self.torrent_engine.remove_torrent(torrent.lt_entry)
-                        torrent.downloading_magnet = False
-                        
-                # if info set, start the torrent
-                if ( info ):
-                    torrent.lt_entry = self.torrent_engine.add_torrent({'ti': info, 'save_path': torrent.save_to})
+                        torrent.lt_entry = None
+                        torrent.completed = True
 
             except:
                 mt.log.error("Could not add torrent: " + torrent.filename)
