@@ -59,7 +59,7 @@ var dlmanager = {
 		    // Error
 		    case 3:
 			    mt.html(id, "<b>" + filename + "</b><br>Failed<div id=\"prog_" + id + "\"></div>", false);
-			    mt.progress("prog_" + id, 0);
+			    mt.progress("prog_" + id, -1);
 		        break;
 
 		    // Completed
@@ -133,14 +133,14 @@ var dlmanager = {
 		    case 2:
 			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
                 mt.html(id + "_message", "Error.", false);
-			    mt.progress("prog_" + id, 0);	
+			    mt.progress("prog_" + id, -1);	
                 break;
 
             // Completed.
 		    case 3:
 			    mt.html(id + "_file", "<b>" + filename + "</b>", false);
                 mt.html(id + "_message", "Completed.", false);
-			    mt.progress("prog_" + id, 100);	
+			    mt.progress("prog_" + id, -1);	
                 break;
     
             // Other Status, display.
